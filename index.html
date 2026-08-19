@@ -824,7 +824,7 @@
                 <input name="adjuntos" id="supportFiles" type="file" multiple accept=".pdf,image/*,.doc,.docx,.xlsx" />
               </label>
               <div class="detail-block full hidden" id="supportFilesPreview"><span>ARCHIVOS SELECCIONADOS</span><b></b></div>
-              <button class="btn full" type="submit">Guardar respuesta y avisar al comisionista</button>
+              <button class="btn full" id="saveResponseBtn" type="submit">Guardar respuesta y avisar al comisionista</button>
             </form>
           </section>
         </div>
@@ -878,7 +878,8 @@
       solicitudes: [],
       user: JSON.parse(localStorage.getItem("molubUser") || "null"),
       requestStep: 1,
-      requestSubmitting: false
+      requestSubmitting: false,
+      responseSubmitting: false
     };
 
     const $ = (id) => document.getElementById(id);
@@ -1327,6 +1328,15 @@
       $("nextStep").textContent = isSubmitting ? "Enviando reporte..." : (state.requestStep === 3 ? "Enviar reporte" : "Siguiente paso");
     }
 
+    function setResponseSubmitting(isSubmitting) {
+      state.responseSubmitting = isSubmitting;
+      $("responseForm").setAttribute("aria-busy", isSubmitting ? "true" : "false");
+      $("saveResponseBtn").disabled = isSubmitting;
+      $("responseForm").respuesta.disabled = isSubmitting;
+      $("responseForm").adjuntos.disabled = isSubmitting;
+      $("saveResponseBtn").textContent = isSubmitting ? "Guardando respuesta..." : "Guardar respuesta y avisar al comisionista";
+    }
+
     function nextRequestStep() {
       if (state.requestStep === 1 && (!$("requestForm").elements.nombreEquipo.value || !$("requestForm").elements.area.value)) {
         toast("Completa nombre del equipo y área para continuar.");
@@ -1727,21 +1737,34 @@
 
     $("responseForm").addEventListener("submit", async (ev) => {
       ev.preventDefault();
+      if (state.responseSubmitting) return;
+      setResponseSubmitting(true);
+      toast("Guardando respuesta y adjuntos...");
       const payload = {
         action: "saveRecommendation",
         folio: ev.currentTarget.folio.value,
         respuesta: ev.currentTarget.respuesta.value,
         soporteCorreo: state.user.correo,
-        adjuntosBase64: await filesToBase64(ev.currentTarget.adjuntos.files)
+        adjuntosBase64: []
       };
-      const res = await apiPost(payload);
-      if (!res.ok) return toast(res.message || "No se pudo responder");
-      toast("Respuesta guardada y enviada");
-      ev.currentTarget.adjuntos.value = "";
-      $("supportFilesPreview").classList.add("hidden");
-      $("supportFilesPreview").querySelector("b").textContent = "";
-      await refreshRequests();
-      openResponse(payload.folio);
+      try {
+        payload.adjuntosBase64 = await filesToBase64(ev.currentTarget.adjuntos.files);
+        const res = await apiPost(payload);
+        if (!res.ok) {
+          toast(res.message || "No se pudo responder");
+          return;
+        }
+        toast("Respuesta guardada y enviada");
+        ev.currentTarget.adjuntos.value = "";
+        $("supportFilesPreview").classList.add("hidden");
+        $("supportFilesPreview").querySelector("b").textContent = "";
+        await refreshRequests();
+        openResponse(payload.folio);
+      } catch (error) {
+        toast("No se pudo guardar la respuesta. Intenta de nuevo.");
+      } finally {
+        setResponseSubmitting(false);
+      }
     });
 
     document.querySelectorAll("[data-refresh]").forEach(b => b.addEventListener("click", refreshRequests));
