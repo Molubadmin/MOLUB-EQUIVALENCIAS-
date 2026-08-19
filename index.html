@@ -877,7 +877,8 @@
       usuarios: [],
       solicitudes: [],
       user: JSON.parse(localStorage.getItem("molubUser") || "null"),
-      requestStep: 1
+      requestStep: 1,
+      requestSubmitting: false
     };
 
     const $ = (id) => document.getElementById(id);
@@ -1267,10 +1268,9 @@
         $("resultBox").innerHTML = `
           <h3>No hay equivalencia SYNLOX</h3>
           <div class="kv">
-            <span>Producto buscado</span><b>${esc(r.COMPETENCIA || $("searchInput").value)}</b>
+          <span>Producto buscado</span><b>${esc(r.COMPETENCIA || $("searchInput").value)}</b>
           <span>Marca</span><b>${esc(r.MARCA || "Sin marca")}</b>
           <span>Tipo</span><b>${esc(r.TIPO_LUBRICANTE || "")}</b>
-          ${fichaUrl ? `<span>Ficha técnica</span><b><a href="${esc(fichaUrl)}" target="_blank" rel="noopener">Ver ficha técnica</a></b>` : ""}
         </div>
           <p class="sub" style="margin-top:14px;">Este producto está registrado, pero no tiene producto SYNLOX asignado. Genera un folio para que soporte emita recomendación.</p>
           <div style="margin-top:16px;display:flex;gap:10px;flex-wrap:wrap;">
@@ -1288,7 +1288,6 @@
           <span>Marca</span><b>${esc(r.MARCA)}</b>
           <span>Tipo</span><b>${esc(r.TIPO_LUBRICANTE)}</b>
           <span>Condición especial</span><b>${esc(r.CONDICION_ESPECIAL || "Sin condición especial")}</b>
-          ${fichaUrl ? `<span>Ficha técnica</span><b><a href="${esc(fichaUrl)}" target="_blank" rel="noopener">Abrir ficha técnica</a></b>` : ""}
         </div>
         <div style="margin-top:16px;display:flex;gap:10px;flex-wrap:wrap;">
           ${fichaUrl ? `<a class="btn" href="${esc(fichaUrl)}" target="_blank" rel="noopener">Ver ficha técnica</a>` : ""}
@@ -1315,9 +1314,17 @@
       document.querySelectorAll(".wizard-step").forEach(item => item.classList.toggle("active", Number(item.dataset.step) === state.requestStep));
       document.querySelectorAll("[data-step-label]").forEach(item => item.classList.toggle("active", Number(item.dataset.stepLabel) === state.requestStep));
       $("prevStep").classList.toggle("hidden", state.requestStep === 1);
-      $("nextStep").textContent = state.requestStep === 3 ? "Enviar reporte" : "Siguiente paso";
+      $("nextStep").textContent = state.requestSubmitting ? "Enviando reporte..." : (state.requestStep === 3 ? "Enviar reporte" : "Siguiente paso");
       $("nextStep").type = state.requestStep === 3 ? "submit" : "button";
       $("wizardActions").classList.toggle("first", state.requestStep === 1);
+    }
+
+    function setRequestSubmitting(isSubmitting) {
+      state.requestSubmitting = isSubmitting;
+      $("requestForm").setAttribute("aria-busy", isSubmitting ? "true" : "false");
+      $("nextStep").disabled = isSubmitting;
+      $("prevStep").disabled = isSubmitting;
+      $("nextStep").textContent = isSubmitting ? "Enviando reporte..." : (state.requestStep === 3 ? "Enviar reporte" : "Siguiente paso");
     }
 
     function nextRequestStep() {
@@ -1347,33 +1354,45 @@
 
     $("requestForm").addEventListener("submit", async (ev) => {
       ev.preventDefault();
-      const form = new FormData(ev.currentTarget);
-      const payload = Object.fromEntries(form.entries());
-      const comentariosFinales = payload.comentarios || "";
-      payload.viscosidad = [
-        payload.cst40 ? `cSt 40C: ${payload.cst40}` : "",
-        payload.nlgi ? `NLGI: ${payload.nlgi}` : ""
-      ].filter(Boolean).join(" | ");
-      payload.detalleJson = JSON.stringify(buildDetailFromPayload({ ...payload, comentarios: comentariosFinales }, ev.currentTarget));
-      payload.comentarios = [
-        payload.tipoCodigoElemento ? `Tipo y código del elemento: ${payload.tipoCodigoElemento}` : "",
-        payload.descripcionEquipo ? `Descripción del equipo: ${payload.descripcionEquipo}` : "",
-        payload.estadoLubricante ? `Estado del lubricante: ${payload.estadoLubricante}` : "",
-        comentariosFinales
-      ].filter(Boolean).join("\n\n");
-      payload.action = "createRequest";
-      payload.correo = state.user.correo;
-      payload.nombreUsuario = state.user.nombre;
-      payload.fotosBase64 = await filesToBase64(ev.currentTarget.fotos.files);
-      const res = await apiPost(payload);
-      if (!res.ok) return toast(res.message || "No se pudo guardar");
-      toast("Solicitud creada: " + res.folio);
-      ev.currentTarget.reset();
-      document.querySelectorAll(".choice.active").forEach(item => item.classList.remove("active"));
-      $("tempValue").textContent = "60";
-      setRequestStep(1);
-      $("formPanel").classList.add("hidden");
-      refreshRequests();
+      if (state.requestSubmitting) return;
+      setRequestSubmitting(true);
+      toast("Enviando reporte, espera un momento...");
+      try {
+        const form = new FormData(ev.currentTarget);
+        const payload = Object.fromEntries(form.entries());
+        const comentariosFinales = payload.comentarios || "";
+        payload.viscosidad = [
+          payload.cst40 ? `cSt 40C: ${payload.cst40}` : "",
+          payload.nlgi ? `NLGI: ${payload.nlgi}` : ""
+        ].filter(Boolean).join(" | ");
+        payload.detalleJson = JSON.stringify(buildDetailFromPayload({ ...payload, comentarios: comentariosFinales }, ev.currentTarget));
+        payload.comentarios = [
+          payload.tipoCodigoElemento ? `Tipo y código del elemento: ${payload.tipoCodigoElemento}` : "",
+          payload.descripcionEquipo ? `Descripción del equipo: ${payload.descripcionEquipo}` : "",
+          payload.estadoLubricante ? `Estado del lubricante: ${payload.estadoLubricante}` : "",
+          comentariosFinales
+        ].filter(Boolean).join("\n\n");
+        payload.action = "createRequest";
+        payload.correo = state.user.correo;
+        payload.nombreUsuario = state.user.nombre;
+        payload.fotosBase64 = await filesToBase64(ev.currentTarget.fotos.files);
+        const res = await apiPost(payload);
+        if (!res.ok) {
+          toast(res.message || "No se pudo guardar");
+          return;
+        }
+        toast("Reporte enviado. Folio: " + res.folio);
+        ev.currentTarget.reset();
+        document.querySelectorAll(".choice.active").forEach(item => item.classList.remove("active"));
+        $("tempValue").textContent = "60";
+        setRequestStep(1);
+        $("formPanel").classList.add("hidden");
+        refreshRequests();
+      } catch (error) {
+        toast("No se pudo enviar el reporte. Intenta de nuevo.");
+      } finally {
+        setRequestSubmitting(false);
+      }
     });
 
     async function refreshRequests() {
