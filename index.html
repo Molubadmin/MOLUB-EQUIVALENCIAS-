@@ -450,12 +450,12 @@
 <body>
   <div id="login" class="login-wrap">
     <video class="login-video" autoplay muted loop playsinline preload="metadata">
-      <source src="portada-video.mp4?v=2" type="video/mp4" />
+      <source src="portada-video.mp4?v=20260819-2" type="video/mp4" />
     </video>
     <form class="login-card" id="loginForm">
       <div class="splash-logo" aria-hidden="true">
         <img
-          src="logo-blanco-engranaje.png"
+          src="logo-blanco-engranaje.png?v=20260819-2"
           alt=""
           onerror="this.style.display='none';this.nextElementSibling.style.display='block';"
         />
@@ -868,9 +868,10 @@
   <div class="toast" id="toast"></div>
 
   <script>
-    const API_URL = "PEGA_AQUI_TU_URL_DE_APPS_SCRIPT_WEB_APP";
+    const API_URL = "https://script.google.com/macros/s/AKfycbz3GIo4chmCdt6tkDC2TU7CqZwDWPQY4xcCpPZH3gSg-cl1ZHV4H-J2l5jrIQbloMoO/exec";
     const DEMO_MODE = API_URL.includes("PEGA_AQUI");
-    const DEMO_SCHEMA_VERSION = "2026-08-18-full-form-v4";
+    const DEMO_SCHEMA_VERSION = "2026-08-19-full-form-v5";
+    const STATIC_VERSION = "20260819-2";
     const state = {
       equivalencias: [],
       usuarios: [],
@@ -971,8 +972,8 @@
     async function demoGet(params) {
       if (params.action === "init") {
         const [eqText, usersText] = await Promise.all([
-          fetch("EQUIVALENCIAS.csv").then(r => r.text()),
-          fetch("USUARIOS.csv").then(r => r.text())
+          fetch(`EQUIVALENCIAS.csv?v=${STATIC_VERSION}`).then(r => r.text()),
+          fetch(`USUARIOS.csv?v=${STATIC_VERSION}`).then(r => r.text())
         ]);
         const baseEquivalences = parseCsv(eqText).map(row => ({ ...row, ...(demoEquivalenceOverrides()[row._ROW_NUMBER] || {}) }));
         return {
