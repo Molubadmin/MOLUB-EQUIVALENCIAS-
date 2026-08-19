@@ -449,8 +449,8 @@
 </head>
 <body>
   <div id="login" class="login-wrap">
-    <video class="login-video" autoplay muted loop playsinline preload="metadata">
-      <source src="portada-video.mp4?v=20260819-2" type="video/mp4" />
+    <video class="login-video" id="loginVideo" autoplay muted loop playsinline preload="none">
+      <source data-src="portada-video.mp4?v=20260819-2" type="video/mp4" />
     </video>
     <form class="login-card" id="loginForm">
       <div class="splash-logo" aria-hidden="true">
@@ -471,7 +471,7 @@
         <label id="codeBox" class="hidden">C&oacute;digo de acceso
           <input id="loginCode" type="password" autocomplete="current-password" />
         </label>
-        <button class="btn">Iniciar registro</button>
+        <button class="btn" id="loginSubmit" disabled>Cargando datos...</button>
       </div>
     </form>
   </div>
@@ -879,8 +879,10 @@
       user: JSON.parse(localStorage.getItem("molubUser") || "null"),
       requestStep: 1,
       requestSubmitting: false,
-      responseSubmitting: false
+      responseSubmitting: false,
+      initReady: false
     };
+    let bootPromise;
 
     const $ = (id) => document.getElementById(id);
     const isSupport = (role) => ["SOPORTE", "ADMIN"].includes(String(role || "").toUpperCase());
@@ -1126,18 +1128,32 @@
       if (DEMO_MODE) {
         $("syncText").textContent = "Modo prueba local - no guarda en Sheet";
       }
+      startLoginVideo();
       const init = await apiGet({ action: "init" });
       if (!init.ok) throw new Error(init.message || "No se pudo iniciar");
       state.equivalencias = init.equivalencias || [];
       state.usuarios = init.usuarios || [];
+      state.initReady = true;
       $("eqCount").textContent = state.equivalencias.length;
       $("codeBox").classList.toggle("hidden", !init.requiresCode);
+      $("loginSubmit").disabled = false;
+      $("loginSubmit").textContent = "Iniciar registro";
       if (state.user) showApp();
-      const folio = new URLSearchParams(location.search).get("folio");
-      if (folio && state.user && isSupport(state.user.rol)) {
-        setView("soporte");
-        setTimeout(() => openResponse(folio), 300);
-      }
+    }
+
+    function startLoginVideo() {
+      const video = $("loginVideo");
+      if (!video || video.dataset.loaded === "1") return;
+      const loadVideo = () => {
+        [...video.querySelectorAll("source")].forEach(source => {
+          if (source.dataset.src) source.src = source.dataset.src;
+        });
+        video.dataset.loaded = "1";
+        video.load();
+        video.play().catch(() => {});
+      };
+      if ("requestIdleCallback" in window) requestIdleCallback(loadVideo, { timeout: 1200 });
+      else setTimeout(loadVideo, 600);
     }
 
     function showApp() {
@@ -1148,16 +1164,27 @@
       $("supportNav").classList.toggle("hidden", !isSupport(state.user.rol));
       $("eqNav").classList.toggle("hidden", !isSupport(state.user.rol));
       $("myNav").classList.toggle("hidden", isSupport(state.user.rol));
-      if (isSupport(state.user.rol)) setView("soporte");
-      else {
+      const folio = new URLSearchParams(location.search).get("folio");
+      if (isSupport(state.user.rol)) {
+        setView("soporte", true);
+        refreshRequests().then(() => {
+          if (folio) openResponse(folio);
+        });
+      } else {
         refreshRequests().then(() => {
           if (state.solicitudes.length) setView("mis");
+          if (folio) openCommissionerDetail(folio);
         });
       }
     }
 
     $("loginForm").addEventListener("submit", async (ev) => {
       ev.preventDefault();
+      if (!state.initReady) {
+        toast("Cargando datos, espera un momento...");
+        if (bootPromise) await bootPromise;
+        if (!state.initReady) return toast("No se pudieron cargar los datos. Actualiza la página.");
+      }
       const correo = norm($("loginEmail").value);
       const localUser = state.usuarios.find(u => norm(u.correo || u.CORREO) === correo);
       if (!localUser) return toast("Correo no autorizado.");
@@ -1180,7 +1207,7 @@
       btn.addEventListener("click", () => setView(btn.dataset.view));
     });
 
-    function setView(name) {
+    function setView(name, skipRefresh = false) {
       document.querySelectorAll(".nav button").forEach(b => b.classList.toggle("active", b.dataset.view === name));
       document.querySelectorAll(".view").forEach(v => v.classList.toggle("active", v.id === "view-" + name));
       const titles = {
@@ -1191,7 +1218,7 @@
       };
       $("pageTitle").textContent = titles[name][0];
       $("pageSub").textContent = titles[name][1];
-      if (name !== "buscar") refreshRequests();
+      if (name !== "buscar" && !skipRefresh) refreshRequests();
       if (name === "equivalentes") renderEquivalences();
     }
 
@@ -1821,7 +1848,11 @@
       return String(v || "").replace(/[&<>"']/g, m => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[m]));
     }
 
-    boot().catch(err => toast(err.message));
+    bootPromise = boot().catch(err => {
+      $("loginSubmit").disabled = false;
+      $("loginSubmit").textContent = "Reintentar carga";
+      toast(err.message);
+    });
   </script>
 </body>
 </html>
