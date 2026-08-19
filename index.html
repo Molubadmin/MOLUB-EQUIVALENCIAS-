@@ -1156,17 +1156,14 @@
 
     $("loginForm").addEventListener("submit", async (ev) => {
       ev.preventDefault();
-      const res = await apiPost({
-        action: "login",
-        correo: $("loginEmail").value,
-        codigo: $("loginCode").value
-      });
-      if (!res.ok) return toast(res.message || "No autorizado");
+      const correo = norm($("loginEmail").value);
+      const localUser = state.usuarios.find(u => norm(u.correo || u.CORREO) === correo);
+      if (!localUser) return toast("Correo no autorizado.");
       state.user = {
-        nombre: res.user.NOMBRE,
-        correo: res.user.CORREO,
-        rol: res.user.ROL,
-        tipo: res.user.TIPO
+        nombre: localUser.nombre || localUser.NOMBRE,
+        correo: localUser.correo || localUser.CORREO,
+        rol: localUser.rol || localUser.ROL,
+        tipo: localUser.tipo || localUser.TIPO
       };
       localStorage.setItem("molubUser", JSON.stringify(state.user));
       showApp();
