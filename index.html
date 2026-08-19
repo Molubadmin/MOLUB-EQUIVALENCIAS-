@@ -1,0 +1,1787 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Molub | Equivalencias SYNLOX</title>
+  <style>
+    :root {
+      --blue: #0000fa;
+      --ink: #0d0d16;
+      --nav: #090910;
+      --muted: #9097b8;
+      --line: #e7e8ef;
+      --bg: #f3f3f6;
+      --ok: #16c784;
+      --warn: #f4a62a;
+      --danger: #e5484d;
+      --violet: #7c3ff2;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: var(--bg);
+      color: var(--ink);
+    }
+    button, input, textarea, select { font: inherit; }
+    button { cursor: pointer; }
+    .app { min-height: 100vh; display: grid; grid-template-columns: 280px 1fr; }
+    .sidebar {
+      background: var(--nav);
+      color: white;
+      padding: 28px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 28px;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+    }
+    .brand { display: flex; gap: 14px; align-items: center; }
+    .brand-mark {
+      width: 46px; height: 46px; border-radius: 10px;
+      display: grid; place-items: center; background: var(--blue);
+      font-weight: 900;
+    }
+    .brand b { display: block; font-size: 19px; }
+    .brand span { color: var(--muted); font-size: 12px; letter-spacing: .05em; }
+    .nav-label { color: var(--muted); font-size: 11px; font-weight: 800; letter-spacing: .11em; margin: 10px 10px 0; }
+    .nav { display: grid; gap: 8px; }
+    .nav button {
+      width: 100%;
+      border: 0;
+      background: transparent;
+      color: #a7acc6;
+      padding: 13px 14px;
+      border-radius: 8px;
+      text-align: left;
+      font-weight: 700;
+    }
+    .nav button.active { color: white; background: rgba(0,0,250,.2); outline: 1px solid rgba(0,0,250,.34); }
+    .session {
+      margin-top: auto;
+      border-top: 1px solid rgba(255,255,255,.08);
+      padding-top: 18px;
+      color: #d9dcf0;
+      font-size: 13px;
+    }
+    .main { min-width: 0; }
+    .topbar {
+      height: 76px;
+      background: white;
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 32px;
+    }
+    .topbar h1 { margin: 0; font-size: 20px; }
+    .topbar p { margin: 3px 0 0; color: var(--muted); font-size: 13px; }
+    .sync { color: var(--muted); font-size: 13px; display: flex; gap: 8px; align-items: center; }
+    .dot { width: 10px; height: 10px; border-radius: 99px; background: var(--ok); box-shadow: 0 0 0 4px rgba(22,199,132,.13); }
+    .content { padding: 34px 32px 48px; display: grid; gap: 22px; }
+    .stats { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 20px; }
+    .stat, .panel, .result, .login-card {
+      background: white;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 1px 0 rgba(13,13,22,.02);
+    }
+    .stat { padding: 22px; min-height: 118px; }
+    .stat.primary { background: var(--blue); color: white; border-color: var(--blue); }
+    .stat span { color: var(--muted); font-size: 12px; font-weight: 800; letter-spacing: .08em; }
+    .stat.primary span { color: rgba(255,255,255,.68); }
+    .stat strong { display: block; margin-top: 10px; font-size: 30px; }
+    .panel { padding: 24px; }
+    .panel-head { display: flex; justify-content: space-between; gap: 16px; align-items: flex-start; margin-bottom: 18px; }
+    .panel h2 { margin: 0; font-size: 18px; }
+    .panel .sub { margin: 3px 0 0; color: var(--muted); font-size: 13px; }
+    .searchbox { position: relative; display: grid; grid-template-columns: 1fr auto; gap: 12px; }
+    input, textarea, select {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: white;
+      padding: 13px 14px;
+      color: var(--ink);
+      outline: none;
+    }
+    textarea { min-height: 96px; resize: vertical; }
+    input:focus, textarea:focus, select:focus { border-color: var(--blue); box-shadow: 0 0 0 3px rgba(0,0,250,.08); }
+    .btn {
+      border: 0;
+      border-radius: 8px;
+      padding: 12px 16px;
+      font-weight: 800;
+      background: var(--blue);
+      color: white;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      min-height: 44px;
+    }
+    .btn.secondary { background: #efeff8; color: var(--blue); }
+    .btn.ghost { background: transparent; color: var(--ink); border: 1px solid var(--line); }
+    .suggestions {
+      position: absolute;
+      left: 0;
+      right: 100px;
+      top: 54px;
+      background: white;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 16px 36px rgba(9,9,16,.14);
+      z-index: 10;
+      overflow: hidden;
+      display: none;
+    }
+    .suggestions button {
+      width: 100%;
+      border: 0;
+      background: white;
+      text-align: left;
+      padding: 11px 14px;
+      color: var(--ink);
+    }
+    .suggestions button:hover { background: #f5f5ff; }
+    .result { padding: 20px; display: none; border-left: 5px solid var(--ok); }
+    .result h3 { margin: 0 0 12px; color: var(--blue); }
+    .kv { display: grid; grid-template-columns: 190px 1fr; gap: 8px 16px; font-size: 14px; }
+    .kv span { color: var(--muted); }
+    .checkline { display: flex; gap: 10px; align-items: center; color: #555e80; font-weight: 700; margin-top: 16px; }
+    .checkline input { width: 18px; height: 18px; }
+    .form-grid { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 14px; }
+    .full { grid-column: 1 / -1; }
+    label { display: grid; gap: 7px; color: #555e80; font-size: 12px; font-weight: 800; letter-spacing: .03em; }
+    .wizard {
+      display: grid;
+      gap: 18px;
+      padding-bottom: 86px;
+    }
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-bottom: 6px;
+    }
+    .step-dot {
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 10px 12px;
+      color: var(--muted);
+      background: #f8f8fc;
+      font-size: 12px;
+      font-weight: 900;
+      text-align: center;
+    }
+    .step-dot.active {
+      background: var(--blue);
+      border-color: var(--blue);
+      color: white;
+    }
+    .wizard-step { display: none; gap: 18px; }
+    .wizard-step.active { display: grid; }
+    .section-card {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: white;
+      overflow: hidden;
+    }
+    .section-title {
+      background: var(--blue);
+      color: white;
+      padding: 14px 18px;
+      font-weight: 900;
+      letter-spacing: .05em;
+      font-size: 13px;
+    }
+    .section-body { padding: 18px; display: grid; gap: 18px; }
+    .field-row { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+    .choice-group { display: flex; flex-wrap: wrap; gap: 10px; }
+    .choice {
+      border: 1px solid var(--line);
+      background: white;
+      color: #555e80;
+      border-radius: 999px;
+      min-height: 42px;
+      padding: 9px 16px;
+      font-weight: 800;
+    }
+    .choice.active {
+      color: white;
+      background: var(--blue);
+      border-color: var(--blue);
+      box-shadow: 0 0 0 3px rgba(0,0,250,.1);
+    }
+    .slider-value {
+      text-align: center;
+      color: var(--blue);
+      font-weight: 900;
+      font-size: 20px;
+    }
+    input[type="range"] { accent-color: var(--blue); padding: 0; }
+    .wizard-actions {
+      position: sticky;
+      bottom: 0;
+      display: grid;
+      grid-template-columns: 170px 1fr;
+      gap: 12px;
+      background: rgba(243,243,246,.92);
+      padding: 14px 0 0;
+      backdrop-filter: blur(8px);
+      z-index: 5;
+    }
+    .wizard-actions.first { grid-template-columns: 1fr; }
+    .no-match { border-left-color: var(--warn); }
+    .detail-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      margin: 8px 0 20px;
+    }
+    .detail-block {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fbfbfe;
+      padding: 14px;
+    }
+    .detail-block.full { grid-column: 1 / -1; }
+    .detail-block span {
+      display: block;
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 900;
+      letter-spacing: .06em;
+      margin-bottom: 6px;
+    }
+    .detail-block b {
+      display: block;
+      white-space: pre-wrap;
+      line-height: 1.35;
+    }
+    .detail-section-title {
+      grid-column: 1 / -1;
+      color: var(--blue);
+      font-size: 13px;
+      font-weight: 900;
+      letter-spacing: .08em;
+      margin-top: 8px;
+    }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; }
+    th {
+      background: #f1f1f5;
+      color: var(--muted);
+      text-align: left;
+      padding: 13px 14px;
+      font-size: 12px;
+      letter-spacing: .06em;
+    }
+    td { padding: 14px; border-bottom: 1px solid var(--line); vertical-align: top; }
+    .badge { display: inline-flex; align-items: center; border-radius: 999px; padding: 5px 10px; font-size: 12px; font-weight: 900; }
+    .Pendiente { color: #8a5b00; background: #fff3d8; }
+    .Respondido { color: #057a4f; background: #def8ee; }
+    .Vencido { color: #a20d16; background: #ffe2e4; }
+    .view { display: none; }
+    .view.active { display: grid; gap: 22px; }
+    .login-wrap {
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 28px;
+      background: var(--blue);
+      color: white;
+      overflow: hidden;
+      position: relative;
+    }
+    .login-video {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      z-index: 0;
+      opacity: 1;
+    }
+    .login-wrap::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, rgba(0,0,250,.24), rgba(0,0,250,.36));
+      z-index: 1;
+    }
+    .login-wrap::before {
+      content: "";
+      position: absolute;
+      width: 520px;
+      height: 520px;
+      left: -180px;
+      bottom: -220px;
+      border-radius: 50%;
+      background: rgba(255,255,255,.035);
+      box-shadow: 180px -40px 0 rgba(255,255,255,.018);
+      z-index: 2;
+    }
+    .login-card {
+      width: min(760px, 100%);
+      padding: 34px 28px;
+      border: 0;
+      box-shadow: none;
+      background: transparent;
+      display: grid;
+      justify-items: center;
+      gap: 22px;
+      text-align: center;
+      position: relative;
+      z-index: 3;
+    }
+    .splash-logo {
+      width: 142px;
+      height: 142px;
+      display: grid;
+      place-items: center;
+      margin-bottom: 8px;
+      animation: logoSpin 9s linear infinite;
+      filter: drop-shadow(0 22px 42px rgba(0,0,0,.2));
+    }
+    .splash-logo img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+    .splash-fallback {
+      width: 112px;
+      height: 112px;
+      border: 22px solid white;
+      border-radius: 50%;
+      position: relative;
+      display: none;
+    }
+    .splash-fallback::before,
+    .splash-fallback::after {
+      content: "";
+      position: absolute;
+      inset: -34px 28px;
+      background: white;
+      border-radius: 8px;
+    }
+    .splash-fallback::after { transform: rotate(90deg); }
+    @keyframes logoSpin { to { transform: rotate(360deg); } }
+    .splash-title {
+      margin: 0;
+      color: white;
+      font-size: clamp(38px, 5.5vw, 64px);
+      line-height: .88;
+      letter-spacing: .12em;
+      font-weight: 950;
+      text-indent: .12em;
+    }
+    .splash-kicker {
+      margin: 0;
+      color: white;
+      font-size: clamp(14px, 2vw, 22px);
+      letter-spacing: .28em;
+      font-weight: 900;
+      text-transform: uppercase;
+    }
+    .splash-sub {
+      margin: -8px 0 8px;
+      color: rgba(255,255,255,.62);
+      font-size: 18px;
+      font-weight: 700;
+    }
+    .access-panel {
+      width: min(520px, 100%);
+      display: grid;
+      gap: 12px;
+      background: white;
+      padding: 18px;
+      border-radius: 24px;
+      box-shadow: 0 24px 60px rgba(0,0,0,.22);
+      border: 0;
+    }
+    .access-panel label {
+      text-align: left;
+      color: #555e80;
+    }
+    .access-panel .btn {
+      border-radius: 999px;
+      background: white;
+      color: var(--blue);
+      min-height: 58px;
+      font-size: 18px;
+      box-shadow: inset 0 0 0 1px var(--line);
+    }
+    .access-panel .btn:hover { box-shadow: inset 0 0 0 2px var(--blue); }
+    .hidden { display: none !important; }
+    .toast {
+      position: fixed;
+      right: 22px;
+      bottom: 22px;
+      background: var(--ink);
+      color: white;
+      padding: 13px 16px;
+      border-radius: 8px;
+      box-shadow: 0 12px 36px rgba(0,0,0,.24);
+      display: none;
+      z-index: 30;
+    }
+    @media (max-width: 980px) {
+      .app { grid-template-columns: 1fr; }
+      .sidebar { position: static; height: auto; }
+      .stats, .form-grid { grid-template-columns: 1fr; }
+      .steps, .field-row, .wizard-actions, .detail-grid { grid-template-columns: 1fr; }
+      .login-card { padding: 18px 0; }
+      .splash-logo { width: 104px; height: 104px; }
+      .splash-kicker { letter-spacing: .14em; line-height: 1.45; }
+      .splash-sub { font-size: 15px; }
+      .access-panel { border-radius: 18px; }
+      .topbar { height: auto; padding: 20px; align-items: flex-start; }
+      .content { padding: 20px; }
+      .searchbox { grid-template-columns: 1fr; }
+      .suggestions { right: 0; top: 54px; }
+      .kv { grid-template-columns: 1fr; }
+      table { min-width: 760px; }
+      .table-wrap { overflow-x: auto; }
+    }
+  </style>
+</head>
+<body>
+  <div id="login" class="login-wrap">
+    <video class="login-video" autoplay muted loop playsinline preload="metadata">
+      <source src="portada-video.mp4?v=2" type="video/mp4" />
+    </video>
+    <form class="login-card" id="loginForm">
+      <div class="splash-logo" aria-hidden="true">
+        <img
+          src="logo-blanco-engranaje.png"
+          alt=""
+          onerror="this.style.display='none';this.nextElementSibling.style.display='block';"
+        />
+        <div class="splash-fallback"></div>
+      </div>
+      <h1 class="splash-title">MOLUB</h1>
+      <p class="splash-kicker">M&oacute;dulo 3 - Selecci&oacute;n de Lubricantes</p>
+      <p class="splash-sub">Equivalencias SYNLOX &middot; Solicitudes T&eacute;cnicas &middot; Soporte Especializado</p>
+      <div class="access-panel">
+        <label>Correo autorizado
+          <input id="loginEmail" type="email" autocomplete="email" required placeholder="correo@molub.com.mx" />
+        </label>
+        <label id="codeBox" class="hidden">C&oacute;digo de acceso
+          <input id="loginCode" type="password" autocomplete="current-password" />
+        </label>
+        <button class="btn">Iniciar registro</button>
+      </div>
+    </form>
+  </div>
+
+  <div id="app" class="app hidden">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-mark">M</div>
+        <div><b>Molub</b><span>CRM B2B</span></div>
+      </div>
+      <div>
+        <div class="nav-label">PRINCIPAL</div>
+        <div class="nav">
+          <button class="active" data-view="buscar">Buscar equivalencia</button>
+          <button data-view="mis" id="myNav">Mis solicitudes</button>
+          <button data-view="soporte" id="supportNav" class="hidden">Soporte técnico</button>
+          <button data-view="equivalentes" id="eqNav" class="hidden">Equivalentes</button>
+        </div>
+      </div>
+      <div class="session">
+        <b id="sessionName"></b><br />
+        <span id="sessionRole"></span><br /><br />
+        <button class="btn secondary" id="logoutBtn" type="button" style="width:100%;">Cerrar sesi&oacute;n</button>
+      </div>
+    </aside>
+
+    <main class="main">
+      <div class="topbar">
+        <div>
+          <h1 id="pageTitle">Equivalencias</h1>
+          <p id="pageSub">Busca por producto SYNLOX o producto de la competencia</p>
+        </div>
+        <div class="sync"><span class="dot"></span><span id="syncText">Conectado</span></div>
+      </div>
+
+      <section class="content">
+        <div class="stats">
+          <div class="stat primary"><span>EQUIVALENCIAS</span><strong id="eqCount">0</strong><small>Registros disponibles</small></div>
+          <div class="stat"><span>PENDIENTES</span><strong id="pendingCount">0</strong><small>Nuevos por atender</small></div>
+          <div class="stat"><span>ENVIADOS</span><strong id="doneCount">0</strong><small>Folios enviados</small></div>
+          <div class="stat"><span>VENCIDOS</span><strong id="lateCount">0</strong><small>M&aacute;s de 24 horas</small></div>
+        </div>
+
+        <div id="view-buscar" class="view active">
+          <section class="panel">
+            <div class="panel-head">
+              <div>
+                <h2>B&uacute;squeda r&aacute;pida</h2>
+                <p class="sub">Si hay equivalencia, se muestra al instante. Si no, genera folio para soporte.</p>
+              </div>
+            </div>
+            <div class="searchbox">
+              <input id="searchInput" placeholder="Ej. MOBILGREASE XHP 222 o SYNLOX LITHPLEX" autocomplete="off" />
+              <button class="btn" id="searchBtn" type="button">Buscar</button>
+              <div class="suggestions" id="suggestions"></div>
+            </div>
+            <label class="checkline">
+              <input id="complexToggle" type="checkbox" />
+              Es un equipo complejo, necesito recomendaci&oacute;n
+            </label>
+          </section>
+
+          <section class="result" id="resultBox"></section>
+
+          <section class="panel hidden" id="formPanel">
+            <div class="panel-head">
+              <div>
+                <h2>Nueva solicitud</h2>
+                <p class="sub">Se generar&aacute; folio y se notificar&aacute; a soporte con SLA de 24 horas.</p>
+              </div>
+            </div>
+            <form id="requestForm" class="wizard">
+              <input type="hidden" name="busquedaOriginal" id="busquedaOriginal" />
+              <input type="hidden" name="motivo" id="motivoField" value="Sin equivalencia" />
+              <input type="hidden" name="equipoSimilar" />
+              <input type="hidden" name="manual" />
+              <input type="hidden" name="tipoElemento" />
+              <input type="hidden" name="metodo" />
+              <input type="hidden" name="sistema" />
+              <input type="hidden" name="estadoLubricante" />
+              <input type="hidden" name="contaminacion" />
+              <input type="hidden" name="carga" />
+              <input type="hidden" name="vibracion" />
+              <input type="hidden" name="agua" />
+              <input type="hidden" name="problemas" />
+
+              <div class="steps">
+                <div class="step-dot active" data-step-label="1">1 · Condiciones técnicas</div>
+                <div class="step-dot" data-step-label="2">2 · Condiciones operativas</div>
+                <div class="step-dot" data-step-label="3">3 · Evidencia y envío</div>
+              </div>
+
+              <div class="wizard-step active" data-step="1">
+                <div class="section-card">
+                  <div class="section-title">IDENTIFICACIÓN DEL EQUIPO</div>
+                  <div class="section-body">
+                    <div class="field-row">
+                      <label>ID / Nombre del equipo *
+                        <input name="nombreEquipo" required placeholder="Ej. BOMBA-B03, MOTOR-M07" />
+                      </label>
+                      <label>Área / Línea *
+                        <input name="area" required placeholder="Ej. Línea de producción A" />
+                      </label>
+                    </div>
+                    <div>
+                      <label>¿Equipo similar? *</label>
+                      <div class="choice-group" data-choice="equipoSimilar">
+                        <button class="choice" type="button" data-value="Si">Sí</button>
+                        <button class="choice" type="button" data-value="No">No</button>
+                      </div>
+                    </div>
+                    <label>Cantidad de equipos iguales
+                      <input name="cantidadEquipos" type="number" min="1" placeholder="Número" />
+                    </label>
+                    <div>
+                      <label>¿Cuenta con manual del equipo? *</label>
+                      <div class="choice-group" data-choice="manual">
+                        <button class="choice" type="button" data-value="Si (adjuntar)">Sí (adjuntar)</button>
+                        <button class="choice" type="button" data-value="No">No</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="section-card">
+                  <div class="section-title">TIPO DE ELEMENTO TRIBOLÓGICO</div>
+                  <div class="section-body">
+                    <div>
+                      <label>Selecciona el elemento *</label>
+                      <div class="choice-group" data-choice="tipoElemento">
+                        <button class="choice" type="button" data-value="Rodamiento">Rodamiento</button>
+                        <button class="choice" type="button" data-value="Reductor">Reductor</button>
+                        <button class="choice" type="button" data-value="Cadena">Cadena</button>
+                        <button class="choice" type="button" data-value="Engrane">Engrane</button>
+                        <button class="choice" type="button" data-value="Guía">Guía</button>
+                        <button class="choice" type="button" data-value="Otro">Otro</button>
+                      </div>
+                    </div>
+                    <label>Tipo y código del elemento
+                      <input name="tipoCodigoElemento" placeholder="Ej. 6205-2RS · SKF · Cremallera M3 Z30" />
+                    </label>
+                  </div>
+                </div>
+
+                <div class="section-card">
+                  <div class="section-title">PARÁMETROS DE LUBRICACIÓN</div>
+                  <div class="section-body">
+                    <div class="field-row">
+                      <label>cSt a 40°C — aceites
+                        <input name="cst40" placeholder="Ej. 220" />
+                      </label>
+                      <label>Grado NLGI — grasas
+                        <input name="nlgi" placeholder="Ej. 2 / NLGI 1" />
+                      </label>
+                    </div>
+                    <div>
+                      <label>Método de lubricación actual *</label>
+                      <div class="choice-group" data-choice="metodo">
+                        <button class="choice" type="button" data-value="Manual">Manual</button>
+                        <button class="choice" type="button" data-value="Automática">Automática</button>
+                        <button class="choice" type="button" data-value="Mixta">Mixta</button>
+                        <button class="choice" type="button" data-value="Ninguno">Ninguno</button>
+                        <button class="choice" type="button" data-value="Otro">Otro</button>
+                      </div>
+                    </div>
+                    <div>
+                      <label>Tipo de sistema *</label>
+                      <div class="choice-group" data-choice="sistema">
+                        <button class="choice" type="button" data-value="Sellado">Sellado</button>
+                        <button class="choice" type="button" data-value="Abierto">Abierto</button>
+                        <button class="choice" type="button" data-value="Relubricable">Relubricable</button>
+                        <button class="choice" type="button" data-value="No sabe">No sabe</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="wizard-step" data-step="2">
+                <div class="section-card">
+                  <div class="section-title">LUBRICANTE ACTUAL</div>
+                  <div class="section-body">
+                    <div>
+                      <label>Estado del lubricante *</label>
+                      <div class="choice-group" data-choice="estadoLubricante">
+                        <button class="choice" type="button" data-value="Funciona">✓ Funciona</button>
+                        <button class="choice" type="button" data-value="No funciona">X No funciona</button>
+                      </div>
+                    </div>
+                    <label>Nombre / marca del lubricante actual
+                      <input name="lubricanteActual" placeholder="Ej. Shell Omala S2 G 220, Mobil SHC 629..." />
+                    </label>
+                  </div>
+                </div>
+
+                <div class="section-card">
+                  <div class="section-title">TEMPERATURA · VELOCIDAD</div>
+                  <div class="section-body">
+                    <label>Temperatura de carcasa (°C)
+                      <div class="slider-value"><span id="tempValue">60</span> °C</div>
+                      <input name="temperatura" id="tempRange" type="range" min="-20" max="200" value="60" />
+                    </label>
+                    <label>Velocidad real <span class="sub">(si aplica)</span>
+                      <input name="rpm" placeholder="RPM" />
+                    </label>
+                  </div>
+                </div>
+
+                <div class="section-card">
+                  <div class="section-title">TIPO DE CONTAMINANTES</div>
+                  <div class="section-body">
+                    <div>
+                      <label>Selecciona todos los que apliquen</label>
+                      <div class="choice-group multi" data-choice="contaminacion">
+                        <button class="choice" type="button" data-value="Polvo abrasivo (ligero)">Polvo abrasivo (ligero)</button>
+                        <button class="choice" type="button" data-value="Polvo abrasivo (abundante)">Polvo abrasivo (abundante)</button>
+                        <button class="choice" type="button" data-value="Polvo no abrasivo (ligero)">Polvo no abrasivo (ligero)</button>
+                        <button class="choice" type="button" data-value="Polvo no abrasivo (abundante)">Polvo no abrasivo (abundante)</button>
+                        <button class="choice" type="button" data-value="Otro">Otro</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="section-card">
+                  <div class="section-title">CARGA · VIBRACIÓN · AGUA</div>
+                  <div class="section-body">
+                    <div>
+                      <label>Carga *</label>
+                      <div class="choice-group" data-choice="carga">
+                        <button class="choice" type="button" data-value="Baja">Baja</button>
+                        <button class="choice" type="button" data-value="Media">Media</button>
+                        <button class="choice" type="button" data-value="Alta">Alta</button>
+                      </div>
+                    </div>
+                    <div>
+                      <label>Vibración *</label>
+                      <div class="choice-group" data-choice="vibracion">
+                        <button class="choice" type="button" data-value="Baja">Baja</button>
+                        <button class="choice" type="button" data-value="Media">Media</button>
+                        <button class="choice" type="button" data-value="Alta">Alta</button>
+                      </div>
+                    </div>
+                    <div>
+                      <label>Presencia de agua</label>
+                      <div class="choice-group" data-choice="agua">
+                        <button class="choice" type="button" data-value="Ninguna">Ninguna</button>
+                        <button class="choice" type="button" data-value="Ambiental">Ambiental</button>
+                        <button class="choice" type="button" data-value="Humedad 80-90%">Humedad 80-90%</button>
+                        <button class="choice" type="button" data-value="Goteo">Goteo</button>
+                        <button class="choice" type="button" data-value="Lavado">Lavado</button>
+                        <button class="choice" type="button" data-value="Vapor">Vapor</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="section-card">
+                  <div class="section-title">PROBLEMA REPORTADO</div>
+                  <div class="section-body">
+                    <div>
+                      <label>Selecciona el problema *</label>
+                      <div class="choice-group" data-choice="problemas">
+                        <button class="choice" type="button" data-value="No hay">No hay</button>
+                        <button class="choice" type="button" data-value="Temperatura alta">Temperatura alta</button>
+                        <button class="choice" type="button" data-value="Desgaste">Desgaste</button>
+                        <button class="choice" type="button" data-value="Ruido">Ruido</button>
+                        <button class="choice" type="button" data-value="Vibración">Vibración</button>
+                        <button class="choice" type="button" data-value="Fugas">Fugas</button>
+                      </div>
+                    </div>
+                    <label>Descripción general del equipo
+                      <textarea name="descripcionEquipo" placeholder="Describe la función del equipo, antigüedad, contexto de operación, historial de fallas relevantes..."></textarea>
+                    </label>
+                  </div>
+                </div>
+              </div>
+
+              <div class="wizard-step" data-step="3">
+                <div class="section-card">
+                  <div class="section-title">FOTO DEL EQUIPO</div>
+                  <div class="section-body">
+                    <p class="sub">Adjunta fotos, PDF, ficha técnica u otros archivos. En producción se guardan en Drive y el link queda en la hoja.</p>
+                    <label>Seleccionar fotos
+                      <input name="fotos" type="file" multiple accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx" />
+                    </label>
+                  </div>
+                </div>
+                <div class="section-card">
+                  <div class="section-title">DATOS DE CONTACTO</div>
+                  <div class="section-body">
+                    <div class="field-row">
+                      <label>Empresa
+                        <input name="empresa" placeholder="Empresa / cliente" />
+                      </label>
+                      <label>Correo
+                        <input name="correoVisible" type="email" readonly />
+                      </label>
+                    </div>
+                    <label>Comentarios finales
+                      <textarea name="comentarios" placeholder="Notas adicionales para soporte..."></textarea>
+                    </label>
+                  </div>
+                </div>
+              </div>
+
+              <div class="wizard-actions first" id="wizardActions">
+                <button class="btn ghost hidden" type="button" id="prevStep">Anterior</button>
+                <button class="btn" type="button" id="nextStep">Siguiente paso</button>
+              </div>
+            </form>
+          </section>
+        </div>
+
+        <div id="view-mis" class="view">
+          <section class="panel">
+            <div class="panel-head">
+              <div><h2>Mis solicitudes</h2><p class="sub">Historial completo con estado y respuesta de soporte.</p></div>
+              <button class="btn secondary" data-refresh type="button">Actualizar</button>
+            </div>
+            <div class="table-wrap"><table id="myTable"></table></div>
+          </section>
+          <section class="panel hidden" id="commissionerDetailPanel">
+            <div class="panel-head">
+              <div><h2 id="commissionerDetailTitle">Detalle de solicitud</h2><p class="sub" id="commissionerDetailMeta"></p></div>
+            </div>
+            <div id="commissionerRecommendation" class="detail-grid"></div>
+            <div id="commissionerRequestDetail" class="detail-grid"></div>
+          </section>
+        </div>
+
+        <div id="view-soporte" class="view">
+          <section class="panel">
+            <div class="panel-head">
+              <div><h2>Panel de soporte técnico</h2><p class="sub">Abre un folio y responde desde aquí.</p></div>
+              <button class="btn secondary" data-refresh type="button">Actualizar</button>
+            </div>
+            <div class="table-wrap"><table id="supportTable"></table></div>
+          </section>
+          <section class="panel hidden" id="responsePanel">
+            <div class="panel-head">
+              <div><h2 id="responseTitle">Responder folio</h2><p class="sub" id="responseMeta"></p></div>
+            </div>
+            <div id="requestDetail" class="detail-grid"></div>
+            <div id="supportAnsweredPanel" class="detail-grid hidden"></div>
+            <form id="responseForm" class="form-grid">
+              <input type="hidden" name="folio" />
+              <label class="full">Recomendaci&oacute;n<textarea name="respuesta" required></textarea></label>
+              <label class="full">Adjuntos de respuesta
+                <input name="adjuntos" id="supportFiles" type="file" multiple accept=".pdf,image/*,.doc,.docx,.xlsx" />
+              </label>
+              <div class="detail-block full hidden" id="supportFilesPreview"><span>ARCHIVOS SELECCIONADOS</span><b></b></div>
+              <button class="btn full" type="submit">Guardar respuesta y avisar al comisionista</button>
+            </form>
+          </section>
+        </div>
+
+        <div id="view-equivalentes" class="view">
+          <section class="panel">
+            <div class="panel-head">
+              <div><h2>Equivalentes</h2><p class="sub">Catálogo actual de equivalencias y alta de nuevos productos.</p></div>
+              <button class="btn secondary" id="refreshEquivalences" type="button">Actualizar</button>
+            </div>
+            <form id="equivalenceForm" class="form-grid" style="margin-bottom:20px;">
+              <input type="hidden" name="rowNumber" />
+              <input type="hidden" name="localId" />
+              <label>SYNLOX
+                <input name="synlox" placeholder="Ej. SYNLOX LITHPLEX EP (GRADO 2)" required />
+              </label>
+              <label>Producto competencia
+                <input name="competencia" placeholder="Ej. MOBILGREASE XHP 222" required />
+              </label>
+              <label>Marca
+                <input name="marca" placeholder="Ej. EXXONMOBIL" />
+              </label>
+              <label>Condición especial
+                <input name="condicionEspecial" placeholder="Opcional" />
+              </label>
+              <label>Tipo de lubricante
+                <input name="tipoLubricante" placeholder="Grasa / Aceite" />
+              </label>
+              <label>Ficha técnica URL
+                <input name="fichaTecnicaUrl" type="url" placeholder="https://drive.google.com/..." />
+              </label>
+              <button class="btn" id="saveEquivalenceBtn" type="submit">Agregar equivalencia</button>
+              <button class="btn secondary hidden" id="cancelEquivalenceEdit" type="button">Cancelar edición</button>
+            </form>
+            <div class="table-wrap"><table id="equivalencesTable"></table></div>
+          </section>
+        </div>
+      </section>
+    </main>
+  </div>
+  <div class="toast" id="toast"></div>
+
+  <script>
+    const API_URL = "PEGA_AQUI_TU_URL_DE_APPS_SCRIPT_WEB_APP";
+    const DEMO_MODE = API_URL.includes("PEGA_AQUI");
+    const DEMO_SCHEMA_VERSION = "2026-08-18-full-form-v4";
+    const state = {
+      equivalencias: [],
+      usuarios: [],
+      solicitudes: [],
+      user: JSON.parse(localStorage.getItem("molubUser") || "null"),
+      requestStep: 1
+    };
+
+    const $ = (id) => document.getElementById(id);
+    const isSupport = (role) => ["SOPORTE", "ADMIN"].includes(String(role || "").toUpperCase());
+    const norm = (v) => String(v || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
+    const hasSynlox = (row) => Boolean(norm(row && row.SYNLOX));
+    const DETAIL_LABELS = {
+      busquedaOriginal: "Búsqueda original",
+      motivo: "Motivo",
+      empresa: "Empresa",
+      nombreEquipo: "ID / Nombre del equipo",
+      area: "Área / Línea",
+      equipoSimilar: "Equipo similar",
+      cantidadEquipos: "Cantidad de equipos iguales",
+      manual: "Manual del equipo",
+      tipoElemento: "Tipo de elemento tribológico",
+      tipoCodigoElemento: "Tipo y código del elemento",
+      cst40: "cSt a 40°C - aceites",
+      nlgi: "Grado NLGI - grasas",
+      viscosidad: "Viscosidad / consistencia",
+      metodo: "Método de lubricación actual",
+      sistema: "Tipo de sistema",
+      estadoLubricante: "Estado del lubricante",
+      lubricanteActual: "Nombre / marca del lubricante actual",
+      temperatura: "Temperatura de carcasa",
+      rpm: "Velocidad real / RPM",
+      contaminacion: "Tipo de contaminantes",
+      carga: "Carga",
+      vibracion: "Vibración",
+      agua: "Presencia de agua",
+      problemas: "Problema reportado",
+      descripcionEquipo: "Descripción general del equipo",
+      comentarios: "Comentarios finales",
+      fotos: "Fotos / archivos"
+    };
+
+    function parseCsv(text) {
+      const rows = [];
+      let row = [], cell = "", quote = false;
+      for (let i = 0; i < text.length; i++) {
+        const c = text[i], n = text[i + 1];
+        if (c === '"' && quote && n === '"') { cell += '"'; i++; continue; }
+        if (c === '"') { quote = !quote; continue; }
+        if (c === "," && !quote) { row.push(cell); cell = ""; continue; }
+        if ((c === "\n" || c === "\r") && !quote) {
+          if (c === "\r" && n === "\n") i++;
+          row.push(cell);
+          if (row.some(v => v.trim() !== "")) rows.push(row);
+          row = []; cell = "";
+          continue;
+        }
+        cell += c;
+      }
+      row.push(cell);
+      if (row.some(v => v.trim() !== "")) rows.push(row);
+      const headers = rows.shift().map(h => h.replace(/^\uFEFF/, ""));
+      return rows.map((r, index) => ({
+        ...Object.fromEntries(headers.map((h, i) => [h, r[i] || ""])),
+        _ROW_NUMBER: index + 2
+      }));
+    }
+
+    function demoRequests() {
+      const version = localStorage.getItem("molubDemoSchemaVersion");
+      if (version !== DEMO_SCHEMA_VERSION) {
+        localStorage.setItem("molubDemoSchemaVersion", DEMO_SCHEMA_VERSION);
+        localStorage.removeItem("molubDemoRequests");
+      }
+      return JSON.parse(localStorage.getItem("molubDemoRequests") || "[]");
+    }
+
+    function saveDemoRequests(rows) {
+      localStorage.setItem("molubDemoRequests", JSON.stringify(rows));
+    }
+
+    function demoExtraEquivalences() {
+      return JSON.parse(localStorage.getItem("molubDemoEquivalences") || "[]");
+    }
+
+    function saveDemoExtraEquivalences(rows) {
+      localStorage.setItem("molubDemoEquivalences", JSON.stringify(rows));
+    }
+
+    function demoEquivalenceOverrides() {
+      return JSON.parse(localStorage.getItem("molubDemoEquivalenceOverrides") || "{}");
+    }
+
+    function saveDemoEquivalenceOverrides(rows) {
+      localStorage.setItem("molubDemoEquivalenceOverrides", JSON.stringify(rows));
+    }
+
+    async function demoGet(params) {
+      if (params.action === "init") {
+        const [eqText, usersText] = await Promise.all([
+          fetch("EQUIVALENCIAS.csv").then(r => r.text()),
+          fetch("USUARIOS.csv").then(r => r.text())
+        ]);
+        const baseEquivalences = parseCsv(eqText).map(row => ({ ...row, ...(demoEquivalenceOverrides()[row._ROW_NUMBER] || {}) }));
+        return {
+          ok: true,
+          equivalencias: [...baseEquivalences, ...demoExtraEquivalences()],
+          usuarios: parseCsv(usersText).map(u => ({ nombre: u.NOMBRE, correo: u.CORREO, rol: u.ROL, tipo: u.TIPO })),
+          requiresCode: false
+        };
+      }
+      if (params.action === "requests") {
+        const all = demoRequests();
+        const visible = isSupport(params.rol)
+          ? all
+          : all.filter(r => norm(r.COMISIONISTA_CORREO) === norm(params.correo));
+        visible.forEach(r => {
+          if (String(r.RESPUESTA || "").trim()) r.ESTADO = "Respondido";
+        });
+        return { ok: true, solicitudes: visible };
+      }
+      return { ok: true };
+    }
+
+    async function demoPost(payload) {
+      if (payload.action === "login") {
+        const user = state.usuarios.find(u => norm(u.correo) === norm(payload.correo));
+        if (!user) return { ok: false, message: "Correo no autorizado en USUARIOS.csv." };
+        return { ok: true, user: { NOMBRE: user.nombre, CORREO: user.correo, ROL: user.rol, TIPO: user.tipo } };
+      }
+      if (payload.action === "createRequest") {
+        const rows = demoRequests();
+        const year = new Date().getFullYear();
+        const folio = `MOL-${year}-${String(rows.length + 1).padStart(4, "0")}`;
+        rows.unshift({
+          ...payload,
+          FOLIO: folio,
+          FECHA_CREACION: new Date().toISOString(),
+          FECHA_LIMITE: new Date(Date.now() + 86400000).toISOString(),
+          ESTADO: "Pendiente",
+          COMISIONISTA_NOMBRE: state.user.nombre,
+          COMISIONISTA_CORREO: state.user.correo,
+          EMPRESA: payload.empresa || "",
+          BUSQUEDA_ORIGINAL: payload.busquedaOriginal || "",
+          MOTIVO: payload.motivo || "",
+          NOMBRE_EQUIPO: payload.nombreEquipo || "",
+          AREA: payload.area || "",
+          EQUIPO_SIMILAR: payload.equipoSimilar || "",
+          CANTIDAD_EQUIPOS: payload.cantidadEquipos || "",
+          MANUAL: payload.manual || "",
+          TIPO_ELEMENTO: payload.tipoElemento || "",
+          TIPO_CODIGO_ELEMENTO: payload.tipoCodigoElemento || "",
+          VISCOSIDAD: payload.viscosidad || "",
+          METODO: payload.metodo || "",
+          SISTEMA: payload.sistema || "",
+          LUBRICANTE_ACTUAL: payload.lubricanteActual || "",
+          TEMPERATURA: payload.temperatura || "",
+          RPM: payload.rpm || "",
+          CARGA: payload.carga || "",
+          VIBRACION: payload.vibracion || "",
+          CONTAMINACION: payload.contaminacion || "",
+          AGUA: payload.agua || "",
+          PROBLEMAS: payload.problemas || "",
+          COMENTARIOS: payload.comentarios || "",
+          FOTOS: payload.fotosBase64 && payload.fotosBase64.length ? payload.fotosBase64.map(file => file.name || "archivo").join(" | ") : "",
+          DETALLE_JSON: payload.detalleJson || "",
+          RESPUESTA: ""
+        });
+        saveDemoRequests(rows);
+        return { ok: true, folio };
+      }
+      if (payload.action === "saveRecommendation") {
+        const rows = demoRequests();
+        const item = rows.find(r => r.FOLIO === payload.folio);
+        if (!item) return { ok: false, message: "Folio no encontrado." };
+        if (String(item.ESTADO || "").toLowerCase() === "respondido" || String(item.RESPUESTA || "").trim()) {
+          return { ok: false, message: "Este folio ya fue enviado. No se puede volver a guardar recomendación." };
+        }
+        item.ESTADO = "Respondido";
+        item.RESPUESTA = payload.respuesta || "";
+        const files = Array.isArray(payload.adjuntosBase64) ? payload.adjuntosBase64 : [];
+        item.ADJUNTOS_RESPUESTA = files.map(file => file.name || "archivo").join(" | ");
+        item.ADJUNTOS_RESPUESTA_JSON = JSON.stringify(files.map(file => ({
+          name: file.name || "archivo",
+          mimeType: file.mimeType || "application/octet-stream",
+          base64: file.base64 || ""
+        })));
+        saveDemoRequests(rows);
+        return { ok: true, folio: payload.folio };
+      }
+      if (payload.action === "addEquivalence") {
+        const row = {
+          _LOCAL_ID: "local-" + Date.now(),
+          SYNLOX: payload.synlox || "",
+          COMPETENCIA: payload.competencia || "",
+          MARCA: payload.marca || "",
+          CONDICION_ESPECIAL: payload.condicionEspecial || "",
+          TIPO_LUBRICANTE: payload.tipoLubricante || "",
+          FICHA_TECNICA_URL: payload.fichaTecnicaUrl || ""
+        };
+        const extras = demoExtraEquivalences();
+        extras.push(row);
+        saveDemoExtraEquivalences(extras);
+        return { ok: true, equivalencia: row };
+      }
+      if (payload.action === "updateEquivalence") {
+        const updated = {
+          _ROW_NUMBER: payload.rowNumber || "",
+          _LOCAL_ID: payload.localId || "",
+          SYNLOX: payload.synlox || "",
+          COMPETENCIA: payload.competencia || "",
+          MARCA: payload.marca || "",
+          CONDICION_ESPECIAL: payload.condicionEspecial || "",
+          TIPO_LUBRICANTE: payload.tipoLubricante || "",
+          FICHA_TECNICA_URL: payload.fichaTecnicaUrl || ""
+        };
+        if (payload.localId) {
+          const extras = demoExtraEquivalences();
+          const index = extras.findIndex(row => row._LOCAL_ID === payload.localId);
+          if (index >= 0) {
+            extras[index] = { ...extras[index], ...updated };
+            saveDemoExtraEquivalences(extras);
+          }
+        } else if (payload.rowNumber) {
+          const overrides = demoEquivalenceOverrides();
+          overrides[payload.rowNumber] = updated;
+          saveDemoEquivalenceOverrides(overrides);
+        }
+        return { ok: true, equivalencia: updated };
+      }
+      return { ok: false, message: "Acción demo no reconocida." };
+    }
+
+    function apiGet(params) {
+      if (DEMO_MODE) return demoGet(params);
+      const url = API_URL + "?" + new URLSearchParams(params).toString();
+      return fetch(url).then(r => r.json());
+    }
+
+    function apiPost(payload) {
+      if (DEMO_MODE) return demoPost(payload);
+      return fetch(API_URL, {
+        method: "POST",
+        body: JSON.stringify(payload),
+        headers: { "Content-Type": "text/plain;charset=utf-8" }
+      }).then(r => r.json());
+    }
+
+    async function boot() {
+      if (DEMO_MODE) {
+        $("syncText").textContent = "Modo prueba local - no guarda en Sheet";
+      }
+      const init = await apiGet({ action: "init" });
+      if (!init.ok) throw new Error(init.message || "No se pudo iniciar");
+      state.equivalencias = init.equivalencias || [];
+      state.usuarios = init.usuarios || [];
+      $("eqCount").textContent = state.equivalencias.length;
+      $("codeBox").classList.toggle("hidden", !init.requiresCode);
+      if (state.user) showApp();
+      const folio = new URLSearchParams(location.search).get("folio");
+      if (folio && state.user && isSupport(state.user.rol)) {
+        setView("soporte");
+        setTimeout(() => openResponse(folio), 300);
+      }
+    }
+
+    function showApp() {
+      $("login").classList.add("hidden");
+      $("app").classList.remove("hidden");
+      $("sessionName").textContent = state.user.nombre || state.user.correo;
+      $("sessionRole").textContent = state.user.rol;
+      $("supportNav").classList.toggle("hidden", !isSupport(state.user.rol));
+      $("eqNav").classList.toggle("hidden", !isSupport(state.user.rol));
+      $("myNav").classList.toggle("hidden", isSupport(state.user.rol));
+      if (isSupport(state.user.rol)) setView("soporte");
+      else {
+        refreshRequests().then(() => {
+          if (state.solicitudes.length) setView("mis");
+        });
+      }
+    }
+
+    $("loginForm").addEventListener("submit", async (ev) => {
+      ev.preventDefault();
+      const res = await apiPost({
+        action: "login",
+        correo: $("loginEmail").value,
+        codigo: $("loginCode").value
+      });
+      if (!res.ok) return toast(res.message || "No autorizado");
+      state.user = {
+        nombre: res.user.NOMBRE,
+        correo: res.user.CORREO,
+        rol: res.user.ROL,
+        tipo: res.user.TIPO
+      };
+      localStorage.setItem("molubUser", JSON.stringify(state.user));
+      showApp();
+    });
+
+    $("logoutBtn").addEventListener("click", () => {
+      localStorage.removeItem("molubUser");
+      location.reload();
+    });
+
+    document.querySelectorAll(".nav button").forEach(btn => {
+      btn.addEventListener("click", () => setView(btn.dataset.view));
+    });
+
+    function setView(name) {
+      document.querySelectorAll(".nav button").forEach(b => b.classList.toggle("active", b.dataset.view === name));
+      document.querySelectorAll(".view").forEach(v => v.classList.toggle("active", v.id === "view-" + name));
+      const titles = {
+        buscar: ["Equivalencias", "Busca por producto SYNLOX o producto de la competencia"],
+        mis: ["Mis solicitudes", "Historial y respuestas de soporte"],
+        soporte: ["Soporte técnico", "Folios pendientes, vencidos y enviados"],
+        equivalentes: ["Equivalentes", "Catálogo SYNLOX y productos de competencia"]
+      };
+      $("pageTitle").textContent = titles[name][0];
+      $("pageSub").textContent = titles[name][1];
+      if (name !== "buscar") refreshRequests();
+      if (name === "equivalentes") renderEquivalences();
+    }
+
+    $("searchInput").addEventListener("input", showSuggestions);
+    $("searchBtn").addEventListener("click", runSearch);
+    $("complexToggle").addEventListener("change", () => {
+      if ($("complexToggle").checked) openRequestForm("Equipo complejo");
+      else $("formPanel").classList.add("hidden");
+    });
+    $("nextStep").addEventListener("click", nextRequestStep);
+    $("prevStep").addEventListener("click", prevRequestStep);
+    $("tempRange").addEventListener("input", () => $("tempValue").textContent = $("tempRange").value);
+    $("supportFiles").addEventListener("change", () => {
+      const files = [...$("supportFiles").files].map(file => file.name);
+      $("supportFilesPreview").classList.toggle("hidden", !files.length);
+      $("supportFilesPreview").querySelector("b").textContent = files.length ? files.join("\n") : "";
+    });
+    document.querySelectorAll(".choice-group").forEach(group => {
+      group.addEventListener("click", (ev) => {
+        const btn = ev.target.closest(".choice");
+        if (!btn) return;
+        const field = group.dataset.choice;
+        if (!group.classList.contains("multi")) {
+          group.querySelectorAll(".choice").forEach(item => item.classList.remove("active"));
+        }
+        btn.classList.toggle("active");
+        const selected = [...group.querySelectorAll(".choice.active")].map(item => item.dataset.value);
+        if ($("requestForm").elements[field]) $("requestForm").elements[field].value = selected.join(" | ");
+      });
+    });
+
+    function showSuggestions() {
+      const q = norm($("searchInput").value);
+      const box = $("suggestions");
+      if (q.length < 2) {
+        box.style.display = "none";
+        return;
+      }
+      const matches = state.equivalencias.filter(r =>
+        norm(r.SYNLOX).includes(q) || norm(r.COMPETENCIA).includes(q) || norm(r.MARCA).includes(q)
+      ).slice(0, 8);
+      box.innerHTML = matches.map((r, i) =>
+        `<button type="button" data-i="${i}"><b>${hasSynlox(r) ? esc(r.SYNLOX) : "Sin equivalencia SYNLOX"}</b><br><small>${esc(r.COMPETENCIA)} - ${esc(r.MARCA)}</small></button>`
+      ).join("");
+      [...box.querySelectorAll("button")].forEach((b, i) => {
+        b.addEventListener("click", () => {
+          $("searchInput").value = matches[i].COMPETENCIA || matches[i].SYNLOX;
+          box.style.display = "none";
+          showResult(matches[i]);
+        });
+      });
+      box.style.display = matches.length ? "block" : "none";
+    }
+
+    function runSearch() {
+      const q = norm($("searchInput").value);
+      $("suggestions").style.display = "none";
+      const match = state.equivalencias.find(r => norm(r.SYNLOX) === q || norm(r.COMPETENCIA) === q)
+        || state.equivalencias.find(r => norm(r.SYNLOX).includes(q) || norm(r.COMPETENCIA).includes(q));
+      if (match) showResult(match);
+      else {
+        $("resultBox").style.display = "block";
+        $("resultBox").classList.add("no-match");
+        $("resultBox").innerHTML = `<h3>No hay equivalencia SYNLOX</h3><p class="sub">No encontramos una equivalencia directa para este producto. Genera un folio para que soporte emita recomendación.</p><button class="btn" type="button" onclick="openRequestForm('Sin equivalencia')">Crear folio</button>`;
+        openRequestForm("Sin equivalencia");
+      }
+    }
+
+    function showResult(r) {
+      $("formPanel").classList.add("hidden");
+      $("resultBox").style.display = "block";
+      const fichaUrl = technicalSheetUrl(r);
+      if (!hasSynlox(r)) {
+        $("resultBox").classList.add("no-match");
+        $("resultBox").innerHTML = `
+          <h3>No hay equivalencia SYNLOX</h3>
+          <div class="kv">
+            <span>Producto buscado</span><b>${esc(r.COMPETENCIA || $("searchInput").value)}</b>
+          <span>Marca</span><b>${esc(r.MARCA || "Sin marca")}</b>
+          <span>Tipo</span><b>${esc(r.TIPO_LUBRICANTE || "")}</b>
+          ${fichaUrl ? `<span>Ficha técnica</span><b><a href="${esc(fichaUrl)}" target="_blank" rel="noopener">Ver ficha técnica</a></b>` : ""}
+        </div>
+          <p class="sub" style="margin-top:14px;">Este producto está registrado, pero no tiene producto SYNLOX asignado. Genera un folio para que soporte emita recomendación.</p>
+          <div style="margin-top:16px;display:flex;gap:10px;flex-wrap:wrap;">
+            <button class="btn" type="button" onclick="openRequestForm('Sin equivalencia')">Crear folio de recomendación</button>
+          </div>`;
+        openRequestForm("Sin equivalencia");
+        return;
+      }
+      $("resultBox").classList.remove("no-match");
+      $("resultBox").innerHTML = `
+        <h3>Equivalencia encontrada</h3>
+        <div class="kv">
+          <span>SYNLOX</span><b>${esc(r.SYNLOX)}</b>
+          <span>Competencia</span><b>${esc(r.COMPETENCIA)}</b>
+          <span>Marca</span><b>${esc(r.MARCA)}</b>
+          <span>Tipo</span><b>${esc(r.TIPO_LUBRICANTE)}</b>
+          <span>Condición especial</span><b>${esc(r.CONDICION_ESPECIAL || "Sin condición especial")}</b>
+          ${fichaUrl ? `<span>Ficha técnica</span><b><a href="${esc(fichaUrl)}" target="_blank" rel="noopener">Abrir ficha técnica</a></b>` : ""}
+        </div>
+        <div style="margin-top:16px;display:flex;gap:10px;flex-wrap:wrap;">
+          ${fichaUrl ? `<a class="btn" href="${esc(fichaUrl)}" target="_blank" rel="noopener">Ver ficha técnica</a>` : ""}
+          <button class="btn secondary" type="button" onclick="openRequestForm('Confirmación técnica')">Pedir confirmación técnica</button>
+        </div>`;
+    }
+
+    function technicalSheetUrl(row) {
+      return readField(row || {}, ["FICHA_TECNICA_URL", "FICHA_TÉCNICA_URL", "FICHA", "URL_FICHA_TECNICA"]);
+    }
+
+    window.openRequestForm = function(motivo) {
+      $("formPanel").classList.remove("hidden");
+      $("busquedaOriginal").value = $("searchInput").value;
+      $("requestForm").elements.motivo.value = motivo;
+      $("requestForm").elements.lubricanteActual.value = $("searchInput").value;
+      $("requestForm").elements.correoVisible.value = state.user ? state.user.correo : "";
+      setRequestStep(1);
+      $("formPanel").scrollIntoView({ behavior: "smooth", block: "start" });
+    };
+
+    function setRequestStep(step) {
+      state.requestStep = Math.max(1, Math.min(3, step));
+      document.querySelectorAll(".wizard-step").forEach(item => item.classList.toggle("active", Number(item.dataset.step) === state.requestStep));
+      document.querySelectorAll("[data-step-label]").forEach(item => item.classList.toggle("active", Number(item.dataset.stepLabel) === state.requestStep));
+      $("prevStep").classList.toggle("hidden", state.requestStep === 1);
+      $("nextStep").textContent = state.requestStep === 3 ? "Enviar reporte" : "Siguiente paso";
+      $("nextStep").type = state.requestStep === 3 ? "submit" : "button";
+      $("wizardActions").classList.toggle("first", state.requestStep === 1);
+    }
+
+    function nextRequestStep() {
+      if (state.requestStep === 1 && (!$("requestForm").elements.nombreEquipo.value || !$("requestForm").elements.area.value)) {
+        toast("Completa nombre del equipo y área para continuar.");
+        return;
+      }
+      setRequestStep(state.requestStep + 1);
+      $("formPanel").scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    function prevRequestStep() {
+      setRequestStep(state.requestStep - 1);
+      $("formPanel").scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    function buildDetailFromPayload(payload, form) {
+      return Object.entries(DETAIL_LABELS).map(([key, label]) => {
+        let value = payload[key] || "";
+        if (key === "fotos") {
+          const count = form.fotos && form.fotos.files ? form.fotos.files.length : 0;
+          value = count ? `${count} archivo(s) adjunto(s)` : "";
+        }
+        return { label, value: String(value || "").trim() || "No capturado" };
+      });
+    }
+
+    $("requestForm").addEventListener("submit", async (ev) => {
+      ev.preventDefault();
+      const form = new FormData(ev.currentTarget);
+      const payload = Object.fromEntries(form.entries());
+      const comentariosFinales = payload.comentarios || "";
+      payload.viscosidad = [
+        payload.cst40 ? `cSt 40C: ${payload.cst40}` : "",
+        payload.nlgi ? `NLGI: ${payload.nlgi}` : ""
+      ].filter(Boolean).join(" | ");
+      payload.detalleJson = JSON.stringify(buildDetailFromPayload({ ...payload, comentarios: comentariosFinales }, ev.currentTarget));
+      payload.comentarios = [
+        payload.tipoCodigoElemento ? `Tipo y código del elemento: ${payload.tipoCodigoElemento}` : "",
+        payload.descripcionEquipo ? `Descripción del equipo: ${payload.descripcionEquipo}` : "",
+        payload.estadoLubricante ? `Estado del lubricante: ${payload.estadoLubricante}` : "",
+        comentariosFinales
+      ].filter(Boolean).join("\n\n");
+      payload.action = "createRequest";
+      payload.correo = state.user.correo;
+      payload.nombreUsuario = state.user.nombre;
+      payload.fotosBase64 = await filesToBase64(ev.currentTarget.fotos.files);
+      const res = await apiPost(payload);
+      if (!res.ok) return toast(res.message || "No se pudo guardar");
+      toast("Solicitud creada: " + res.folio);
+      ev.currentTarget.reset();
+      document.querySelectorAll(".choice.active").forEach(item => item.classList.remove("active"));
+      $("tempValue").textContent = "60";
+      setRequestStep(1);
+      $("formPanel").classList.add("hidden");
+      refreshRequests();
+    });
+
+    async function refreshRequests() {
+      if (!state.user) return;
+      const res = await apiGet({ action: "requests", correo: state.user.correo, rol: state.user.rol });
+      if (!res.ok) return toast(res.message || "No se pudieron cargar solicitudes");
+      state.solicitudes = res.solicitudes || [];
+      renderStats();
+      renderTable("myTable", isSupport(state.user.rol) ? state.solicitudes.filter(r => r.COMISIONISTA_CORREO === state.user.correo) : state.solicitudes, false);
+      if (isSupport(state.user.rol)) renderTable("supportTable", state.solicitudes, true);
+    }
+
+    function renderStats() {
+      $("pendingCount").textContent = state.solicitudes.filter(r => r.ESTADO === "Pendiente").length;
+      $("doneCount").textContent = state.solicitudes.filter(r => r.ESTADO === "Respondido").length;
+      $("lateCount").textContent = state.solicitudes.filter(r => r.ESTADO === "Vencido").length;
+    }
+
+    function renderTable(id, rows, supportMode) {
+      const table = $(id);
+      table.innerHTML = `<thead><tr><th>Folio</th><th>Fecha</th><th>Búsqueda</th><th>Comisionista</th><th>Estado</th><th>Respuesta</th><th></th></tr></thead><tbody></tbody>`;
+      const body = table.querySelector("tbody");
+      body.innerHTML = rows.map(r => `
+        <tr>
+          <td><b>${esc(r.FOLIO)}</b></td>
+          <td>${fmtDate(r.FECHA_CREACION)}</td>
+          <td>${esc(r.BUSQUEDA_ORIGINAL || r.LUBRICANTE_ACTUAL)}</td>
+          <td>${esc(r.COMISIONISTA_NOMBRE || "")}</td>
+          <td><span class="badge ${esc(r.ESTADO)}">${esc(displayStatus(r.ESTADO))}</span></td>
+          <td>${r.RESPUESTA ? esc(String(r.RESPUESTA).slice(0, 90)) : "<span class='sub'>Sin respuesta</span>"}</td>
+          <td><button class="btn ghost" type="button" onclick="${supportMode ? "openResponse" : "openCommissionerDetail"}('${esc(r.FOLIO)}')">${supportMode ? (r.ESTADO === "Respondido" ? "Ver" : "Abrir") : (r.RESPUESTA ? "Abrir respuesta" : "Abrir")}</button></td>
+        </tr>`).join("") || `<tr><td colspan="7"><span class="sub">Sin solicitudes todavia.</span></td></tr>`;
+    }
+
+    function displayStatus(status) {
+      return status === "Respondido" ? "Enviado" : (status || "");
+    }
+
+    function renderEquivalences() {
+      const table = $("equivalencesTable");
+      if (!table) return;
+      const rows = [...state.equivalencias].sort((a, b) => String(a.SYNLOX || "").localeCompare(String(b.SYNLOX || "")));
+      table.innerHTML = `<thead><tr><th>SYNLOX</th><th>Competencia</th><th>Marca</th><th>Condición especial</th><th>Tipo</th><th>Ficha técnica</th><th>Acción</th></tr></thead><tbody></tbody>`;
+      const body = table.querySelector("tbody");
+      body.innerHTML = rows.map(r => `
+        <tr>
+          <td><b>${esc(r.SYNLOX || "Sin equivalencia SYNLOX")}</b></td>
+          <td>${esc(r.COMPETENCIA || "")}</td>
+          <td>${esc(r.MARCA || "")}</td>
+          <td>${esc(r.CONDICION_ESPECIAL || "")}</td>
+          <td>${esc(r.TIPO_LUBRICANTE || "")}</td>
+          <td>${technicalSheetUrl(r) ? `<a href="${esc(technicalSheetUrl(r))}" target="_blank" rel="noopener">Abrir</a>` : "Pendiente"}</td>
+          <td><button class="btn ghost" type="button" onclick="editEquivalence(${state.equivalencias.indexOf(r)})">Editar</button></td>
+        </tr>`).join("") || `<tr><td colspan="7"><span class="sub">Sin equivalencias cargadas.</span></td></tr>`;
+    }
+
+    window.editEquivalence = function(index) {
+      const row = state.equivalencias[index];
+      if (!row) return toast("No se encontró la equivalencia");
+      const form = $("equivalenceForm");
+      form.rowNumber.value = row._ROW_NUMBER || "";
+      form.localId.value = row._LOCAL_ID || "";
+      form.synlox.value = row.SYNLOX || "";
+      form.competencia.value = row.COMPETENCIA || "";
+      form.marca.value = row.MARCA || "";
+      form.condicionEspecial.value = row.CONDICION_ESPECIAL || "";
+      form.tipoLubricante.value = row.TIPO_LUBRICANTE || "";
+      form.fichaTecnicaUrl.value = technicalSheetUrl(row);
+      $("saveEquivalenceBtn").textContent = "Guardar cambios";
+      $("cancelEquivalenceEdit").classList.remove("hidden");
+      form.scrollIntoView({ behavior: "smooth", block: "start" });
+    };
+
+    function resetEquivalenceForm() {
+      const form = $("equivalenceForm");
+      form.reset();
+      form.rowNumber.value = "";
+      form.localId.value = "";
+      $("saveEquivalenceBtn").textContent = "Agregar equivalencia";
+      $("cancelEquivalenceEdit").classList.add("hidden");
+    }
+
+    function readField(row, names) {
+      for (const name of names) {
+        const value = row[name];
+        if (value !== undefined && value !== null && String(value).trim() !== "") return value;
+      }
+      return "";
+    }
+
+    function detailBlock(label, value, full = false) {
+      if (!value) return "";
+      return `<div class="detail-block ${full ? "full" : ""}"><span>${esc(label)}</span><b>${esc(value)}</b></div>`;
+    }
+
+    function detailTitle(text) {
+      return `<div class="detail-section-title">${esc(text)}</div>`;
+    }
+
+    function renderSupportAttachments(r) {
+      const json = readField(r, ["ADJUNTOS_RESPUESTA_JSON", "adjuntosRespuestaJson"]);
+      if (json) {
+        try {
+          const files = JSON.parse(json);
+          if (Array.isArray(files) && files.length) {
+            return files.map((file, index) => {
+              const href = `data:${file.mimeType || "application/octet-stream"};base64,${file.base64 || ""}`;
+              const name = file.name || `Adjunto ${index + 1}`;
+              return `<a href="${href}" download="${esc(name)}" class="btn ghost" style="margin:4px 8px 4px 0;">${esc(name)}</a>`;
+            }).join("");
+          }
+        } catch (err) {}
+      }
+      const links = readField(r, ["ADJUNTOS_RESPUESTA", "adjuntosRespuesta"]);
+      if (!links) return "Sin adjuntos";
+      return String(links).split(" | ").filter(Boolean).map((item, index) => {
+        const clean = item.trim();
+        if (/^https?:\/\//i.test(clean)) return `<a href="${esc(clean)}" target="_blank" rel="noopener" class="btn ghost" style="margin:4px 8px 4px 0;">Adjunto ${index + 1}</a>`;
+        return `<span class="badge Respondido" style="margin:4px 8px 4px 0;">${esc(clean)}</span>`;
+      }).join("");
+    }
+
+    function parseDetailJson(value) {
+      if (!value) return [];
+      try {
+        const parsed = JSON.parse(value);
+        if (Array.isArray(parsed)) return parsed.filter(item => item && item.label && String(item.value || "").trim());
+        if (typeof parsed === "object") {
+          return Object.entries(parsed).map(([label, value]) => ({ label, value })).filter(item => String(item.value || "").trim());
+        }
+      } catch (err) {
+        return [];
+      }
+      return [];
+    }
+
+    function renderRequestDetail(r) {
+      const fullDetail = parseDetailJson(readField(r, ["DETALLE_JSON"]));
+      if (fullDetail.length) {
+        $("requestDetail").innerHTML = [
+          detailTitle("FORMULARIO COMPLETO CAPTURADO"),
+          ...fullDetail.map(item => detailBlock(item.label, item.value, String(item.value).length > 90))
+        ].join("");
+        return;
+      }
+
+      const parts = [
+        detailTitle("DATOS GENERALES"),
+        detailBlock("Folio", readField(r, ["FOLIO"])),
+        detailBlock("Estado", displayStatus(readField(r, ["ESTADO"]))),
+        detailBlock("Fecha de creación", fmtDate(readField(r, ["FECHA_CREACION"]))),
+        detailBlock("Fecha límite", fmtDate(readField(r, ["FECHA_LIMITE"])),
+        ),
+        detailBlock("Comisionista", readField(r, ["COMISIONISTA_NOMBRE"])),
+        detailBlock("Correo", readField(r, ["COMISIONISTA_CORREO"])),
+        detailBlock("Empresa", readField(r, ["EMPRESA"])),
+        detailBlock("Búsqueda original", readField(r, ["BUSQUEDA_ORIGINAL", "LUBRICANTE_ACTUAL"])),
+        detailBlock("Motivo", readField(r, ["MOTIVO"])),
+
+        detailTitle("CONDICIONES TÉCNICAS"),
+        detailBlock("Equipo", readField(r, ["NOMBRE_EQUIPO"])),
+        detailBlock("Área / línea", readField(r, ["AREA"])),
+        detailBlock("Equipo similar", readField(r, ["EQUIPO_SIMILAR"])),
+        detailBlock("Cantidad de equipos", readField(r, ["CANTIDAD_EQUIPOS"])),
+        detailBlock("Manual", readField(r, ["MANUAL"])),
+        detailBlock("Tipo de elemento", readField(r, ["TIPO_ELEMENTO"])),
+        detailBlock("Tipo y código", readField(r, ["TIPO_CODIGO_ELEMENTO"])),
+        detailBlock("Viscosidad / consistencia", readField(r, ["VISCOSIDAD"])),
+        detailBlock("Método de lubricación", readField(r, ["METODO"])),
+        detailBlock("Tipo de sistema", readField(r, ["SISTEMA"])),
+
+        detailTitle("CONDICIONES OPERATIVAS"),
+        detailBlock("Lubricante actual", readField(r, ["LUBRICANTE_ACTUAL"])),
+        detailBlock("Temperatura", readField(r, ["TEMPERATURA"])),
+        detailBlock("RPM", readField(r, ["RPM"])),
+        detailBlock("Carga", readField(r, ["CARGA"])),
+        detailBlock("Vibración", readField(r, ["VIBRACION"])),
+        detailBlock("Contaminación", readField(r, ["CONTAMINACION"])),
+        detailBlock("Agua", readField(r, ["AGUA"])),
+        detailBlock("Problema reportado", readField(r, ["PROBLEMAS"])),
+
+        detailTitle("EVIDENCIA Y COMENTARIOS"),
+        detailBlock("Fotos / adjuntos", readField(r, ["FOTOS"])),
+        detailBlock("Comentarios", readField(r, ["COMENTARIOS"]), true)
+      ].filter(Boolean);
+
+      $("requestDetail").innerHTML = parts.join("") || `<div class="detail-block full"><b>Este folio no trae detalle capturado.</b></div>`;
+    }
+
+    function parseDetailJson(value) {
+      if (!value) return [];
+      try {
+        const parsed = JSON.parse(value);
+        if (Array.isArray(parsed)) {
+          return parsed.filter(item => item && item.label).map(item => ({
+            label: item.label,
+            value: String(item.value || "").trim() || "No capturado"
+          }));
+        }
+        if (typeof parsed === "object") {
+          return Object.entries(parsed).map(([label, value]) => ({
+            label,
+            value: String(value || "").trim() || "No capturado"
+          }));
+        }
+      } catch (err) {
+        return [];
+      }
+      return [];
+    }
+
+    function valueFromRecord(r, key) {
+      const map = {
+        busquedaOriginal: ["BUSQUEDA_ORIGINAL", "busquedaOriginal"],
+        motivo: ["MOTIVO", "motivo"],
+        empresa: ["EMPRESA", "empresa"],
+        nombreEquipo: ["NOMBRE_EQUIPO", "nombreEquipo"],
+        area: ["AREA", "area"],
+        equipoSimilar: ["EQUIPO_SIMILAR", "equipoSimilar"],
+        cantidadEquipos: ["CANTIDAD_EQUIPOS", "cantidadEquipos"],
+        manual: ["MANUAL", "manual"],
+        tipoElemento: ["TIPO_ELEMENTO", "tipoElemento"],
+        tipoCodigoElemento: ["TIPO_CODIGO_ELEMENTO", "tipoCodigoElemento"],
+        cst40: ["cst40"],
+        nlgi: ["nlgi"],
+        viscosidad: ["VISCOSIDAD", "viscosidad"],
+        metodo: ["METODO", "metodo"],
+        sistema: ["SISTEMA", "sistema"],
+        estadoLubricante: ["estadoLubricante"],
+        lubricanteActual: ["LUBRICANTE_ACTUAL", "lubricanteActual"],
+        temperatura: ["TEMPERATURA", "temperatura"],
+        rpm: ["RPM", "rpm"],
+        contaminacion: ["CONTAMINACION", "contaminacion"],
+        carga: ["CARGA", "carga"],
+        vibracion: ["VIBRACION", "vibracion"],
+        agua: ["AGUA", "agua"],
+        problemas: ["PROBLEMAS", "problemas"],
+        descripcionEquipo: ["descripcionEquipo"],
+        comentarios: ["COMENTARIOS", "comentarios"],
+        fotos: ["FOTOS", "fotos"]
+      };
+      return readField(r, map[key] || [key]) || "No capturado";
+    }
+
+    function fallbackFullDetail(r) {
+      return Object.entries(DETAIL_LABELS).map(([key, label]) => ({
+        label,
+        value: valueFromRecord(r, key)
+      }));
+    }
+
+    function mergeDetailWithTemplate(jsonDetail, r) {
+      const byLabel = new Map(jsonDetail.map(item => [String(item.label), item.value]));
+      return Object.entries(DETAIL_LABELS).map(([key, label]) => ({
+        label,
+        value: byLabel.get(label) || valueFromRecord(r, key)
+      }));
+    }
+
+    function renderRequestDetail(r) {
+      const fullDetail = parseDetailJson(readField(r, ["DETALLE_JSON", "detalleJson"]));
+      const detailRows = fullDetail.length ? mergeDetailWithTemplate(fullDetail, r) : fallbackFullDetail(r);
+      const headerParts = [
+        detailTitle("DATOS GENERALES"),
+        detailBlock("Folio", readField(r, ["FOLIO"])),
+        detailBlock("Estado", displayStatus(readField(r, ["ESTADO"]))),
+        detailBlock("Fecha de creación", fmtDate(readField(r, ["FECHA_CREACION"]))),
+        detailBlock("Fecha límite", fmtDate(readField(r, ["FECHA_LIMITE"]))),
+        detailBlock("Comisionista", readField(r, ["COMISIONISTA_NOMBRE"])),
+        detailBlock("Correo", readField(r, ["COMISIONISTA_CORREO"]))
+      ].filter(Boolean);
+
+      $("requestDetail").innerHTML = [
+        ...headerParts,
+        detailTitle("FORMULARIO COMPLETO CAPTURADO"),
+        ...detailRows.map(item => detailBlock(item.label, item.value, String(item.value).length > 90 || item.value === "No capturado"))
+      ].join("");
+    }
+
+    function renderDetailInto(containerId, r) {
+      const target = $(containerId);
+      const fullDetail = parseDetailJson(readField(r, ["DETALLE_JSON", "detalleJson"]));
+      const detailRows = fullDetail.length ? mergeDetailWithTemplate(fullDetail, r) : fallbackFullDetail(r);
+      target.innerHTML = [
+        detailTitle("FORMULARIO CAPTURADO"),
+        ...detailRows.map(item => detailBlock(item.label, item.value, String(item.value).length > 90 || item.value === "No capturado"))
+      ].join("");
+    }
+
+    window.openCommissionerDetail = function(folio) {
+      const r = state.solicitudes.find(x => x.FOLIO === folio);
+      if (!r) return toast("Folio no encontrado");
+      $("commissionerDetailPanel").classList.remove("hidden");
+      $("commissionerDetailTitle").textContent = "Solicitud " + folio;
+      $("commissionerDetailMeta").textContent = [r.ESTADO, r.BUSQUEDA_ORIGINAL || r.LUBRICANTE_ACTUAL, fmtDate(r.FECHA_CREACION)].filter(Boolean).join(" | ");
+      const respuesta = readField(r, ["RESPUESTA", "respuesta"]) || "Aún no hay respuesta de soporte.";
+      $("commissionerRecommendation").innerHTML = [
+        detailTitle("RECOMENDACIÓN DE SOPORTE"),
+        detailBlock("Estado", displayStatus(readField(r, ["ESTADO"]))),
+        detailBlock("Respuesta", respuesta, true),
+        `<div class="detail-block full"><span>ADJUNTOS DE RESPUESTA</span><b>${renderSupportAttachments(r)}</b></div>`
+      ].filter(Boolean).join("");
+      renderDetailInto("commissionerRequestDetail", r);
+      $("commissionerDetailPanel").scrollIntoView({ behavior: "smooth", block: "start" });
+    };
+
+    window.openResponse = function(folio) {
+      const r = state.solicitudes.find(x => x.FOLIO === folio);
+      if (!r) return toast("Folio no encontrado");
+      $("responsePanel").classList.remove("hidden");
+      $("responseForm").folio.value = folio;
+      $("responseForm").respuesta.value = r.RESPUESTA || "";
+      $("responseTitle").textContent = "Responder " + folio;
+      $("responseMeta").textContent = [r.COMISIONISTA_NOMBRE, r.BUSQUEDA_ORIGINAL, r.NOMBRE_EQUIPO].filter(Boolean).join(" | ");
+      renderRequestDetail(r);
+      const alreadyAnswered = r.ESTADO === "Respondido" || String(r.RESPUESTA || "").trim();
+      $("responseForm").classList.toggle("hidden", alreadyAnswered);
+      $("supportAnsweredPanel").classList.toggle("hidden", !alreadyAnswered);
+      if (alreadyAnswered) {
+        $("responseTitle").textContent = "Folio enviado " + folio;
+        $("supportAnsweredPanel").innerHTML = [
+          detailTitle("RECOMENDACIÓN ENVIADA"),
+          detailBlock("Estado", "Enviado"),
+          detailBlock("Respuesta", r.RESPUESTA || "Sin texto de respuesta", true),
+          `<div class="detail-block full"><span>ADJUNTOS ENVIADOS</span><b>${renderSupportAttachments(r)}</b></div>`
+        ].join("");
+      } else {
+        $("supportAnsweredPanel").innerHTML = "";
+      }
+      $("responsePanel").scrollIntoView({ behavior: "smooth", block: "start" });
+    };
+
+    $("responseForm").addEventListener("submit", async (ev) => {
+      ev.preventDefault();
+      const payload = {
+        action: "saveRecommendation",
+        folio: ev.currentTarget.folio.value,
+        respuesta: ev.currentTarget.respuesta.value,
+        soporteCorreo: state.user.correo,
+        adjuntosBase64: await filesToBase64(ev.currentTarget.adjuntos.files)
+      };
+      const res = await apiPost(payload);
+      if (!res.ok) return toast(res.message || "No se pudo responder");
+      toast("Respuesta guardada y enviada");
+      ev.currentTarget.adjuntos.value = "";
+      $("supportFilesPreview").classList.add("hidden");
+      $("supportFilesPreview").querySelector("b").textContent = "";
+      await refreshRequests();
+      openResponse(payload.folio);
+    });
+
+    document.querySelectorAll("[data-refresh]").forEach(b => b.addEventListener("click", refreshRequests));
+    $("refreshEquivalences").addEventListener("click", renderEquivalences);
+    $("cancelEquivalenceEdit").addEventListener("click", resetEquivalenceForm);
+    $("equivalenceForm").addEventListener("submit", async (ev) => {
+      ev.preventDefault();
+      const payload = Object.fromEntries(new FormData(ev.currentTarget).entries());
+      const editing = Boolean(payload.rowNumber || payload.localId);
+      payload.action = editing ? "updateEquivalence" : "addEquivalence";
+      payload.correo = state.user.correo;
+      const res = await apiPost(payload);
+      if (!res.ok) return toast(res.message || "No se pudo guardar la equivalencia");
+      if (editing && res.equivalencia) {
+        const index = state.equivalencias.findIndex(row =>
+          (payload.rowNumber && String(row._ROW_NUMBER) === String(payload.rowNumber)) ||
+          (payload.localId && String(row._LOCAL_ID) === String(payload.localId))
+        );
+        if (index >= 0) state.equivalencias[index] = { ...state.equivalencias[index], ...res.equivalencia };
+      } else if (res.equivalencia) {
+        state.equivalencias.push(res.equivalencia);
+      }
+      toast(editing ? "Equivalencia actualizada" : "Equivalencia agregada");
+      resetEquivalenceForm();
+      $("eqCount").textContent = state.equivalencias.length;
+      renderEquivalences();
+    });
+
+    async function filesToBase64(files) {
+      return Promise.all([...files].map(file => new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve({
+          name: file.name,
+          mimeType: file.type || "application/octet-stream",
+          base64: String(reader.result).split(",")[1]
+        });
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      })));
+    }
+
+    function fmtDate(v) {
+      if (!v) return "";
+      return new Date(v).toLocaleString("es-MX", { dateStyle: "short", timeStyle: "short" });
+    }
+
+    function toast(msg) {
+      $("toast").textContent = msg;
+      $("toast").style.display = "block";
+      setTimeout(() => $("toast").style.display = "none", 3800);
+    }
+
+    function esc(v) {
+      return String(v || "").replace(/[&<>"']/g, m => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[m]));
+    }
+
+    boot().catch(err => toast(err.message));
+  </script>
+</body>
+</html>
