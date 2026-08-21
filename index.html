@@ -153,6 +153,25 @@
     .checkline { display: flex; gap: 10px; align-items: center; color: #555e80; font-weight: 700; margin-top: 16px; }
     .checkline input { width: 18px; height: 18px; }
     .form-grid { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 14px; }
+    .filter-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr 1fr auto;
+      gap: 12px;
+      align-items: end;
+      margin: 0 0 16px;
+      padding: 14px;
+      background: #f8f8fc;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+    }
+    .filter-count {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 900;
+      letter-spacing: .04em;
+      white-space: nowrap;
+      padding-bottom: 13px;
+    }
     .full { grid-column: 1 / -1; }
     label { display: grid; gap: 7px; color: #555e80; font-size: 12px; font-weight: 800; letter-spacing: .03em; }
     .wizard {
@@ -431,6 +450,8 @@
       .app { grid-template-columns: 1fr; }
       .sidebar { position: static; height: auto; }
       .stats, .form-grid { grid-template-columns: 1fr; }
+      .filter-grid { grid-template-columns: 1fr; }
+      .filter-count { padding-bottom: 0; }
       .steps, .field-row, .wizard-actions, .detail-grid { grid-template-columns: 1fr; }
       .login-card { padding: 18px 0; }
       .splash-logo { width: 104px; height: 104px; }
@@ -859,6 +880,26 @@
               <button class="btn" id="saveEquivalenceBtn" type="submit">Agregar equivalencia</button>
               <button class="btn secondary hidden" id="cancelEquivalenceEdit" type="button">Cancelar edición</button>
             </form>
+            <div class="filter-grid">
+              <label>Buscar equivalencia
+                <input id="equivalenceSearch" placeholder="SYNLOX, competencia o marca" />
+              </label>
+              <label>Marca
+                <select id="brandFilter"><option value="">Todas</option></select>
+              </label>
+              <label>Tipo
+                <select id="typeFilter"><option value="">Todos</option></select>
+              </label>
+              <label>Ficha técnica
+                <select id="sheetFilter">
+                  <option value="">Todas</option>
+                  <option value="con">Con ficha</option>
+                  <option value="sin">Sin ficha</option>
+                  <option value="sinSynlox">Sin equivalencia SYNLOX</option>
+                </select>
+              </label>
+              <div class="filter-count" id="equivalenceCountLabel">0 resultados</div>
+            </div>
             <div class="table-wrap"><table id="equivalencesTable"></table></div>
           </section>
         </div>
@@ -1471,7 +1512,9 @@
     function renderEquivalences() {
       const table = $("equivalencesTable");
       if (!table) return;
-      const rows = [...state.equivalencias].sort((a, b) => String(a.SYNLOX || "").localeCompare(String(b.SYNLOX || "")));
+      refreshEquivalenceFilterOptions();
+      const rows = filteredEquivalences().sort((a, b) => String(a.SYNLOX || "").localeCompare(String(b.SYNLOX || "")));
+      $("equivalenceCountLabel").textContent = `${rows.length} de ${state.equivalencias.length} resultados`;
       table.innerHTML = `<thead><tr><th>SYNLOX</th><th>Competencia</th><th>Marca</th><th>Condición especial</th><th>Tipo</th><th>Ficha técnica</th><th>Acción</th></tr></thead><tbody></tbody>`;
       const body = table.querySelector("tbody");
       body.innerHTML = rows.map(r => `
@@ -1484,6 +1527,36 @@
           <td>${technicalSheetUrl(r) ? `<a href="${esc(technicalSheetUrl(r))}" target="_blank" rel="noopener">Abrir</a>` : "Pendiente"}</td>
           <td><button class="btn ghost" type="button" onclick="editEquivalence(${state.equivalencias.indexOf(r)})">Editar</button></td>
         </tr>`).join("") || `<tr><td colspan="7"><span class="sub">Sin equivalencias cargadas.</span></td></tr>`;
+    }
+
+    function filteredEquivalences() {
+      const q = norm($("equivalenceSearch").value);
+      const brand = norm($("brandFilter").value);
+      const type = norm($("typeFilter").value);
+      const sheetFilter = $("sheetFilter").value;
+      return state.equivalencias.filter(row => {
+        const searchable = [row.SYNLOX, row.COMPETENCIA, row.MARCA, row.CONDICION_ESPECIAL, row.TIPO_LUBRICANTE].map(norm).join(" ");
+        if (q && !searchable.includes(q)) return false;
+        if (brand && norm(row.MARCA) !== brand) return false;
+        if (type && norm(row.TIPO_LUBRICANTE) !== type) return false;
+        if (sheetFilter === "con" && !technicalSheetUrl(row)) return false;
+        if (sheetFilter === "sin" && technicalSheetUrl(row)) return false;
+        if (sheetFilter === "sinSynlox" && hasSynlox(row)) return false;
+        return true;
+      });
+    }
+
+    function refreshEquivalenceFilterOptions() {
+      fillFilterOptions("brandFilter", [...new Set(state.equivalencias.map(row => row.MARCA).filter(Boolean))].sort(), "Todas");
+      fillFilterOptions("typeFilter", [...new Set(state.equivalencias.map(row => row.TIPO_LUBRICANTE).filter(Boolean))].sort(), "Todos");
+    }
+
+    function fillFilterOptions(id, values, allLabel) {
+      const select = $(id);
+      const current = select.value;
+      const next = [`<option value="">${allLabel}</option>`, ...values.map(value => `<option value="${esc(value)}">${esc(value)}</option>`)].join("");
+      if (select.innerHTML !== next) select.innerHTML = next;
+      select.value = values.includes(current) ? current : "";
     }
 
     window.editEquivalence = function(index) {
@@ -1796,6 +1869,10 @@
 
     document.querySelectorAll("[data-refresh]").forEach(b => b.addEventListener("click", refreshRequests));
     $("refreshEquivalences").addEventListener("click", renderEquivalences);
+    $("equivalenceSearch").addEventListener("input", renderEquivalences);
+    $("brandFilter").addEventListener("change", renderEquivalences);
+    $("typeFilter").addEventListener("change", renderEquivalences);
+    $("sheetFilter").addEventListener("change", renderEquivalences);
     $("cancelEquivalenceEdit").addEventListener("click", resetEquivalenceForm);
     $("equivalenceForm").addEventListener("submit", async (ev) => {
       ev.preventDefault();
