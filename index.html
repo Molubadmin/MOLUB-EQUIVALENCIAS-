@@ -928,6 +928,12 @@
     const $ = (id) => document.getElementById(id);
     const isSupport = (role) => ["SOPORTE", "ADMIN"].includes(String(role || "").toUpperCase());
     const norm = (v) => String(v || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
+    const compactNorm = (v) => norm(v).replace(/[^a-z0-9]+/g, "");
+    const looseIncludes = (text, query) => {
+      const cleanQuery = norm(query);
+      if (!cleanQuery) return true;
+      return norm(text).includes(cleanQuery) || compactNorm(text).includes(compactNorm(cleanQuery));
+    };
     const hasSynlox = (row) => Boolean(norm(row && row.SYNLOX));
     const DETAIL_LABELS = {
       busquedaOriginal: "Búsqueda original",
@@ -1292,14 +1298,14 @@
     });
 
     function showSuggestions() {
-      const q = norm($("searchInput").value);
+      const q = $("searchInput").value;
       const box = $("suggestions");
-      if (q.length < 2) {
+      if (norm(q).length < 2) {
         box.style.display = "none";
         return;
       }
       const matches = state.equivalencias.filter(r =>
-        norm(r.SYNLOX).includes(q) || norm(r.COMPETENCIA).includes(q) || norm(r.MARCA).includes(q)
+        looseIncludes(r.SYNLOX, q) || looseIncludes(r.COMPETENCIA, q) || looseIncludes(r.MARCA, q)
       ).slice(0, 8);
       box.innerHTML = matches.map((r, i) =>
         `<button type="button" data-i="${i}"><b>${hasSynlox(r) ? esc(r.SYNLOX) : "Sin equivalencia SYNLOX"}</b><br><small>${esc(r.COMPETENCIA)} - ${esc(r.MARCA)}</small></button>`
@@ -1315,10 +1321,16 @@
     }
 
     function runSearch() {
-      const q = norm($("searchInput").value);
+      const q = $("searchInput").value;
+      const normalizedQuery = norm(q);
+      const compactQuery = compactNorm(q);
       $("suggestions").style.display = "none";
-      const match = state.equivalencias.find(r => norm(r.SYNLOX) === q || norm(r.COMPETENCIA) === q)
-        || state.equivalencias.find(r => norm(r.SYNLOX).includes(q) || norm(r.COMPETENCIA).includes(q));
+      const match = state.equivalencias.find(r =>
+        norm(r.SYNLOX) === normalizedQuery || norm(r.COMPETENCIA) === normalizedQuery ||
+        compactNorm(r.SYNLOX) === compactQuery || compactNorm(r.COMPETENCIA) === compactQuery
+      ) || state.equivalencias.find(r =>
+        looseIncludes(r.SYNLOX, q) || looseIncludes(r.COMPETENCIA, q) || looseIncludes(r.MARCA, q)
+      );
       if (match) showResult(match);
       else {
         $("resultBox").style.display = "block";
@@ -1530,13 +1542,13 @@
     }
 
     function filteredEquivalences() {
-      const q = norm($("equivalenceSearch").value);
+      const q = $("equivalenceSearch").value;
       const brand = norm($("brandFilter").value);
       const type = norm($("typeFilter").value);
       const sheetFilter = $("sheetFilter").value;
       return state.equivalencias.filter(row => {
-        const searchable = [row.SYNLOX, row.COMPETENCIA, row.MARCA, row.CONDICION_ESPECIAL, row.TIPO_LUBRICANTE].map(norm).join(" ");
-        if (q && !searchable.includes(q)) return false;
+        const searchable = [row.SYNLOX, row.COMPETENCIA, row.MARCA, row.CONDICION_ESPECIAL, row.TIPO_LUBRICANTE].join(" ");
+        if (norm(q) && !looseIncludes(searchable, q)) return false;
         if (brand && norm(row.MARCA) !== brand) return false;
         if (type && norm(row.TIPO_LUBRICANTE) !== type) return false;
         if (sheetFilter === "con" && !technicalSheetUrl(row)) return false;
