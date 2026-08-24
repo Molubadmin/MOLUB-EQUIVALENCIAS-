@@ -482,16 +482,18 @@
         padding: 18px 20px;
       }
       .nav {
-        display: flex;
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
         gap: 10px;
-        overflow-x: auto;
+        overflow-x: visible;
         padding-bottom: 4px;
-        -webkit-overflow-scrolling: touch;
       }
       .nav button {
-        width: auto;
-        flex: 0 0 auto;
-        white-space: nowrap;
+        width: 100%;
+        min-width: 0;
+        white-space: normal;
+        text-align: center;
+        line-height: 1.25;
       }
       .session {
         margin-top: 0;
@@ -561,6 +563,14 @@
       }
       .brand b { font-size: 17px; }
       .nav-label { margin-left: 0; }
+      .nav {
+        grid-template-columns: 1fr;
+        gap: 8px;
+      }
+      .nav button {
+        padding: 13px 12px;
+        text-align: left;
+      }
       .session {
         grid-template-columns: 1fr;
         font-size: 12px;
