@@ -917,6 +917,7 @@
           <button data-view="mis" id="myNav">Mis solicitudes</button>
           <button data-view="comisionistas" id="commissionersNav" class="hidden">Comisionistas</button>
           <button data-view="soporte" id="supportNav" class="hidden">Solicitudes</button>
+          <button data-view="reportes" id="reportsNav" class="hidden">Reportes</button>
           <button data-view="equivalentes" id="eqNav" class="hidden">Equivalentes</button>
         </div>
       </div>
@@ -1264,6 +1265,26 @@
           </section>
         </div>
 
+        <div id="view-reportes" class="view">
+          <section class="panel">
+            <div class="panel-head">
+              <div><h2>Reportes</h2><p class="sub">Estadísticas por comisionista en el rango de fechas que elijas.</p></div>
+              <button class="btn secondary" id="downloadReportBtn" type="button">Descargar PDF</button>
+            </div>
+            <div class="filter-grid" style="grid-template-columns: 1fr 1fr auto 1fr;">
+              <label>Desde
+                <input type="date" id="reportFrom" />
+              </label>
+              <label>Hasta
+                <input type="date" id="reportTo" />
+              </label>
+              <button class="btn" id="applyReportRange" type="button">Aplicar</button>
+              <div class="filter-count" id="reportRangeLabel">0 folios en el rango</div>
+            </div>
+            <div class="table-wrap"><table id="reportsTable"></table></div>
+          </section>
+        </div>
+
         <div id="view-equivalentes" class="view">
           <section class="panel">
             <div class="panel-head">
@@ -1384,6 +1405,8 @@
 
   <div class="toast" id="toast"></div>
 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
   <script>
     const API_URL = "https://script.google.com/macros/s/AKfycbz3GIo4chmCdt6tkDC2TU7CqZwDWPQY4xcCpPZH3gSg-cl1ZHV4H-J2l5jrIQbloMoO/exec";
     const DEMO_MODE = API_URL.includes("PEGA_AQUI");
@@ -1762,6 +1785,7 @@
       $("supportNav").classList.toggle("hidden", !isSupport(state.user.rol));
       $("eqNav").classList.toggle("hidden", !isSupport(state.user.rol));
       $("commissionersNav").classList.toggle("hidden", !isSupport(state.user.rol));
+      $("reportsNav").classList.toggle("hidden", !isSupport(state.user.rol));
       $("myNav").classList.toggle("hidden", isSupport(state.user.rol));
       applyStatLabels(isSupport(state.user.rol));
       const folio = new URLSearchParams(location.search).get("folio");
@@ -1873,6 +1897,7 @@
         mis: ["Mis solicitudes", "Historial y respuestas de soporte"],
         soporte: ["Solicitudes", "Folios pendientes, vencidos y enviados"],
         comisionistas: ["Comisionistas", "Directorio y avance comercial de cada comisionista"],
+        reportes: ["Reportes", "Estadísticas por comisionista en el rango de fechas que elijas"],
         equivalentes: ["Equivalentes", "Catálogo SYNLOX y productos de competencia"]
       };
       $("pageTitle").textContent = titles[name][0];
@@ -1880,6 +1905,14 @@
       if (name !== "buscar" && !skipRefresh) refreshRequests();
       if (name === "equivalentes") renderEquivalences();
       if (name === "comisionistas") renderCommissionersTable();
+      if (name === "reportes") {
+        if (!$("reportFrom").value || !$("reportTo").value) {
+          const range = defaultReportRange();
+          $("reportFrom").value = range.from;
+          $("reportTo").value = range.to;
+        }
+        renderReportsTable();
+      }
     }
 
     $("searchInput").addEventListener("input", showSuggestions);
@@ -2157,6 +2190,7 @@
       if (isSupport(state.user.rol)) {
         renderSupportTable();
         renderCommissionersTable();
+        renderReportsTable();
       }
     }
 
@@ -2261,6 +2295,190 @@
       if ($("supportSearch")) $("supportSearch").value = state.supportSearch;
       renderSupportTable();
     };
+
+    function toDateInputValue(d) {
+      const pad = n => String(n).padStart(2, "0");
+      return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+    }
+
+    function defaultReportRange() {
+      const now = new Date();
+      const from = new Date(now.getFullYear(), now.getMonth(), 1);
+      return { from: toDateInputValue(from), to: toDateInputValue(now) };
+    }
+
+    function computeReportRows() {
+      const fromVal = $("reportFrom").value;
+      const toVal = $("reportTo").value;
+      const fromDate = fromVal ? new Date(fromVal + "T00:00:00") : null;
+      const toDate = toVal ? new Date(toVal + "T23:59:59") : null;
+
+      const inRange = state.solicitudes.filter(r => {
+        const created = new Date(r.FECHA_CREACION);
+        if (isNaN(created.getTime())) return false;
+        if (fromDate && created < fromDate) return false;
+        if (toDate && created > toDate) return false;
+        return true;
+      });
+
+      const byPerson = new Map();
+      inRange.forEach(r => {
+        const key = norm(r.COMISIONISTA_CORREO);
+        if (!byPerson.has(key)) {
+          byPerson.set(key, {
+            nombre: r.COMISIONISTA_NOMBRE || r.COMISIONISTA_CORREO || "Sin nombre",
+            correo: r.COMISIONISTA_CORREO || "",
+            total: 0, pendientes: 0, enviados: 0, ventas: 0, declinadas: 0
+          });
+        }
+        const entry = byPerson.get(key);
+        entry.total++;
+        if (r.ESTADO === "Respondido") entry.enviados++; else entry.pendientes++;
+        const avance = String(r.AVANCE_ESTADO || "");
+        if (avance === "Venta") entry.ventas++;
+        if (avance === "Declinacion de propuesta") entry.declinadas++;
+      });
+
+      return { rows: [...byPerson.values()].sort((a, b) => b.total - a.total), totalFolios: inRange.length };
+    }
+
+    function renderReportsTable() {
+      const table = $("reportsTable");
+      if (!table) return;
+      const { rows, totalFolios } = computeReportRows();
+      state.currentReportRows = rows;
+      $("reportRangeLabel").textContent = `${totalFolios} folio(s) en el rango`;
+
+      const totals = rows.reduce((acc, p) => {
+        acc.total += p.total; acc.pendientes += p.pendientes; acc.enviados += p.enviados;
+        acc.ventas += p.ventas; acc.declinadas += p.declinadas;
+        return acc;
+      }, { total: 0, pendientes: 0, enviados: 0, ventas: 0, declinadas: 0 });
+
+      table.innerHTML = `<thead><tr><th>Comisionista</th><th>Correo</th><th>Folios</th><th>Pendientes</th><th>Enviados</th><th>Ventas</th><th>Declinadas</th><th>% Conversión</th></tr></thead><tbody></tbody>`;
+      const body = table.querySelector("tbody");
+      body.innerHTML = rows.map(p => `
+        <tr>
+          <td data-label="Comisionista"><b>${esc(p.nombre)}</b></td>
+          <td data-label="Correo">${esc(p.correo)}</td>
+          <td data-label="Folios">${p.total}</td>
+          <td data-label="Pendientes">${p.pendientes}</td>
+          <td data-label="Enviados">${p.enviados}</td>
+          <td data-label="Ventas">${p.ventas}</td>
+          <td data-label="Declinadas">${p.declinadas}</td>
+          <td data-label="% Conversión">${p.total ? Math.round((p.ventas / p.total) * 100) : 0}%</td>
+        </tr>`).join("") || `<tr><td data-label="Reportes" colspan="8"><span class="sub">Sin folios en este rango.</span></td></tr>`;
+
+      if (rows.length) {
+        body.innerHTML += `
+        <tr style="background:#f8f8fc;">
+          <td data-label="Total" colspan="2"><b>Total general</b></td>
+          <td data-label="Folios"><b>${totals.total}</b></td>
+          <td data-label="Pendientes"><b>${totals.pendientes}</b></td>
+          <td data-label="Enviados"><b>${totals.enviados}</b></td>
+          <td data-label="Ventas"><b>${totals.ventas}</b></td>
+          <td data-label="Declinadas"><b>${totals.declinadas}</b></td>
+          <td data-label="% Conversión"><b>${totals.total ? Math.round((totals.ventas / totals.total) * 100) : 0}%</b></td>
+        </tr>`;
+      }
+    }
+
+    function generateReportPDF() {
+      const rows = state.currentReportRows || [];
+      if (!rows.length) return toast("No hay datos para generar el PDF en este rango.");
+      if (!window.jspdf || !window.jspdf.jsPDF) {
+        return toast("No se pudo cargar el generador de PDF. Revisa tu conexión e intenta de nuevo.");
+      }
+
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF({ orientation: "landscape", unit: "pt", format: "a4" });
+      const pageWidth = doc.internal.pageSize.getWidth();
+      const pageHeight = doc.internal.pageSize.getHeight();
+
+      const fromVal = $("reportFrom").value;
+      const toVal = $("reportTo").value;
+      const fromLabel = fromVal ? new Date(fromVal + "T00:00:00").toLocaleDateString("es-MX", { day: "2-digit", month: "2-digit", year: "numeric" }) : "Inicio";
+      const toLabel = toVal ? new Date(toVal + "T23:59:59").toLocaleDateString("es-MX", { day: "2-digit", month: "2-digit", year: "numeric" }) : "Hoy";
+
+      const totals = rows.reduce((acc, p) => {
+        acc.total += p.total; acc.pendientes += p.pendientes; acc.enviados += p.enviados;
+        acc.ventas += p.ventas; acc.declinadas += p.declinadas;
+        return acc;
+      }, { total: 0, pendientes: 0, enviados: 0, ventas: 0, declinadas: 0 });
+
+      // Encabezado de marca
+      doc.setFillColor(0, 0, 250);
+      doc.rect(0, 0, pageWidth, 70, "F");
+      doc.setTextColor(255, 255, 255);
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(20);
+      doc.text("MOLUB", 40, 32);
+      doc.setFontSize(11);
+      doc.setFont("helvetica", "normal");
+      doc.text("Reporte de solicitudes SYNLOX · Estadísticas por comisionista", 40, 50);
+
+      // Datos del reporte
+      doc.setTextColor(20, 20, 30);
+      doc.setFontSize(10);
+      const metaY = 92;
+      doc.text(`Rango: ${fromLabel} — ${toLabel}`, 40, metaY);
+      doc.text(`Generado por: ${state.user.nombre || state.user.correo} (${state.user.correo})`, 40, metaY + 16);
+      doc.text(`Fecha de generación: ${new Date().toLocaleString("es-MX", { dateStyle: "long", timeStyle: "short" })}`, 40, metaY + 32);
+      doc.text(`Total de folios en el rango: ${totals.total}`, 40, metaY + 48);
+
+      const body = rows.map(p => [
+        p.nombre, p.correo, String(p.total), String(p.pendientes), String(p.enviados),
+        String(p.ventas), String(p.declinadas),
+        (p.total ? Math.round((p.ventas / p.total) * 100) : 0) + "%"
+      ]);
+
+      doc.autoTable({
+        startY: metaY + 64,
+        head: [["Comisionista", "Correo", "Folios", "Pendientes", "Enviados", "Ventas", "Declinadas", "% Conversión"]],
+        body: body,
+        foot: [[
+          "Total general", "", String(totals.total), String(totals.pendientes), String(totals.enviados),
+          String(totals.ventas), String(totals.declinadas),
+          (totals.total ? Math.round((totals.ventas / totals.total) * 100) : 0) + "%"
+        ]],
+        theme: "grid",
+        headStyles: { fillColor: [0, 0, 250], textColor: [255, 255, 255], fontStyle: "bold", halign: "center" },
+        footStyles: { fillColor: [239, 239, 248], textColor: [13, 13, 22], fontStyle: "bold", halign: "center" },
+        alternateRowStyles: { fillColor: [248, 248, 252] },
+        styles: { fontSize: 9, cellPadding: 7, textColor: [13, 13, 22], lineColor: [231, 232, 239], lineWidth: 0.5 },
+        columnStyles: {
+          0: { cellWidth: 170 },
+          1: { cellWidth: 190 },
+          2: { cellWidth: 55, halign: "center" },
+          3: { cellWidth: 65, halign: "center" },
+          4: { cellWidth: 60, halign: "center" },
+          5: { cellWidth: 55, halign: "center" },
+          6: { cellWidth: 65, halign: "center" },
+          7: { cellWidth: 80, halign: "center" }
+        },
+        margin: { left: 40, right: 40 }
+      });
+
+      // Pie de página: se agrega al final porque autoTable crea las páginas
+      // sobre la marcha y el total de páginas solo se conoce ya terminado.
+      const pageCount = doc.internal.getNumberOfPages();
+      for (let i = 1; i <= pageCount; i++) {
+        doc.setPage(i);
+        doc.setFontSize(8);
+        doc.setTextColor(140, 145, 170);
+        doc.text("Generado automáticamente por el panel de Equivalencias SYNLOX · MOLUB", 40, pageHeight - 20);
+        doc.text(`Página ${i} de ${pageCount}`, pageWidth - 100, pageHeight - 20);
+      }
+
+      const from = fromVal || "inicio";
+      const to = toVal || "hoy";
+      doc.save(`reporte_molub_${from}_a_${to}.pdf`);
+    }
+
+    if ($("applyReportRange")) $("applyReportRange").addEventListener("click", renderReportsTable);
+    if ($("reportFrom")) $("reportFrom").addEventListener("change", renderReportsTable);
+    if ($("reportTo")) $("reportTo").addEventListener("change", renderReportsTable);
+    if ($("downloadReportBtn")) $("downloadReportBtn").addEventListener("click", generateReportPDF);
 
     function renderStats() {
       $("pendingCount").textContent = state.solicitudes.filter(r => r.ESTADO === "Pendiente").length;
