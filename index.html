@@ -4,6 +4,9 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Molub | Equivalencias SYNLOX</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,700;0,800;1,400&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
   <style>
     :root {
       --blue: #0000fa;
@@ -25,7 +28,7 @@
     }
     body {
       margin: 0;
-      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-family: "DM Sans", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       background: var(--bg);
       color: var(--ink);
       width: 100%;
@@ -35,7 +38,7 @@
     button, input, textarea, select { font: inherit; }
     button { cursor: pointer; }
     img, video { max-width: 100%; }
-    .app { min-height: 100vh; display: grid; grid-template-columns: 280px 1fr; }
+    .app { min-height: 100vh; }
     .sidebar {
       background: var(--nav);
       color: white;
@@ -43,9 +46,13 @@
       display: flex;
       flex-direction: column;
       gap: 28px;
-      position: sticky;
+      position: fixed;
       top: 0;
+      left: 0;
+      width: 280px;
       height: 100vh;
+      overflow-y: auto;
+      z-index: 20;
     }
     .brand { display: flex; gap: 14px; align-items: center; }
     .brand-mark {
@@ -78,7 +85,7 @@
     .main, .content, .view, .panel, .stat, .result, .section-card, .detail-block {
       min-width: 0;
     }
-    .main { min-width: 0; }
+    .main { min-width: 0; margin-left: 280px; }
     .topbar {
       height: 76px;
       background: white;
@@ -136,6 +143,7 @@
     }
     .btn.secondary { background: #efeff8; color: var(--blue); }
     .btn.ghost { background: transparent; color: var(--ink); border: 1px solid var(--line); }
+    .btn.btn-success { background: var(--ok); }
     .suggestions {
       position: absolute;
       left: 0;
@@ -320,6 +328,103 @@
     .Pendiente { color: #8a5b00; background: #fff3d8; }
     .Respondido { color: #057a4f; background: #def8ee; }
     .Vencido { color: #a20d16; background: #ffe2e4; }
+    .folio-mono { font-family: "Space Mono", ui-monospace, monospace; letter-spacing: .01em; }
+    .badge.avance-none { color: var(--muted); background: #eef0f7; }
+    .badge.avance-propuesta { color: #1d4fd8; background: #e2e9ff; }
+    .badge.avance-prueba { color: #7c3ff2; background: #f0e6ff; }
+    .badge.avance-venta { color: #057a4f; background: #def8ee; }
+    .badge.avance-declinada { color: #a20d16; background: #ffe2e4; }
+
+    .filter-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+    .filter-chip {
+      border: 1px solid var(--line);
+      background: white;
+      color: #555e80;
+      border-radius: 999px;
+      padding: 9px 16px;
+      font-weight: 800;
+      font-size: 13px;
+      white-space: nowrap;
+    }
+    .filter-chip.active {
+      color: white;
+      background: var(--blue);
+      border-color: var(--blue);
+    }
+    .filter-search {
+      flex: 1 1 220px;
+      min-width: 180px;
+    }
+
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(9,9,16,.56);
+      z-index: 50;
+      padding: 28px 18px;
+      overflow-y: auto;
+    }
+    .modal-overlay.active {
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+    }
+    .modal-card {
+      background: white;
+      border-radius: 12px;
+      width: min(880px, 100%);
+      max-height: calc(100vh - 56px);
+      overflow-y: auto;
+      box-shadow: 0 28px 64px rgba(9,9,16,.32);
+    }
+    .modal-head {
+      position: sticky;
+      top: 0;
+      background: white;
+      z-index: 2;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 14px;
+      padding: 20px 24px;
+      border-bottom: 1px solid var(--line);
+    }
+    .modal-head h2 { margin: 0; font-size: 18px; }
+    .modal-head p { margin: 3px 0 0; color: var(--muted); font-size: 13px; }
+    .modal-close {
+      border: 1px solid var(--line);
+      background: white;
+      border-radius: 999px;
+      width: 36px;
+      height: 36px;
+      min-height: 36px;
+      display: grid;
+      place-items: center;
+      font-weight: 900;
+      color: var(--ink);
+      flex: 0 0 auto;
+    }
+    .modal-body { padding: 22px 24px 26px; display: grid; gap: 22px; }
+    .avance-card {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .avance-card .section-title { background: var(--violet); }
+    .avance-card .section-body { display: grid; gap: 14px; }
+    @media (max-width: 640px) {
+      .modal-overlay { padding: 0; }
+      .modal-card { max-height: 100vh; height: 100vh; width: 100%; border-radius: 0; }
+      .filter-bar { gap: 8px; }
+      .filter-chip { padding: 9px 12px; font-size: 12px; }
+    }
     .view { display: none; }
     .view.active { display: grid; gap: 22px; }
     .login-wrap {
@@ -451,6 +556,19 @@
       box-shadow: inset 0 0 0 1px var(--line);
     }
     .access-panel .btn:hover { box-shadow: inset 0 0 0 2px var(--blue); }
+    .register-box {
+      display: grid;
+      gap: 12px;
+      text-align: left;
+      margin-top: 4px;
+      padding-top: 14px;
+      border-top: 1px solid var(--line);
+    }
+    .register-box .btn.secondary {
+      border-radius: 999px;
+      min-height: 50px;
+      box-shadow: inset 0 0 0 1px var(--line);
+    }
     .hidden { display: none !important; }
     .toast {
       position: fixed;
@@ -465,8 +583,8 @@
       z-index: 30;
     }
     @media (max-width: 1180px) {
-      .app { grid-template-columns: 240px 1fr; }
-      .sidebar { padding: 24px 16px; }
+      .sidebar { width: 240px; padding: 24px 16px; }
+      .main { margin-left: 240px; }
       .content { padding: 28px 24px 42px; }
       .stats { grid-template-columns: repeat(2, minmax(0,1fr)); }
       .form-grid { grid-template-columns: repeat(2, minmax(0,1fr)); }
@@ -474,13 +592,14 @@
       .filter-count { padding-bottom: 0; }
     }
     @media (max-width: 980px) {
-      .app { grid-template-columns: 1fr; }
       .sidebar {
         position: static;
+        width: auto;
         height: auto;
         gap: 18px;
         padding: 18px 20px;
       }
+      .main { margin-left: 0; }
       .nav {
         display: grid;
         grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -762,16 +881,25 @@
         <div class="splash-fallback"></div>
       </div>
       <h1 class="splash-title">MOLUB</h1>
-      <p class="splash-kicker">M&oacute;dulo 3 - Selecci&oacute;n de Lubricantes</p>
-      <p class="splash-sub">Equivalencias SYNLOX &middot; Solicitudes T&eacute;cnicas &middot; Soporte Especializado</p>
+      <p class="splash-sub">Equivalencias SYNLOX</p>
       <div class="access-panel">
-        <label>Correo autorizado
+        <label>Correo
           <input id="loginEmail" type="email" autocomplete="email" required placeholder="correo@molub.com.mx" />
         </label>
         <label id="codeBox" class="hidden">C&oacute;digo de acceso
           <input id="loginCode" type="password" autocomplete="current-password" />
         </label>
         <button class="btn" id="loginSubmit" disabled>Cargando datos...</button>
+        <div id="registerBox" class="register-box hidden">
+          <p class="sub" style="margin:0;color:#555e80;">No encontramos ese correo. Si eres externo y necesitas una recomendación, regístrate aquí:</p>
+          <label>Nombre completo
+            <input id="registerName" placeholder="Tu nombre" />
+          </label>
+          <label>Empresa <span class="sub">(opcional)</span>
+            <input id="registerCompany" placeholder="Empresa" />
+          </label>
+          <button class="btn secondary" id="registerSubmit" type="button">Registrarme y continuar</button>
+        </div>
       </div>
     </form>
   </div>
@@ -787,7 +915,8 @@
         <div class="nav">
           <button class="active" data-view="buscar">Buscar equivalencia</button>
           <button data-view="mis" id="myNav">Mis solicitudes</button>
-          <button data-view="soporte" id="supportNav" class="hidden">Soporte técnico</button>
+          <button data-view="comisionistas" id="commissionersNav" class="hidden">Comisionistas</button>
+          <button data-view="soporte" id="supportNav" class="hidden">Solicitudes</button>
           <button data-view="equivalentes" id="eqNav" class="hidden">Equivalentes</button>
         </div>
       </div>
@@ -810,8 +939,8 @@
       <section class="content">
         <div class="stats">
           <div class="stat primary"><span>EQUIVALENCIAS</span><strong id="eqCount">0</strong><small>Registros disponibles</small></div>
-          <div class="stat"><span>PENDIENTES</span><strong id="pendingCount">0</strong><small>Nuevos por atender</small></div>
-          <div class="stat"><span>ENVIADOS</span><strong id="doneCount">0</strong><small>Folios enviados</small></div>
+          <div class="stat"><span id="pendingStatLabel">PENDIENTES</span><strong id="pendingCount">0</strong><small id="pendingStatSub">Nuevos por atender</small></div>
+          <div class="stat"><span id="doneStatLabel">ENVIADOS</span><strong id="doneCount">0</strong><small id="doneStatSub">Folios enviados</small></div>
           <div class="stat"><span>VENCIDOS</span><strong id="lateCount">0</strong><small>M&aacute;s de 24 horas</small></div>
         </div>
 
@@ -1089,17 +1218,18 @@
         <div id="view-mis" class="view">
           <section class="panel">
             <div class="panel-head">
-              <div><h2>Mis solicitudes</h2><p class="sub">Historial completo con estado y respuesta de soporte.</p></div>
+              <div><h2>Mis solicitudes</h2><p class="sub">Historial completo de tus folios y su avance comercial.</p></div>
               <button class="btn secondary" data-refresh type="button">Actualizar</button>
             </div>
-            <div class="table-wrap"><table id="myTable"></table></div>
-          </section>
-          <section class="panel hidden" id="commissionerDetailPanel">
-            <div class="panel-head">
-              <div><h2 id="commissionerDetailTitle">Detalle de solicitud</h2><p class="sub" id="commissionerDetailMeta"></p></div>
+            <div class="filter-bar" id="myFilterBar">
+              <button class="filter-chip active" type="button" data-filter="todos">Con folio</button>
+              <button class="filter-chip" type="button" data-filter="sinRespuesta">Sin respuesta</button>
+              <button class="filter-chip" type="button" data-filter="enviado">Enviado</button>
+              <button class="filter-chip" type="button" data-filter="ventas">Ventas</button>
+              <button class="filter-chip" type="button" data-filter="declinadas">Declinadas</button>
+              <input class="filter-search" id="mySearch" placeholder="Buscar por nombre, empresa o folio" />
             </div>
-            <div id="commissionerRecommendation" class="detail-grid"></div>
-            <div id="commissionerRequestDetail" class="detail-grid"></div>
+            <div class="table-wrap"><table id="myTable"></table></div>
           </section>
         </div>
 
@@ -1109,23 +1239,28 @@
               <div><h2>Panel de soporte técnico</h2><p class="sub">Abre un folio y responde desde aquí.</p></div>
               <button class="btn secondary" data-refresh type="button">Actualizar</button>
             </div>
+            <div class="filter-bar" id="supportFilterBar">
+              <button class="filter-chip active" type="button" data-filter="todos">Con folio</button>
+              <button class="filter-chip" type="button" data-filter="sinRespuesta">Sin respuesta</button>
+              <button class="filter-chip" type="button" data-filter="enviado">Enviado</button>
+              <button class="filter-chip" type="button" data-filter="ventas">Ventas</button>
+              <button class="filter-chip" type="button" data-filter="declinadas">Declinadas</button>
+              <input class="filter-search" id="supportSearch" placeholder="Buscar por comisionista o folio" />
+            </div>
             <div class="table-wrap"><table id="supportTable"></table></div>
           </section>
-          <section class="panel hidden" id="responsePanel">
+        </div>
+
+        <div id="view-comisionistas" class="view">
+          <section class="panel">
             <div class="panel-head">
-              <div><h2 id="responseTitle">Responder folio</h2><p class="sub" id="responseMeta"></p></div>
+              <div><h2>Comisionistas</h2><p class="sub">Directorio y avance comercial de cada comisionista.</p></div>
+              <button class="btn secondary" data-refresh type="button">Actualizar</button>
             </div>
-            <div id="requestDetail" class="detail-grid"></div>
-            <div id="supportAnsweredPanel" class="detail-grid hidden"></div>
-            <form id="responseForm" class="form-grid">
-              <input type="hidden" name="folio" />
-              <label class="full">Recomendaci&oacute;n<textarea name="respuesta" required></textarea></label>
-              <label class="full">Adjuntos de respuesta
-                <input name="adjuntos" id="supportFiles" type="file" multiple accept=".pdf,image/*,.doc,.docx,.xlsx" />
-              </label>
-              <div class="detail-block full hidden" id="supportFilesPreview"><span>ARCHIVOS SELECCIONADOS</span><b></b></div>
-              <button class="btn full" id="saveResponseBtn" type="submit">Guardar respuesta y avisar al comisionista</button>
-            </form>
+            <div class="filter-bar">
+              <input class="filter-search" id="commissionersSearch" placeholder="Buscar comisionista por nombre o correo" />
+            </div>
+            <div class="table-wrap"><table id="commissionersTable"></table></div>
           </section>
         </div>
 
@@ -1185,6 +1320,68 @@
       </section>
     </main>
   </div>
+
+  <div class="modal-overlay" id="commissionerDetailModal">
+    <div class="modal-card">
+      <div class="modal-head">
+        <div><h2 id="commissionerDetailTitle">Detalle de solicitud</h2><p class="sub" id="commissionerDetailMeta"></p></div>
+        <button class="modal-close" type="button" data-close-modal="commissionerDetailModal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div id="commissionerRecommendation" class="detail-grid"></div>
+        <div class="section-card avance-card">
+          <div class="section-title">AVANCE DEL FOLIO</div>
+          <div class="section-body">
+            <div id="commissionerAvanceCurrent" class="detail-grid"></div>
+            <form id="avanceForm">
+              <input type="hidden" name="folio" />
+              <label>Estatus del folio *
+                <select name="avanceEstado" required>
+                  <option value="">Selecciona un estatus</option>
+                  <option value="Propuesta enviada">Propuesta enviada</option>
+                  <option value="Prueba autorizada por cliente">Prueba autorizada por cliente</option>
+                  <option value="Venta">Venta</option>
+                  <option value="Declinacion de propuesta">Declinación de propuesta</option>
+                </select>
+              </label>
+              <label>Comentario de seguimiento
+                <textarea name="avanceComentario" placeholder="¿Cómo va con el cliente?"></textarea>
+              </label>
+              <label id="avanceMotivoBox" class="hidden">Motivo de la declinación *
+                <textarea name="avanceMotivo" placeholder="Explica por qué se declinó la propuesta"></textarea>
+              </label>
+              <button class="btn full" id="saveAvanceBtn" type="submit" style="margin-top:4px;">Enviar estatus a gerencia</button>
+            </form>
+          </div>
+        </div>
+        <div id="commissionerRequestDetail" class="detail-grid"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="supportDetailModal">
+    <div class="modal-card">
+      <div class="modal-head">
+        <div><h2 id="responseTitle">Responder folio</h2><p class="sub" id="responseMeta"></p></div>
+        <button class="modal-close" type="button" data-close-modal="supportDetailModal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div id="supportAvanceReadonly" class="detail-grid"></div>
+        <div id="requestDetail" class="detail-grid"></div>
+        <div id="supportAnsweredPanel" class="detail-grid hidden"></div>
+        <form id="responseForm" class="form-grid">
+          <input type="hidden" name="folio" />
+          <label class="full">Recomendaci&oacute;n<textarea name="respuesta" required></textarea></label>
+          <label class="full">Adjuntos de respuesta
+            <input name="adjuntos" id="supportFiles" type="file" multiple accept=".pdf,image/*,.doc,.docx,.xlsx" />
+          </label>
+          <div class="detail-block full hidden" id="supportFilesPreview"><span>ARCHIVOS SELECCIONADOS</span><b></b></div>
+          <button class="btn full" id="saveResponseBtn" type="submit">Guardar respuesta y avisar al comisionista</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
   <div class="toast" id="toast"></div>
 
   <script>
@@ -1200,7 +1397,12 @@
       requestStep: 1,
       requestSubmitting: false,
       responseSubmitting: false,
-      initReady: false
+      avanceSubmitting: false,
+      initReady: false,
+      myFilter: "todos",
+      mySearch: "",
+      supportFilter: "todos",
+      supportSearch: ""
     };
     let bootPromise;
 
@@ -1243,6 +1445,18 @@
       comentarios: "Comentarios finales",
       fotos: "Fotos / archivos"
     };
+    const AVANCE_BADGE = {
+      "Propuesta enviada": { label: "Propuesta enviada", cls: "avance-propuesta" },
+      "Prueba autorizada por cliente": { label: "Prueba autorizada", cls: "avance-prueba" },
+      "Venta": { label: "Venta", cls: "avance-venta" },
+      "Declinacion de propuesta": { label: "Declinada", cls: "avance-declinada" }
+    };
+    function avanceBadge(estado) {
+      const clean = String(estado || "").trim();
+      const info = AVANCE_BADGE[clean];
+      if (!info) return `<span class="badge avance-none">Sin avance</span>`;
+      return `<span class="badge ${info.cls}">${esc(info.label)}</span>`;
+    }
 
     function parseCsv(text) {
       const rows = [];
@@ -1332,6 +1546,17 @@
         if (!user) return { ok: false, message: "Correo no autorizado en USUARIOS.csv." };
         return { ok: true, user: { NOMBRE: user.nombre, CORREO: user.correo, ROL: user.rol, TIPO: user.tipo } };
       }
+      if (payload.action === "selfRegister") {
+        const correo = norm(payload.correo);
+        const nombre = String(payload.nombre || "").trim();
+        if (!correo) return { ok: false, message: "Escribe un correo válido." };
+        if (!nombre) return { ok: false, message: "Escribe tu nombre para registrarte." };
+        const existing = state.usuarios.find(u => norm(u.correo) === correo);
+        if (existing) return { ok: true, user: { nombre: existing.nombre, correo: existing.correo, rol: existing.rol, tipo: existing.tipo } };
+        const user = { nombre, correo: payload.correo, rol: "COMISIONISTA", tipo: "EXTERNO" };
+        state.usuarios.push(user);
+        return { ok: true, user };
+      }
       if (payload.action === "createRequest") {
         const rows = demoRequests();
         const year = new Date().getFullYear();
@@ -1391,6 +1616,27 @@
         })));
         saveDemoRequests(rows);
         return { ok: true, folio: payload.folio };
+      }
+      if (payload.action === "updateCommissionerStatus") {
+        const AVANCE_ESTADOS_DEMO = ["Propuesta enviada", "Prueba autorizada por cliente", "Venta", "Declinacion de propuesta"];
+        const rows = demoRequests();
+        const item = rows.find(r => r.FOLIO === payload.folio);
+        if (!item) return { ok: false, message: "Folio no encontrado." };
+        if (norm(item.COMISIONISTA_CORREO) !== norm(payload.correo)) {
+          return { ok: false, message: "Solo el comisionista que generó este folio puede actualizar su avance." };
+        }
+        if (!AVANCE_ESTADOS_DEMO.includes(payload.avanceEstado)) {
+          return { ok: false, message: "Selecciona un estatus válido." };
+        }
+        if (payload.avanceEstado === "Declinacion de propuesta" && !String(payload.avanceMotivo || "").trim()) {
+          return { ok: false, message: "Indica el motivo de la declinación." };
+        }
+        item.AVANCE_ESTADO = payload.avanceEstado;
+        item.AVANCE_COMENTARIO = payload.avanceComentario || "";
+        item.AVANCE_MOTIVO = payload.avanceEstado === "Declinacion de propuesta" ? (payload.avanceMotivo || "") : "";
+        item.AVANCE_FECHA = new Date().toISOString();
+        saveDemoRequests(rows);
+        return { ok: true, folio: payload.folio, avanceEstado: payload.avanceEstado };
       }
       if (payload.action === "addEquivalence") {
         const row = {
@@ -1463,7 +1709,7 @@
       $("eqCount").textContent = state.equivalencias.length;
       $("codeBox").classList.toggle("hidden", !init.requiresCode);
       $("loginSubmit").disabled = false;
-      $("loginSubmit").textContent = "Iniciar registro";
+      $("loginSubmit").textContent = "Continuar";
       if (state.user) showApp();
     }
 
@@ -1494,6 +1740,20 @@
       });
     }
 
+    function applyStatLabels(supportRole) {
+      if (supportRole) {
+        $("pendingStatLabel").textContent = "PENDIENTES";
+        $("pendingStatSub").textContent = "Nuevos por atender";
+        $("doneStatLabel").textContent = "ENVIADOS";
+        $("doneStatSub").textContent = "Folios enviados";
+      } else {
+        $("pendingStatLabel").textContent = "ENVIADOS A SOPORTE";
+        $("pendingStatSub").textContent = "Esperando respuesta";
+        $("doneStatLabel").textContent = "CON RESPUESTA";
+        $("doneStatSub").textContent = "Folios con respuesta";
+      }
+    }
+
     function showApp() {
       $("login").classList.add("hidden");
       $("app").classList.remove("hidden");
@@ -1501,7 +1761,9 @@
       $("sessionRole").textContent = state.user.rol;
       $("supportNav").classList.toggle("hidden", !isSupport(state.user.rol));
       $("eqNav").classList.toggle("hidden", !isSupport(state.user.rol));
+      $("commissionersNav").classList.toggle("hidden", !isSupport(state.user.rol));
       $("myNav").classList.toggle("hidden", isSupport(state.user.rol));
+      applyStatLabels(isSupport(state.user.rol));
       const folio = new URLSearchParams(location.search).get("folio");
       if (isSupport(state.user.rol)) {
         setView("soporte", true);
@@ -1525,7 +1787,13 @@
       }
       const correo = norm($("loginEmail").value);
       const localUser = state.usuarios.find(u => norm(u.correo || u.CORREO) === correo);
-      if (!localUser) return toast("Correo no autorizado.");
+      if (!localUser) {
+        $("registerBox").classList.remove("hidden");
+        toast("No encontramos ese correo. Puedes registrarte abajo.");
+        $("registerBox").scrollIntoView({ behavior: "smooth", block: "nearest" });
+        return;
+      }
+      $("registerBox").classList.add("hidden");
       state.user = {
         nombre: localUser.nombre || localUser.NOMBRE,
         correo: localUser.correo || localUser.CORREO,
@@ -1534,6 +1802,39 @@
       };
       localStorage.setItem("molubUser", JSON.stringify(state.user));
       showApp();
+    });
+
+    // Alguien externo, no dado de alta por un admin, puede registrarse solo
+    // con su correo y nombre para tener su propio panel de "Mis solicitudes".
+    $("registerSubmit").addEventListener("click", async () => {
+      const correo = norm($("loginEmail").value);
+      const nombre = $("registerName").value.trim();
+      if (!correo) return toast("Escribe tu correo arriba antes de registrarte.");
+      if (!nombre) return toast("Escribe tu nombre para registrarte.");
+      $("registerSubmit").disabled = true;
+      $("registerSubmit").textContent = "Registrando...";
+      try {
+        const res = await apiPost({
+          action: "selfRegister",
+          correo,
+          nombre,
+          empresa: $("registerCompany").value.trim()
+        });
+        if (!res.ok) {
+          toast(res.message || "No se pudo registrar. Intenta de nuevo.");
+          return;
+        }
+        state.usuarios.push(res.user);
+        state.user = res.user;
+        localStorage.setItem("molubUser", JSON.stringify(state.user));
+        $("registerBox").classList.add("hidden");
+        showApp();
+      } catch (error) {
+        toast("No se pudo registrar. Intenta de nuevo.");
+      } finally {
+        $("registerSubmit").disabled = false;
+        $("registerSubmit").textContent = "Registrarme y continuar";
+      }
     });
 
     $("logoutBtn").addEventListener("click", () => {
@@ -1545,19 +1846,40 @@
       btn.addEventListener("click", () => setView(btn.dataset.view));
     });
 
+    function openModal(id) {
+      $(id).classList.add("active");
+    }
+    function closeModal(id) {
+      $(id).classList.remove("active");
+    }
+    document.querySelectorAll("[data-close-modal]").forEach(btn => {
+      btn.addEventListener("click", () => closeModal(btn.dataset.closeModal));
+    });
+    document.querySelectorAll(".modal-overlay").forEach(overlay => {
+      overlay.addEventListener("click", (ev) => {
+        if (ev.target === overlay) closeModal(overlay.id);
+      });
+    });
+    document.addEventListener("keydown", (ev) => {
+      if (ev.key !== "Escape") return;
+      document.querySelectorAll(".modal-overlay.active").forEach(overlay => closeModal(overlay.id));
+    });
+
     function setView(name, skipRefresh = false) {
       document.querySelectorAll(".nav button").forEach(b => b.classList.toggle("active", b.dataset.view === name));
       document.querySelectorAll(".view").forEach(v => v.classList.toggle("active", v.id === "view-" + name));
       const titles = {
         buscar: ["Equivalencias", "Busca por producto SYNLOX o producto de la competencia"],
         mis: ["Mis solicitudes", "Historial y respuestas de soporte"],
-        soporte: ["Soporte técnico", "Folios pendientes, vencidos y enviados"],
+        soporte: ["Solicitudes", "Folios pendientes, vencidos y enviados"],
+        comisionistas: ["Comisionistas", "Directorio y avance comercial de cada comisionista"],
         equivalentes: ["Equivalentes", "Catálogo SYNLOX y productos de competencia"]
       };
       $("pageTitle").textContent = titles[name][0];
       $("pageSub").textContent = titles[name][1];
       if (name !== "buscar" && !skipRefresh) refreshRequests();
       if (name === "equivalentes") renderEquivalences();
+      if (name === "comisionistas") renderCommissionersTable();
     }
 
     $("searchInput").addEventListener("input", showSuggestions);
@@ -1691,12 +2013,12 @@
       $("wizardActions").classList.toggle("first", state.requestStep === 1);
     }
 
-    function setRequestSubmitting(isSubmitting) {
+    function setRequestSubmitting(isSubmitting, statusText) {
       state.requestSubmitting = isSubmitting;
       $("requestForm").setAttribute("aria-busy", isSubmitting ? "true" : "false");
       $("nextStep").disabled = isSubmitting;
       $("prevStep").disabled = isSubmitting;
-      $("nextStep").textContent = isSubmitting ? "Enviando reporte..." : (state.requestStep === 3 ? "Enviar reporte" : "Siguiente paso");
+      $("nextStep").textContent = statusText || (isSubmitting ? "Enviando reporte..." : (state.requestStep === 3 ? "Enviar reporte" : "Siguiente paso"));
     }
 
     function setResponseSubmitting(isSubmitting) {
@@ -1733,20 +2055,39 @@
       });
     }
 
+    async function verifyRecentRequestCreated(startedAt) {
+      try {
+        const res = await apiGet({ action: "requests", correo: state.user.correo, rol: state.user.rol });
+        if (!res.ok) return null;
+        const candidates = (res.solicitudes || []).filter(r => {
+          const created = new Date(r.FECHA_CREACION).getTime();
+          return !isNaN(created) && created >= startedAt - 5000;
+        });
+        if (!candidates.length) return null;
+        candidates.sort((a, b) => new Date(b.FECHA_CREACION) - new Date(a.FECHA_CREACION));
+        return candidates[0];
+      } catch (err) {
+        return null;
+      }
+    }
+
     $("requestForm").addEventListener("submit", async (ev) => {
       ev.preventDefault();
       if (state.requestSubmitting) return;
+      const form = ev.currentTarget;
+      const startedAt = Date.now();
       setRequestSubmitting(true);
+      $("nextStep").classList.remove("btn-success");
       toast("Enviando reporte, espera un momento...");
       try {
-        const form = new FormData(ev.currentTarget);
-        const payload = Object.fromEntries(form.entries());
+        const formData = new FormData(form);
+        const payload = Object.fromEntries(formData.entries());
         const comentariosFinales = payload.comentarios || "";
         payload.viscosidad = [
           payload.cst40 ? `cSt 40C: ${payload.cst40}` : "",
           payload.nlgi ? `NLGI: ${payload.nlgi}` : ""
         ].filter(Boolean).join(" | ");
-        payload.detalleJson = JSON.stringify(buildDetailFromPayload({ ...payload, comentarios: comentariosFinales }, ev.currentTarget));
+        payload.detalleJson = JSON.stringify(buildDetailFromPayload({ ...payload, comentarios: comentariosFinales }, form));
         payload.comentarios = [
           payload.tipoCodigoElemento ? `Tipo y código del elemento: ${payload.tipoCodigoElemento}` : "",
           payload.descripcionEquipo ? `Descripción del equipo: ${payload.descripcionEquipo}` : "",
@@ -1756,23 +2097,53 @@
         payload.action = "createRequest";
         payload.correo = state.user.correo;
         payload.nombreUsuario = state.user.nombre;
-        payload.fotosBase64 = await filesToBase64(ev.currentTarget.fotos.files);
-        const res = await apiPost(payload);
-        if (!res.ok) {
-          toast(res.message || "No se pudo guardar");
+        payload.fotosBase64 = await filesToBase64(form.fotos.files);
+
+        let res = null;
+        try {
+          res = await apiPost(payload);
+        } catch (networkError) {
+          res = null;
+        }
+
+        // Apps Script a veces guarda el folio en la hoja y manda el correo,
+        // pero el navegador falla al leer la respuesta. Antes de avisar que
+        // falló, confirmamos si el folio realmente se creó.
+        if (!res || !res.ok) {
+          const verified = await verifyRecentRequestCreated(startedAt);
+          if (verified) res = { ok: true, folio: verified.FOLIO };
+        }
+
+        if (!res || !res.ok) {
+          toast((res && res.message) || "No se pudo enviar el reporte. Intenta de nuevo.");
           return;
         }
+
+        // Éxito: dejamos el botón bloqueado en verde hasta que el formulario
+        // se limpie por completo, para que un doble clic no genere un folio
+        // duplicado de la misma recomendación.
+        state.requestSubmitting = false;
+        $("nextStep").disabled = true;
+        $("prevStep").disabled = true;
+        $("nextStep").textContent = "¡Enviado!";
+        $("nextStep").classList.add("btn-success");
         toast("Reporte enviado. Folio: " + res.folio);
-        ev.currentTarget.reset();
-        document.querySelectorAll(".choice.active").forEach(item => item.classList.remove("active"));
-        $("tempValue").textContent = "60";
-        setRequestStep(1);
-        $("formPanel").classList.add("hidden");
         refreshRequests();
+        setTimeout(() => {
+          form.reset();
+          document.querySelectorAll(".choice.active").forEach(item => item.classList.remove("active"));
+          $("tempValue").textContent = "60";
+          $("nextStep").classList.remove("btn-success");
+          $("nextStep").disabled = false;
+          $("prevStep").disabled = false;
+          setRequestStep(1);
+          $("formPanel").classList.add("hidden");
+        }, 1100);
+        return;
       } catch (error) {
         toast("No se pudo enviar el reporte. Intenta de nuevo.");
       } finally {
-        setRequestSubmitting(false);
+        if (state.requestSubmitting) setRequestSubmitting(false);
       }
     });
 
@@ -1782,9 +2153,114 @@
       if (!res.ok) return toast(res.message || "No se pudieron cargar solicitudes");
       state.solicitudes = res.solicitudes || [];
       renderStats();
-      renderTable("myTable", isSupport(state.user.rol) ? state.solicitudes.filter(r => r.COMISIONISTA_CORREO === state.user.correo) : state.solicitudes, false);
-      if (isSupport(state.user.rol)) renderTable("supportTable", state.solicitudes, true);
+      renderMyTable();
+      if (isSupport(state.user.rol)) {
+        renderSupportTable();
+        renderCommissionersTable();
+      }
     }
+
+    function matchesFilter(row, filterKey) {
+      if (filterKey === "sinRespuesta") return row.ESTADO !== "Respondido";
+      if (filterKey === "enviado") return row.ESTADO === "Respondido";
+      if (filterKey === "ventas") return String(row.AVANCE_ESTADO || "") === "Venta";
+      if (filterKey === "declinadas") return String(row.AVANCE_ESTADO || "") === "Declinacion de propuesta";
+      return true; // "todos" = Con folio
+    }
+
+    function matchesSearch(row, query) {
+      const clean = norm(query);
+      if (!clean) return true;
+      return looseIncludes(row.COMISIONISTA_NOMBRE, query) ||
+        looseIncludes(row.COMISIONISTA_CORREO, query) ||
+        looseIncludes(row.EMPRESA, query) ||
+        looseIncludes(row.FOLIO, query);
+    }
+
+    function renderMyTable() {
+      const own = isSupport(state.user.rol)
+        ? state.solicitudes.filter(r => r.COMISIONISTA_CORREO === state.user.correo)
+        : state.solicitudes;
+      const rows = own.filter(r => matchesFilter(r, state.myFilter) && matchesSearch(r, state.mySearch));
+      renderTable("myTable", rows, false);
+    }
+
+    function renderSupportTable() {
+      const rows = state.solicitudes.filter(r => matchesFilter(r, state.supportFilter) && matchesSearch(r, state.supportSearch));
+      renderTable("supportTable", rows, true);
+    }
+
+    function wireFilterBar(barId, searchId, stateKey, searchKey, renderFn) {
+      const bar = $(barId);
+      if (!bar) return;
+      bar.querySelectorAll(".filter-chip").forEach(chip => {
+        chip.addEventListener("click", () => {
+          bar.querySelectorAll(".filter-chip").forEach(c => c.classList.remove("active"));
+          chip.classList.add("active");
+          state[stateKey] = chip.dataset.filter;
+          renderFn();
+        });
+      });
+      const search = $(searchId);
+      if (search) {
+        search.addEventListener("input", () => {
+          state[searchKey] = search.value;
+          renderFn();
+        });
+      }
+    }
+    wireFilterBar("myFilterBar", "mySearch", "myFilter", "mySearch", renderMyTable);
+    wireFilterBar("supportFilterBar", "supportSearch", "supportFilter", "supportSearch", renderSupportTable);
+
+    function renderCommissionersTable() {
+      const table = $("commissionersTable");
+      if (!table) return;
+      const query = $("commissionersSearch") ? $("commissionersSearch").value : "";
+      const commissioners = state.usuarios.filter(u => !isSupport(u.rol));
+      const rows = commissioners
+        .filter(u => matchesSearch({ COMISIONISTA_NOMBRE: u.nombre, COMISIONISTA_CORREO: u.correo, EMPRESA: "", FOLIO: "" }, query))
+        .map(u => {
+          const own = state.solicitudes.filter(r => norm(r.COMISIONISTA_CORREO) === norm(u.correo));
+          return {
+            nombre: u.nombre || u.correo,
+            correo: u.correo,
+            total: own.length,
+            pendientes: own.filter(r => r.ESTADO !== "Respondido").length,
+            enviados: own.filter(r => r.ESTADO === "Respondido").length,
+            ventas: own.filter(r => String(r.AVANCE_ESTADO || "") === "Venta").length,
+            declinadas: own.filter(r => String(r.AVANCE_ESTADO || "") === "Declinacion de propuesta").length
+          };
+        })
+        .sort((a, b) => a.nombre.localeCompare(b.nombre));
+
+      table.innerHTML = `<thead><tr><th>Comisionista</th><th>Correo</th><th>Folios</th><th>Pendientes</th><th>Enviados</th><th>Ventas</th><th>Declinadas</th><th></th></tr></thead><tbody></tbody>`;
+      const body = table.querySelector("tbody");
+      body.innerHTML = rows.map(c => `
+        <tr>
+          <td data-label="Comisionista"><b>${esc(c.nombre)}</b></td>
+          <td data-label="Correo">${esc(c.correo)}</td>
+          <td data-label="Folios">${c.total}</td>
+          <td data-label="Pendientes">${c.pendientes}</td>
+          <td data-label="Enviados">${c.enviados}</td>
+          <td data-label="Ventas">${c.ventas}</td>
+          <td data-label="Declinadas">${c.declinadas}</td>
+          <td data-label="Acción"><button class="btn ghost" type="button" onclick="jumpToCommissionerRequests('${esc(c.correo)}')">Ver solicitudes</button></td>
+        </tr>`).join("") || `<tr><td data-label="Comisionistas" colspan="8"><span class="sub">Sin comisionistas registrados.</span></td></tr>`;
+    }
+    if ($("commissionersSearch")) $("commissionersSearch").addEventListener("input", renderCommissionersTable);
+
+    window.jumpToCommissionerRequests = function(correo) {
+      const user = state.usuarios.find(u => norm(u.correo) === norm(correo));
+      setView("soporte");
+      state.supportFilter = "todos";
+      state.supportSearch = user ? (user.nombre || user.correo) : correo;
+      const bar = $("supportFilterBar");
+      if (bar) {
+        bar.querySelectorAll(".filter-chip").forEach(c => c.classList.toggle("active", c.dataset.filter === "todos"));
+      }
+      if ($("supportSearch")) $("supportSearch").value = state.supportSearch;
+      renderSupportTable();
+    };
 
     function renderStats() {
       $("pendingCount").textContent = state.solicitudes.filter(r => r.ESTADO === "Pendiente").length;
@@ -1794,17 +2270,17 @@
 
     function renderTable(id, rows, supportMode) {
       const table = $(id);
-      table.innerHTML = `<thead><tr><th>Folio</th><th>Fecha</th><th>Búsqueda</th><th>Comisionista</th><th>Estado</th><th>Respuesta</th><th></th></tr></thead><tbody></tbody>`;
+      table.innerHTML = `<thead><tr><th>Folio</th><th>Fecha</th><th>Búsqueda</th><th>Comisionista</th><th>Estado soporte</th><th>Avance</th><th></th></tr></thead><tbody></tbody>`;
       const body = table.querySelector("tbody");
       body.innerHTML = rows.map(r => `
         <tr>
-          <td data-label="Folio"><b>${esc(r.FOLIO)}</b></td>
+          <td data-label="Folio"><b class="folio-mono">${esc(r.FOLIO)}</b></td>
           <td data-label="Fecha">${fmtDate(r.FECHA_CREACION)}</td>
           <td data-label="Búsqueda">${esc(r.BUSQUEDA_ORIGINAL || r.LUBRICANTE_ACTUAL)}</td>
           <td data-label="Comisionista">${esc(r.COMISIONISTA_NOMBRE || "")}</td>
-          <td data-label="Estado"><span class="badge ${esc(r.ESTADO)}">${esc(displayStatus(r.ESTADO))}</span></td>
-          <td data-label="Respuesta">${r.RESPUESTA ? esc(String(r.RESPUESTA).slice(0, 90)) : "<span class='sub'>Sin respuesta</span>"}</td>
-          <td data-label="Acción"><button class="btn ghost" type="button" onclick="${supportMode ? "openResponse" : "openCommissionerDetail"}('${esc(r.FOLIO)}')">${supportMode ? (r.ESTADO === "Respondido" ? "Ver" : "Abrir") : (r.RESPUESTA ? "Abrir respuesta" : "Abrir")}</button></td>
+          <td data-label="Estado soporte"><span class="badge ${esc(r.ESTADO)}">${esc(displayStatus(r.ESTADO))}</span></td>
+          <td data-label="Avance">${avanceBadge(r.AVANCE_ESTADO)}</td>
+          <td data-label="Acción"><button class="btn ghost" type="button" onclick="${supportMode ? "openResponse" : "openCommissionerDetail"}('${esc(r.FOLIO)}')">Detalle</button></td>
         </tr>`).join("") || `<tr><td data-label="Solicitudes" colspan="7"><span class="sub">Sin solicitudes todavia.</span></td></tr>`;
     }
 
@@ -2098,9 +2574,8 @@
     window.openCommissionerDetail = function(folio) {
       const r = state.solicitudes.find(x => x.FOLIO === folio);
       if (!r) return toast("Folio no encontrado");
-      $("commissionerDetailPanel").classList.remove("hidden");
       $("commissionerDetailTitle").textContent = "Solicitud " + folio;
-      $("commissionerDetailMeta").textContent = [r.ESTADO, r.BUSQUEDA_ORIGINAL || r.LUBRICANTE_ACTUAL, fmtDate(r.FECHA_CREACION)].filter(Boolean).join(" | ");
+      $("commissionerDetailMeta").textContent = [displayStatus(r.ESTADO), r.BUSQUEDA_ORIGINAL || r.LUBRICANTE_ACTUAL, fmtDate(r.FECHA_CREACION)].filter(Boolean).join(" | ");
       const respuesta = readField(r, ["RESPUESTA", "respuesta"]) || "Aún no hay respuesta de soporte.";
       $("commissionerRecommendation").innerHTML = [
         detailTitle("RECOMENDACIÓN DE SOPORTE"),
@@ -2108,18 +2583,45 @@
         detailBlock("Respuesta", respuesta, true),
         `<div class="detail-block full"><span>ADJUNTOS DE RESPUESTA</span><b>${renderSupportAttachments(r)}</b></div>`
       ].filter(Boolean).join("");
+
+      const avanceEstado = readField(r, ["AVANCE_ESTADO"]);
+      $("commissionerAvanceCurrent").innerHTML = avanceEstado ? [
+        detailBlock("Estatus actual", avanceEstado),
+        detailBlock("Comentario", readField(r, ["AVANCE_COMENTARIO"]) || "Sin comentario", true),
+        avanceEstado === "Declinacion de propuesta" ? detailBlock("Motivo de declinación", readField(r, ["AVANCE_MOTIVO"]), true) : "",
+        detailBlock("Última actualización", fmtDate(readField(r, ["AVANCE_FECHA"])))
+      ].filter(Boolean).join("") : `<div class="detail-block full"><b>Todavía no has actualizado el avance de este folio.</b></div>`;
+
+      const form = $("avanceForm");
+      form.folio.value = folio;
+      form.avanceEstado.value = "";
+      form.avanceComentario.value = "";
+      form.avanceMotivo.value = "";
+      $("avanceMotivoBox").classList.add("hidden");
+
       renderDetailInto("commissionerRequestDetail", r);
-      $("commissionerDetailPanel").scrollIntoView({ behavior: "smooth", block: "start" });
+      openModal("commissionerDetailModal");
     };
 
     window.openResponse = function(folio) {
       const r = state.solicitudes.find(x => x.FOLIO === folio);
       if (!r) return toast("Folio no encontrado");
-      $("responsePanel").classList.remove("hidden");
       $("responseForm").folio.value = folio;
       $("responseForm").respuesta.value = r.RESPUESTA || "";
       $("responseTitle").textContent = "Responder " + folio;
       $("responseMeta").textContent = [r.COMISIONISTA_NOMBRE, r.BUSQUEDA_ORIGINAL, r.NOMBRE_EQUIPO].filter(Boolean).join(" | ");
+
+      // Soporte puede VER el avance comercial que el comisionista capturó,
+      // pero nunca puede editarlo: solo el comisionista sabe cómo va con su cliente.
+      const avanceEstado = readField(r, ["AVANCE_ESTADO"]);
+      $("supportAvanceReadonly").innerHTML = [
+        detailTitle("AVANCE DEL COMISIONISTA (SOLO LECTURA)"),
+        avanceEstado ? detailBlock("Estatus", avanceEstado) : detailBlock("Estatus", "Sin avance capturado todavía"),
+        avanceEstado ? detailBlock("Comentario", readField(r, ["AVANCE_COMENTARIO"]) || "Sin comentario", true) : "",
+        avanceEstado === "Declinacion de propuesta" ? detailBlock("Motivo de declinación", readField(r, ["AVANCE_MOTIVO"]), true) : "",
+        avanceEstado ? detailBlock("Última actualización", fmtDate(readField(r, ["AVANCE_FECHA"]))) : ""
+      ].filter(Boolean).join("");
+
       renderRequestDetail(r);
       const alreadyAnswered = r.ESTADO === "Respondido" || String(r.RESPUESTA || "").trim();
       $("responseForm").classList.toggle("hidden", alreadyAnswered);
@@ -2135,7 +2637,7 @@
       } else {
         $("supportAnsweredPanel").innerHTML = "";
       }
-      $("responsePanel").scrollIntoView({ behavior: "smooth", block: "start" });
+      openModal("supportDetailModal");
     };
 
     $("responseForm").addEventListener("submit", async (ev) => {
@@ -2167,6 +2669,50 @@
         toast("No se pudo guardar la respuesta. Intenta de nuevo.");
       } finally {
         setResponseSubmitting(false);
+      }
+    });
+
+    $("avanceForm").elements.avanceEstado.addEventListener("change", (ev) => {
+      $("avanceMotivoBox").classList.toggle("hidden", ev.target.value !== "Declinacion de propuesta");
+    });
+
+    function setAvanceSubmitting(isSubmitting) {
+      state.avanceSubmitting = isSubmitting;
+      $("saveAvanceBtn").disabled = isSubmitting;
+      $("saveAvanceBtn").textContent = isSubmitting ? "Enviando..." : "Enviar estatus a gerencia";
+    }
+
+    $("avanceForm").addEventListener("submit", async (ev) => {
+      ev.preventDefault();
+      if (state.avanceSubmitting) return;
+      const form = ev.currentTarget;
+      const estado = form.avanceEstado.value;
+      if (!estado) return toast("Selecciona un estatus del folio.");
+      const motivo = form.avanceMotivo.value.trim();
+      if (estado === "Declinacion de propuesta" && !motivo) {
+        return toast("Indica el motivo de la declinación.");
+      }
+      setAvanceSubmitting(true);
+      try {
+        const res = await apiPost({
+          action: "updateCommissionerStatus",
+          folio: form.folio.value,
+          correo: state.user.correo,
+          avanceEstado: estado,
+          avanceComentario: form.avanceComentario.value,
+          avanceMotivo: motivo
+        });
+        if (!res.ok) {
+          toast(res.message || "No se pudo enviar el estatus a gerencia.");
+          return;
+        }
+        toast("Estatus enviado a gerencia.");
+        await refreshRequests();
+        openCommissionerDetail(form.folio.value);
+      } catch (error) {
+        toast("No se pudo enviar el estatus. Intenta de nuevo.");
+      } finally {
+        setAvanceSubmitting(false);
       }
     });
 
