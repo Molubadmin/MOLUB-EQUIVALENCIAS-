@@ -973,7 +973,7 @@
                 <p class="sub">Se generar&aacute; folio y se notificar&aacute; a soporte con SLA de 24 horas.</p>
               </div>
             </div>
-            <form id="requestForm" class="wizard">
+            <form id="requestForm" class="wizard" novalidate>
               <input type="hidden" name="busquedaOriginal" id="busquedaOriginal" />
               <input type="hidden" name="motivo" id="motivoField" value="Sin equivalencia" />
               <input type="hidden" name="equipoSimilar" />
@@ -1921,7 +1921,7 @@
       if ($("complexToggle").checked) openRequestForm("Equipo complejo");
       else $("formPanel").classList.add("hidden");
     });
-    $("nextStep").addEventListener("click", nextRequestStep);
+    $("nextStep").addEventListener("click", handleWizardNextClick);
     $("prevStep").addEventListener("click", prevRequestStep);
     $("tempRange").addEventListener("input", () => $("tempValue").textContent = $("tempRange").value);
     $("supportFiles").addEventListener("change", () => {
@@ -2041,8 +2041,7 @@
       document.querySelectorAll(".wizard-step").forEach(item => item.classList.toggle("active", Number(item.dataset.step) === state.requestStep));
       document.querySelectorAll("[data-step-label]").forEach(item => item.classList.toggle("active", Number(item.dataset.stepLabel) === state.requestStep));
       $("prevStep").classList.toggle("hidden", state.requestStep === 1);
-      $("nextStep").textContent = state.requestSubmitting ? "Enviando reporte..." : (state.requestStep === 3 ? "Enviar reporte" : "Siguiente paso");
-      $("nextStep").type = state.requestStep === 3 ? "submit" : "button";
+      $("nextStep").textContent = state.requestStep === 3 ? "Enviar reporte" : "Siguiente paso";
       $("wizardActions").classList.toggle("first", state.requestStep === 1);
     }
 
@@ -2077,6 +2076,18 @@
       $("formPanel").scrollIntoView({ behavior: "smooth", block: "start" });
     }
 
+    // El botón de abajo del wizard SIEMPRE es type="button" (nunca "submit"),
+    // así que un clic jamás puede disparar el envío nativo del formulario.
+    // Este único manejador decide qué hacer según el paso actual: en 1 y 2
+    // solo avanza; en 3, y solo en 3, llama directamente a enviar el folio.
+    function handleWizardNextClick() {
+      if (state.requestStep < 3) {
+        nextRequestStep();
+        return;
+      }
+      submitRequestForm();
+    }
+
     function buildDetailFromPayload(payload, form) {
       return Object.entries(DETAIL_LABELS).map(([key, label]) => {
         let value = payload[key] || "";
@@ -2104,10 +2115,30 @@
       }
     }
 
-    $("requestForm").addEventListener("submit", async (ev) => {
+    // El envío real de un folio SOLO puede pasar en el paso 3. Este candado
+    // es independiente de cómo se dispare (llamada directa del botón, o el
+    // evento nativo "submit" como respaldo) — si no estamos en el paso 3,
+    // no se crea ningún folio.
+    $("requestForm").addEventListener("keydown", (ev) => {
+      if (ev.key === "Enter" && ev.target.tagName !== "TEXTAREA" && state.requestStep !== 3) {
+        ev.preventDefault();
+      }
+    });
+
+    // Respaldo: si algo llegara a disparar el evento nativo "submit" del
+    // formulario, lo redirigimos a la misma función y con el mismo candado.
+    // El botón ya NO depende de esto — lo llama directo (ver
+    // handleWizardNextClick), así que un cambio de type="button" a
+    // type="submit" a media interacción nunca vuelve a pasar.
+    $("requestForm").addEventListener("submit", (ev) => {
       ev.preventDefault();
+      submitRequestForm();
+    });
+
+    async function submitRequestForm() {
+      if (state.requestStep !== 3) return;
       if (state.requestSubmitting) return;
-      const form = ev.currentTarget;
+      const form = $("requestForm");
       const startedAt = Date.now();
       setRequestSubmitting(true);
       $("nextStep").classList.remove("btn-success");
@@ -2178,7 +2209,7 @@
       } finally {
         if (state.requestSubmitting) setRequestSubmitting(false);
       }
-    });
+    }
 
     async function refreshRequests() {
       if (!state.user) return;
@@ -2858,35 +2889,77 @@
       openModal("supportDetailModal");
     };
 
+    async function verifyRecentRecommendationSaved(folio) {
+      try {
+        const res = await apiGet({ action: "requests", correo: state.user.correo, rol: state.user.rol });
+        if (!res.ok) return null;
+        const match = (res.solicitudes || []).find(r => String(r.FOLIO) === String(folio));
+        if (match && (match.ESTADO === "Respondido" || String(match.RESPUESTA || "").trim())) return match;
+        return null;
+      } catch (err) {
+        return null;
+      }
+    }
+
     $("responseForm").addEventListener("submit", async (ev) => {
       ev.preventDefault();
       if (state.responseSubmitting) return;
+      const form = ev.currentTarget;
+      const folio = form.folio.value;
       setResponseSubmitting(true);
+      $("saveResponseBtn").classList.remove("btn-success");
       toast("Guardando respuesta y adjuntos...");
       const payload = {
         action: "saveRecommendation",
-        folio: ev.currentTarget.folio.value,
-        respuesta: ev.currentTarget.respuesta.value,
+        folio: folio,
+        respuesta: form.respuesta.value,
         soporteCorreo: state.user.correo,
         adjuntosBase64: []
       };
       try {
-        payload.adjuntosBase64 = await filesToBase64(ev.currentTarget.adjuntos.files);
-        const res = await apiPost(payload);
-        if (!res.ok) {
-          toast(res.message || "No se pudo responder");
+        payload.adjuntosBase64 = await filesToBase64(form.adjuntos.files);
+
+        let res = null;
+        try {
+          res = await apiPost(payload);
+        } catch (networkError) {
+          res = null;
+        }
+
+        // Igual que al crear un folio: a veces Apps Script sí guarda la
+        // respuesta pero el navegador falla al leer la respuesta. Antes de
+        // avisar que falló, confirmamos si en realidad ya se guardó.
+        if (!res || !res.ok) {
+          const verified = await verifyRecentRecommendationSaved(folio);
+          if (verified) res = { ok: true, folio: folio };
+        }
+
+        if (!res || !res.ok) {
+          toast((res && res.message) || "No se pudo guardar la respuesta. Intenta de nuevo.");
           return;
         }
-        toast("Respuesta guardada y enviada");
-        ev.currentTarget.adjuntos.value = "";
+
+        state.responseSubmitting = false;
+        form.respuesta.disabled = false;
+        form.adjuntos.disabled = false;
+        form.setAttribute("aria-busy", "false");
+        $("saveResponseBtn").disabled = true;
+        $("saveResponseBtn").textContent = "¡Enviado!";
+        $("saveResponseBtn").classList.add("btn-success");
+        toast("Respuesta guardada y enviada al comisionista.");
+        form.adjuntos.value = "";
         $("supportFilesPreview").classList.add("hidden");
         $("supportFilesPreview").querySelector("b").textContent = "";
         await refreshRequests();
-        openResponse(payload.folio);
+        setTimeout(() => {
+          $("saveResponseBtn").classList.remove("btn-success");
+          openResponse(folio);
+        }, 900);
+        return;
       } catch (error) {
         toast("No se pudo guardar la respuesta. Intenta de nuevo.");
       } finally {
-        setResponseSubmitting(false);
+        if (state.responseSubmitting) setResponseSubmitting(false);
       }
     });
 
