@@ -158,6 +158,29 @@
     .btn.secondary { background: #efeff8; color: var(--blue); }
     .btn.ghost { background: transparent; color: var(--ink); border: 1px solid var(--line); }
     .btn.btn-success { background: var(--ok); }
+    .btn.btn-danger { background: var(--danger); }
+    .btn.btn-danger:hover { background: #cf3a3f; }
+    .btn.danger-ghost {
+      background: #fff0f0;
+      color: var(--danger);
+      border: 1px solid #f7c9cb;
+    }
+    .btn.danger-ghost:hover { background: #ffe4e5; }
+    .admin-only-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #eef0ff;
+      color: var(--blue);
+      border: 1px solid #d6dbff;
+      border-radius: 999px;
+      padding: 5px 12px;
+      font-size: 11px;
+      font-weight: 900;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+    }
+    .row-actions { display: flex; gap: 8px; flex-wrap: wrap; }
     .suggestions {
       position: absolute;
       left: 0;
@@ -1328,6 +1351,9 @@
               </div>
             </div>
             <form id="equivalenceForm" class="form-grid" style="margin-bottom:20px;">
+              <div class="full" id="equivalenceFormAdminTag" style="margin-bottom:-4px;">
+                <span class="admin-only-tag">Solo administradores</span>
+              </div>
               <input type="hidden" name="rowNumber" />
               <input type="hidden" name="localId" />
               <label>SYNLOX
@@ -1351,6 +1377,7 @@
               <button class="btn" id="saveEquivalenceBtn" type="submit">Agregar equivalencia</button>
               <button class="btn secondary hidden" id="cancelEquivalenceEdit" type="button">Cancelar edición</button>
             </form>
+            <p id="equivalenceReadonlyNote" class="sub hidden" style="margin-top:-10px;">Solo los administradores pueden agregar, editar o borrar equivalencias. Puedes consultar el catálogo abajo.</p>
             <div class="filter-grid">
               <label>Buscar equivalencia
                 <input id="equivalenceSearch" placeholder="SYNLOX, competencia o marca" />
@@ -1480,7 +1507,9 @@
 
     const $ = (id) => document.getElementById(id);
     const isSupport = (role) => ["SOPORTE", "ADMIN"].includes(String(role || "").toUpperCase());
-    const norm = (v) => String(v || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
+    const isAdmin = (role) => String(role || "").toUpperCase() === "ADMIN";
+    const DIACRITICS_RE = new RegExp("[\\u0300-\\u036f]", "g");
+    const norm = (v) => String(v || "").normalize("NFD").replace(DIACRITICS_RE, "").toLowerCase().trim();
     const compactNorm = (v) => norm(v).replace(/[^a-z0-9]+/g, "");
     const looseIncludes = (text, query) => {
       const cleanQuery = norm(query);
@@ -1549,7 +1578,8 @@
       }
       row.push(cell);
       if (row.some(v => v.trim() !== "")) rows.push(row);
-      const headers = rows.shift().map(h => h.replace(/^\uFEFF/, ""));
+      const BOM_RE = new RegExp("^\\uFEFF");
+      const headers = rows.shift().map(h => h.replace(BOM_RE, ""));
       return rows.map((r, index) => ({
         ...Object.fromEntries(headers.map((h, i) => [h, r[i] || ""])),
         _ROW_NUMBER: index + 2
@@ -1585,13 +1615,24 @@
       localStorage.setItem("molubDemoEquivalenceOverrides", JSON.stringify(rows));
     }
 
+    function demoDeletedEquivalences() {
+      return JSON.parse(localStorage.getItem("molubDemoDeletedEquivalences") || "[]");
+    }
+
+    function saveDemoDeletedEquivalences(list) {
+      localStorage.setItem("molubDemoDeletedEquivalences", JSON.stringify(list));
+    }
+
     async function demoGet(params) {
       if (params.action === "init") {
         const [eqText, usersText] = await Promise.all([
           fetch(`EQUIVALENCIAS.csv?v=${STATIC_VERSION}`).then(r => r.text()),
           fetch(`USUARIOS.csv?v=${STATIC_VERSION}`).then(r => r.text())
         ]);
-        const baseEquivalences = parseCsv(eqText).map(row => ({ ...row, ...(demoEquivalenceOverrides()[row._ROW_NUMBER] || {}) }));
+        const deletedRows = demoDeletedEquivalences();
+        const baseEquivalences = parseCsv(eqText)
+          .filter(row => !deletedRows.includes(row._ROW_NUMBER))
+          .map(row => ({ ...row, ...(demoEquivalenceOverrides()[row._ROW_NUMBER] || {}) }));
         return {
           ok: true,
           equivalencias: [...baseEquivalences, ...demoExtraEquivalences()],
@@ -1610,6 +1651,11 @@
         return { ok: true, solicitudes: visible };
       }
       return { ok: true };
+    }
+
+    function demoFindUserRole(correo) {
+      const user = state.usuarios.find(u => norm(u.correo) === norm(correo));
+      return user ? user.rol : "";
     }
 
     async function demoPost(payload) {
@@ -1711,6 +1757,9 @@
         return { ok: true, folio: payload.folio, avanceEstado: payload.avanceEstado };
       }
       if (payload.action === "addEquivalence") {
+        if (!isAdmin(demoFindUserRole(payload.correo))) {
+          return { ok: false, message: "Solo administradores pueden agregar equivalencias." };
+        }
         const row = {
           _LOCAL_ID: "local-" + Date.now(),
           SYNLOX: payload.synlox || "",
@@ -1726,6 +1775,9 @@
         return { ok: true, equivalencia: row };
       }
       if (payload.action === "updateEquivalence") {
+        if (!isAdmin(demoFindUserRole(payload.correo))) {
+          return { ok: false, message: "Solo administradores pueden editar equivalencias." };
+        }
         const updated = {
           _ROW_NUMBER: payload.rowNumber || "",
           _LOCAL_ID: payload.localId || "",
@@ -1749,6 +1801,21 @@
           saveDemoEquivalenceOverrides(overrides);
         }
         return { ok: true, equivalencia: updated };
+      }
+      if (payload.action === "deleteEquivalence") {
+        if (!isAdmin(demoFindUserRole(payload.correo))) {
+          return { ok: false, message: "Solo administradores pueden borrar equivalencias." };
+        }
+        if (payload.localId) {
+          const extras = demoExtraEquivalences().filter(row => row._LOCAL_ID !== payload.localId);
+          saveDemoExtraEquivalences(extras);
+        } else if (payload.rowNumber) {
+          const deleted = demoDeletedEquivalences();
+          const rowNumber = Number(payload.rowNumber);
+          if (!deleted.includes(rowNumber)) deleted.push(rowNumber);
+          saveDemoDeletedEquivalences(deleted);
+        }
+        return { ok: true };
       }
       return { ok: false, message: "Acción demo no reconocida." };
     }
@@ -2618,9 +2685,20 @@
       return status === "Respondido" ? "Enviado" : (status || "");
     }
 
+    async function reloadEquivalences() {
+      const init = await apiGet({ action: "init" });
+      if (!init.ok) return toast(init.message || "No se pudo actualizar el catálogo");
+      state.equivalencias = init.equivalencias || [];
+      $("eqCount").textContent = state.equivalencias.length;
+      renderEquivalences();
+    }
+
     function renderEquivalences() {
       const table = $("equivalencesTable");
       if (!table) return;
+      const admin = isAdmin(state.user.rol);
+      $("equivalenceForm").classList.toggle("hidden", !admin);
+      $("equivalenceReadonlyNote").classList.toggle("hidden", admin);
       refreshEquivalenceFilterOptions();
       const rows = filteredEquivalences().sort((a, b) => String(a.SYNLOX || "").localeCompare(String(b.SYNLOX || "")));
       $("equivalenceCountLabel").textContent = `${rows.length} de ${state.equivalencias.length} resultados`;
@@ -2634,7 +2712,11 @@
           <td data-label="Condición">${esc(r.CONDICION_ESPECIAL || "")}</td>
           <td data-label="Tipo">${esc(r.TIPO_LUBRICANTE || "")}</td>
           <td data-label="Ficha">${technicalSheetUrl(r) ? `<a href="${esc(technicalSheetUrl(r))}" target="_blank" rel="noopener">Abrir</a>` : "Pendiente"}</td>
-          <td data-label="Acción"><button class="btn ghost" type="button" onclick="editEquivalence(${state.equivalencias.indexOf(r)})">Editar</button></td>
+          <td data-label="Acción">${admin ? `
+            <div class="row-actions">
+              <button class="btn ghost" type="button" onclick="editEquivalence(${state.equivalencias.indexOf(r)})">Editar</button>
+              <button class="btn danger-ghost" type="button" onclick="deleteEquivalence(${state.equivalencias.indexOf(r)})">Borrar</button>
+            </div>` : `<span class="sub">Solo lectura</span>`}</td>
         </tr>`).join("") || `<tr><td data-label="Equivalencias" colspan="7"><span class="sub">Sin equivalencias cargadas.</span></td></tr>`;
     }
 
@@ -2669,6 +2751,7 @@
     }
 
     window.editEquivalence = function(index) {
+      if (!isAdmin(state.user.rol)) return toast("Solo administradores pueden editar equivalencias.");
       const row = state.equivalencias[index];
       if (!row) return toast("No se encontró la equivalencia");
       const form = $("equivalenceForm");
@@ -2683,6 +2766,26 @@
       $("saveEquivalenceBtn").textContent = "Guardar cambios";
       $("cancelEquivalenceEdit").classList.remove("hidden");
       form.scrollIntoView({ behavior: "smooth", block: "start" });
+    };
+
+    // Borra una equivalencia del catálogo. Solo visible y permitido para
+    // administradores (isAdmin) — soporte solo puede consultar el catálogo.
+    window.deleteEquivalence = async function(index) {
+      if (!isAdmin(state.user.rol)) return toast("Solo administradores pueden borrar equivalencias.");
+      const row = state.equivalencias[index];
+      if (!row) return toast("No se encontró la equivalencia");
+      const label = row.SYNLOX || row.COMPETENCIA || "esta equivalencia";
+      const confirmed = window.confirm(`¿Seguro que quieres borrar "${label}"?\n\nEsta acción no se puede deshacer.`);
+      if (!confirmed) return;
+      const res = await apiPost({
+        action: "deleteEquivalence",
+        rowNumber: row._ROW_NUMBER || "",
+        localId: row._LOCAL_ID || "",
+        correo: state.user.correo
+      });
+      if (!res.ok) return toast(res.message || "No se pudo borrar la equivalencia");
+      toast("Equivalencia borrada");
+      await reloadEquivalences();
     };
 
     function resetEquivalenceForm() {
@@ -3103,7 +3206,7 @@
     });
 
     document.querySelectorAll("[data-refresh]").forEach(b => b.addEventListener("click", refreshRequests));
-    $("refreshEquivalences").addEventListener("click", renderEquivalences);
+    $("refreshEquivalences").addEventListener("click", reloadEquivalences);
     $("equivalenceSearch").addEventListener("input", renderEquivalences);
     $("brandFilter").addEventListener("change", renderEquivalences);
     $("typeFilter").addEventListener("change", renderEquivalences);
@@ -3111,6 +3214,7 @@
     $("cancelEquivalenceEdit").addEventListener("click", resetEquivalenceForm);
     $("equivalenceForm").addEventListener("submit", async (ev) => {
       ev.preventDefault();
+      if (!isAdmin(state.user.rol)) return toast("Solo administradores pueden agregar o editar equivalencias.");
       const payload = Object.fromEntries(new FormData(ev.currentTarget).entries());
       const editing = Boolean(payload.rowNumber || payload.localId);
       payload.action = editing ? "updateEquivalence" : "addEquivalence";
