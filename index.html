@@ -1352,7 +1352,7 @@
             </div>
             <form id="equivalenceForm" class="form-grid" style="margin-bottom:20px;">
               <div class="full" id="equivalenceFormAdminTag" style="margin-bottom:-4px;">
-                <span class="admin-only-tag">Solo administradores</span>
+                <span class="admin-only-tag">Acceso restringido</span>
               </div>
               <input type="hidden" name="rowNumber" />
               <input type="hidden" name="localId" />
@@ -1377,7 +1377,7 @@
               <button class="btn" id="saveEquivalenceBtn" type="submit">Agregar equivalencia</button>
               <button class="btn secondary hidden" id="cancelEquivalenceEdit" type="button">Cancelar edición</button>
             </form>
-            <p id="equivalenceReadonlyNote" class="sub hidden" style="margin-top:-10px;">Solo los administradores pueden agregar, editar o borrar equivalencias. Puedes consultar el catálogo abajo.</p>
+            <p id="equivalenceReadonlyNote" class="sub hidden" style="margin:0 0 16px;">Solo usuarios autorizados pueden agregar, editar o borrar equivalencias. Puedes consultar el catálogo abajo.</p>
             <div class="filter-grid">
               <label>Buscar equivalencia
                 <input id="equivalenceSearch" placeholder="SYNLOX, competencia o marca" />
@@ -1507,7 +1507,17 @@
 
     const $ = (id) => document.getElementById(id);
     const isSupport = (role) => ["SOPORTE", "ADMIN"].includes(String(role || "").toUpperCase());
-    const isAdmin = (role) => String(role || "").toUpperCase() === "ADMIN";
+    // Solo estos correos pueden agregar, editar o borrar equivalencias del
+    // catálogo, sin importar su rol (SOPORTE o ADMIN) — todos los demás
+    // usuarios solo pueden consultarlo.
+    const EQUIVALENCE_MANAGER_EMAILS = new Set([
+      "soporte@molub.com.mx",
+      "aux.ventas@molub.com.mx",
+      "gerenciaventas@molub.com.mx",
+      "facturacion@molub.com.mx",
+      "ventas@molub.com.mx"
+    ]);
+    const canManageEquivalences = (correo) => EQUIVALENCE_MANAGER_EMAILS.has(String(correo || "").trim().toLowerCase());
     const DIACRITICS_RE = new RegExp("[\\u0300-\\u036f]", "g");
     const norm = (v) => String(v || "").normalize("NFD").replace(DIACRITICS_RE, "").toLowerCase().trim();
     const compactNorm = (v) => norm(v).replace(/[^a-z0-9]+/g, "");
@@ -1653,11 +1663,6 @@
       return { ok: true };
     }
 
-    function demoFindUserRole(correo) {
-      const user = state.usuarios.find(u => norm(u.correo) === norm(correo));
-      return user ? user.rol : "";
-    }
-
     async function demoPost(payload) {
       if (payload.action === "login") {
         const user = state.usuarios.find(u => norm(u.correo) === norm(payload.correo));
@@ -1757,8 +1762,8 @@
         return { ok: true, folio: payload.folio, avanceEstado: payload.avanceEstado };
       }
       if (payload.action === "addEquivalence") {
-        if (!isAdmin(demoFindUserRole(payload.correo))) {
-          return { ok: false, message: "Solo administradores pueden agregar equivalencias." };
+        if (!canManageEquivalences(payload.correo)) {
+          return { ok: false, message: "Tu correo no está autorizado para agregar equivalencias." };
         }
         const row = {
           _LOCAL_ID: "local-" + Date.now(),
@@ -1775,8 +1780,8 @@
         return { ok: true, equivalencia: row };
       }
       if (payload.action === "updateEquivalence") {
-        if (!isAdmin(demoFindUserRole(payload.correo))) {
-          return { ok: false, message: "Solo administradores pueden editar equivalencias." };
+        if (!canManageEquivalences(payload.correo)) {
+          return { ok: false, message: "Tu correo no está autorizado para editar equivalencias." };
         }
         const updated = {
           _ROW_NUMBER: payload.rowNumber || "",
@@ -1803,8 +1808,8 @@
         return { ok: true, equivalencia: updated };
       }
       if (payload.action === "deleteEquivalence") {
-        if (!isAdmin(demoFindUserRole(payload.correo))) {
-          return { ok: false, message: "Solo administradores pueden borrar equivalencias." };
+        if (!canManageEquivalences(payload.correo)) {
+          return { ok: false, message: "Tu correo no está autorizado para borrar equivalencias." };
         }
         if (payload.localId) {
           const extras = demoExtraEquivalences().filter(row => row._LOCAL_ID !== payload.localId);
@@ -2696,7 +2701,7 @@
     function renderEquivalences() {
       const table = $("equivalencesTable");
       if (!table) return;
-      const admin = isAdmin(state.user.rol);
+      const admin = canManageEquivalences(state.user.correo);
       $("equivalenceForm").classList.toggle("hidden", !admin);
       $("equivalenceReadonlyNote").classList.toggle("hidden", admin);
       refreshEquivalenceFilterOptions();
@@ -2751,7 +2756,7 @@
     }
 
     window.editEquivalence = function(index) {
-      if (!isAdmin(state.user.rol)) return toast("Solo administradores pueden editar equivalencias.");
+      if (!canManageEquivalences(state.user.correo)) return toast("Tu correo no está autorizado para editar equivalencias.");
       const row = state.equivalencias[index];
       if (!row) return toast("No se encontró la equivalencia");
       const form = $("equivalenceForm");
@@ -2768,10 +2773,10 @@
       form.scrollIntoView({ behavior: "smooth", block: "start" });
     };
 
-    // Borra una equivalencia del catálogo. Solo visible y permitido para
-    // administradores (isAdmin) — soporte solo puede consultar el catálogo.
+    // Borra una equivalencia del catálogo. Solo visible y permitido para los
+    // correos en EQUIVALENCE_MANAGER_EMAILS — el resto solo puede consultar.
     window.deleteEquivalence = async function(index) {
-      if (!isAdmin(state.user.rol)) return toast("Solo administradores pueden borrar equivalencias.");
+      if (!canManageEquivalences(state.user.correo)) return toast("Tu correo no está autorizado para borrar equivalencias.");
       const row = state.equivalencias[index];
       if (!row) return toast("No se encontró la equivalencia");
       const label = row.SYNLOX || row.COMPETENCIA || "esta equivalencia";
@@ -3214,7 +3219,7 @@
     $("cancelEquivalenceEdit").addEventListener("click", resetEquivalenceForm);
     $("equivalenceForm").addEventListener("submit", async (ev) => {
       ev.preventDefault();
-      if (!isAdmin(state.user.rol)) return toast("Solo administradores pueden agregar o editar equivalencias.");
+      if (!canManageEquivalences(state.user.correo)) return toast("Tu correo no está autorizado para agregar o editar equivalencias.");
       const payload = Object.fromEntries(new FormData(ev.currentTarget).entries());
       const editing = Boolean(payload.rowNumber || payload.localId);
       payload.action = editing ? "updateEquivalence" : "addEquivalence";
