@@ -1347,36 +1347,12 @@
             <div class="sticky-subhead">
               <div class="panel-head">
                 <div><h2>Equivalentes</h2><p class="sub">Catálogo actual de equivalencias y alta de nuevos productos.</p></div>
-                <button class="btn secondary" id="refreshEquivalences" type="button">Actualizar</button>
+                <div class="row-actions">
+                  <button class="btn secondary" id="refreshEquivalences" type="button">Actualizar</button>
+                  <button class="btn hidden" id="openAddEquivalence" type="button">Agregar equivalencia</button>
+                </div>
               </div>
             </div>
-            <form id="equivalenceForm" class="form-grid" style="margin-bottom:20px;">
-              <div class="full" id="equivalenceFormAdminTag" style="margin-bottom:-4px;">
-                <span class="admin-only-tag">Acceso restringido</span>
-              </div>
-              <input type="hidden" name="rowNumber" />
-              <input type="hidden" name="localId" />
-              <label>SYNLOX
-                <input name="synlox" placeholder="Ej. SYNLOX LITHPLEX EP (GRADO 2)" required />
-              </label>
-              <label>Producto competencia
-                <input name="competencia" placeholder="Ej. MOBILGREASE XHP 222" required />
-              </label>
-              <label>Marca
-                <input name="marca" placeholder="Ej. EXXONMOBIL" />
-              </label>
-              <label>Condición especial
-                <input name="condicionEspecial" placeholder="Opcional" />
-              </label>
-              <label>Tipo de lubricante
-                <input name="tipoLubricante" placeholder="Grasa / Aceite" />
-              </label>
-              <label>Ficha técnica URL
-                <input name="fichaTecnicaUrl" type="url" placeholder="https://drive.google.com/..." />
-              </label>
-              <button class="btn" id="saveEquivalenceBtn" type="submit">Agregar equivalencia</button>
-              <button class="btn secondary hidden" id="cancelEquivalenceEdit" type="button">Cancelar edición</button>
-            </form>
             <p id="equivalenceReadonlyNote" class="sub hidden" style="margin:0 0 16px;">Solo usuarios autorizados pueden agregar, editar o borrar equivalencias. Puedes consultar el catálogo abajo.</p>
             <div class="filter-grid">
               <label>Buscar equivalencia
@@ -1461,6 +1437,40 @@
           </label>
           <div class="detail-block full hidden" id="supportFilesPreview"><span>ARCHIVOS SELECCIONADOS</span><b></b></div>
           <button class="btn full" id="saveResponseBtn" type="submit">Guardar respuesta y avisar al comisionista</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="equivalenceModal">
+    <div class="modal-card">
+      <div class="modal-head">
+        <div><h2 id="equivalenceModalTitle">Agregar equivalencia</h2><p class="sub">Completa los datos del producto.</p></div>
+        <button class="modal-close" type="button" data-close-modal="equivalenceModal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <form id="equivalenceForm" class="form-grid">
+          <input type="hidden" name="rowNumber" />
+          <input type="hidden" name="localId" />
+          <label>SYNLOX
+            <input name="synlox" placeholder="Ej. SYNLOX LITHPLEX EP (GRADO 2)" required />
+          </label>
+          <label>Producto competencia
+            <input name="competencia" placeholder="Ej. MOBILGREASE XHP 222" required />
+          </label>
+          <label>Marca
+            <input name="marca" placeholder="Ej. EXXONMOBIL" />
+          </label>
+          <label>Condición especial
+            <input name="condicionEspecial" placeholder="Opcional" />
+          </label>
+          <label>Tipo de lubricante
+            <input name="tipoLubricante" placeholder="Grasa / Aceite" />
+          </label>
+          <label>Ficha técnica URL
+            <input name="fichaTecnicaUrl" type="url" placeholder="https://drive.google.com/..." />
+          </label>
+          <button class="btn full" id="saveEquivalenceBtn" type="submit">Agregar equivalencia</button>
         </form>
       </div>
     </div>
@@ -2702,7 +2712,7 @@
       const table = $("equivalencesTable");
       if (!table) return;
       const admin = canManageEquivalences(state.user.correo);
-      $("equivalenceForm").classList.toggle("hidden", !admin);
+      $("openAddEquivalence").classList.toggle("hidden", !admin);
       $("equivalenceReadonlyNote").classList.toggle("hidden", admin);
       refreshEquivalenceFilterOptions();
       const rows = filteredEquivalences().sort((a, b) => String(a.SYNLOX || "").localeCompare(String(b.SYNLOX || "")));
@@ -2755,22 +2765,37 @@
       select.value = values.includes(current) ? current : "";
     }
 
+    // Abre el modal de alta/edición de equivalencias. Se usa tanto para
+    // "Agregar equivalencia" (sin fila) como para "Editar" (con fila) —
+    // así no hay que subir hasta el formulario de arriba de la página.
+    function openEquivalenceModal(row) {
+      const form = $("equivalenceForm");
+      form.reset();
+      if (row) {
+        form.rowNumber.value = row._ROW_NUMBER || "";
+        form.localId.value = row._LOCAL_ID || "";
+        form.synlox.value = row.SYNLOX || "";
+        form.competencia.value = row.COMPETENCIA || "";
+        form.marca.value = row.MARCA || "";
+        form.condicionEspecial.value = row.CONDICION_ESPECIAL || "";
+        form.tipoLubricante.value = row.TIPO_LUBRICANTE || "";
+        form.fichaTecnicaUrl.value = technicalSheetUrl(row);
+        $("equivalenceModalTitle").textContent = "Editar equivalencia";
+        $("saveEquivalenceBtn").textContent = "Guardar cambios";
+      } else {
+        form.rowNumber.value = "";
+        form.localId.value = "";
+        $("equivalenceModalTitle").textContent = "Agregar equivalencia";
+        $("saveEquivalenceBtn").textContent = "Agregar equivalencia";
+      }
+      openModal("equivalenceModal");
+    }
+
     window.editEquivalence = function(index) {
       if (!canManageEquivalences(state.user.correo)) return toast("Tu correo no está autorizado para editar equivalencias.");
       const row = state.equivalencias[index];
       if (!row) return toast("No se encontró la equivalencia");
-      const form = $("equivalenceForm");
-      form.rowNumber.value = row._ROW_NUMBER || "";
-      form.localId.value = row._LOCAL_ID || "";
-      form.synlox.value = row.SYNLOX || "";
-      form.competencia.value = row.COMPETENCIA || "";
-      form.marca.value = row.MARCA || "";
-      form.condicionEspecial.value = row.CONDICION_ESPECIAL || "";
-      form.tipoLubricante.value = row.TIPO_LUBRICANTE || "";
-      form.fichaTecnicaUrl.value = technicalSheetUrl(row);
-      $("saveEquivalenceBtn").textContent = "Guardar cambios";
-      $("cancelEquivalenceEdit").classList.remove("hidden");
-      form.scrollIntoView({ behavior: "smooth", block: "start" });
+      openEquivalenceModal(row);
     };
 
     // Borra una equivalencia del catálogo. Solo visible y permitido para los
@@ -2799,7 +2824,6 @@
       form.rowNumber.value = "";
       form.localId.value = "";
       $("saveEquivalenceBtn").textContent = "Agregar equivalencia";
-      $("cancelEquivalenceEdit").classList.add("hidden");
     }
 
     function readField(row, names) {
@@ -3216,7 +3240,10 @@
     $("brandFilter").addEventListener("change", renderEquivalences);
     $("typeFilter").addEventListener("change", renderEquivalences);
     $("sheetFilter").addEventListener("change", renderEquivalences);
-    $("cancelEquivalenceEdit").addEventListener("click", resetEquivalenceForm);
+    $("openAddEquivalence").addEventListener("click", () => {
+      if (!canManageEquivalences(state.user.correo)) return toast("Tu correo no está autorizado para agregar equivalencias.");
+      openEquivalenceModal(null);
+    });
     $("equivalenceForm").addEventListener("submit", async (ev) => {
       ev.preventDefault();
       if (!canManageEquivalences(state.user.correo)) return toast("Tu correo no está autorizado para agregar o editar equivalencias.");
@@ -3237,6 +3264,7 @@
       }
       toast(editing ? "Equivalencia actualizada" : "Equivalencia agregada");
       resetEquivalenceForm();
+      closeModal("equivalenceModal");
       $("eqCount").textContent = state.equivalencias.length;
       renderEquivalences();
     });
