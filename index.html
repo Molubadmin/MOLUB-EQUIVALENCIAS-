@@ -1518,7 +1518,7 @@
                         <button class="choice" type="button" data-value="No">No</button>
                       </div>
                     </div>
-                    <label>Cantidad de equipos iguales
+                    <label id="qtyBox" class="hidden">Cantidad de equipos iguales
                       <input name="cantidadEquipos" type="number" min="1" placeholder="Número" />
                     </label>
                     <div>
@@ -1528,6 +1528,9 @@
                         <button class="choice" type="button" data-value="No">No</button>
                       </div>
                     </div>
+                    <label id="manualBox" class="hidden">Adjunta el manual del equipo *
+                      <input name="manualArchivos" type="file" multiple accept=".pdf,.doc,.docx,image/*" />
+                    </label>
                   </div>
                 </div>
 
@@ -1607,7 +1610,7 @@
                   <div class="section-body">
                     <label>Temperatura de carcasa (°C)
                       <div class="slider-value"><span id="tempValue">60</span> °C</div>
-                      <input name="temperatura" id="tempRange" type="range" min="-20" max="200" value="60" />
+                      <input name="temperatura" id="tempRange" type="range" min="-20" max="320" value="60" />
                     </label>
                     <label><span>Velocidad real <span class="sub">(si aplica)</span></span>
                       <input name="rpm" placeholder="RPM" />
@@ -2684,8 +2687,21 @@
         btn.classList.toggle("active");
         const selected = [...group.querySelectorAll(".choice.active")].map(item => item.dataset.value);
         if ($("requestForm").elements[field]) $("requestForm").elements[field].value = selected.join(" | ");
+        syncConditionalFields();
       });
     });
+
+    // La cantidad de equipos solo aplica si hay equipos similares, y el campo
+    // para adjuntar el manual solo aparece si contesta "Sí (adjuntar)".
+    function syncConditionalFields() {
+      const f = $("requestForm").elements;
+      const similar = f.equipoSimilar.value === "Si";
+      $("qtyBox").classList.toggle("hidden", !similar);
+      if (!similar) f.cantidadEquipos.value = "";
+      const hasManual = String(f.manual.value).startsWith("Si");
+      $("manualBox").classList.toggle("hidden", !hasManual);
+      if (!hasManual) f.manualArchivos.value = "";
+    }
 
     // Busca por palabras en cualquier orden, sin importar acentos, mayúsculas ni
     // signos. Revisa producto SYNLOX, producto de la competencia y marca.
@@ -3284,6 +3300,11 @@
         toast("Completa nombre del equipo y área para continuar.");
         return;
       }
+      const stepForm = $("requestForm").elements;
+      if (state.requestStep === 1 && String(stepForm.manual.value).startsWith("Si") && !stepForm.manualArchivos.files.length) {
+        toast("Adjunta el manual del equipo o elige “No”.");
+        return;
+      }
       setRequestStep(state.requestStep + 1);
       $("formPanel").scrollIntoView({ behavior: "smooth", block: "start" });
     }
@@ -3311,6 +3332,10 @@
         if (key === "fotos") {
           const count = form.fotos && form.fotos.files ? form.fotos.files.length : 0;
           value = count ? `${count} archivo(s) adjunto(s)` : "";
+        }
+        if (key === "manual") {
+          const count = form.manualArchivos && form.manualArchivos.files ? form.manualArchivos.files.length : 0;
+          if (count) value = `${value} · ${count} archivo(s) del manual`;
         }
         return { label, value: String(value || "").trim() || "No capturado" };
       });
@@ -3381,7 +3406,14 @@
         payload.action = "createRequest";
         payload.correo = state.user.correo;
         payload.nombreUsuario = state.user.nombre;
-        payload.fotosBase64 = await filesToBase64(form.fotos.files);
+        const manualFiles = await filesToBase64(form.manualArchivos.files);
+        manualFiles.forEach(file => { file.name = "Manual - " + file.name; });
+        payload.fotosBase64 = [...manualFiles, ...(await filesToBase64(form.fotos.files))];
+        const totalBytes = payload.fotosBase64.reduce((sum, file) => sum + (file.base64 ? file.base64.length * 0.75 : 0), 0);
+        if (totalBytes > 24 * 1024 * 1024) {
+          toast("Los archivos pesan demasiado (máximo 24 MB en total). Quita alguno o reduce su tamaño.");
+          return;
+        }
 
         let res = null;
         try {
@@ -3416,6 +3448,11 @@
         setTimeout(() => {
           form.reset();
           document.querySelectorAll(".choice.active").forEach(item => item.classList.remove("active"));
+          document.querySelectorAll(".choice-group").forEach(group => {
+            const field = form.elements[group.dataset.choice];
+            if (field) field.value = "";
+          });
+          syncConditionalFields();
           $("tempValue").textContent = "60";
           $("nextStep").classList.remove("btn-success");
           $("nextStep").disabled = false;
