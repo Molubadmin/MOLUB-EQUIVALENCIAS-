@@ -457,6 +457,168 @@
     }
     .avance-card .section-title { background: var(--violet); }
     .avance-card .section-body { display: grid; gap: 14px; }
+
+    /* Ventana "pro" del detalle de solicitud del comisionista */
+    .modal-overlay.active { backdrop-filter: blur(5px); }
+    @keyframes modalIn { from { opacity: 0; transform: translateY(14px) scale(.985); } to { opacity: 1; transform: none; } }
+    .modal-card.pro {
+      width: min(920px, 100%);
+      border-radius: 18px;
+      background: #f5f6fb;
+      box-shadow: 0 40px 90px -20px rgba(9,9,16,.45), 0 0 0 1px rgba(255,255,255,.06);
+      animation: modalIn .24s ease-out;
+    }
+    @media (prefers-reduced-motion: reduce) { .modal-card.pro { animation: none; } }
+    .modal-card.pro .modal-head {
+      padding: 24px 28px 20px;
+      border-bottom: 1px solid var(--line);
+    }
+    .modal-card.pro .modal-head::before {
+      content: "";
+      position: absolute;
+      left: 0; right: 0; top: 0;
+      height: 4px;
+      background: linear-gradient(90deg, var(--blue), var(--violet));
+    }
+    .modal-card.pro .modal-close { transition: background .15s, border-color .15s; }
+    .modal-card.pro .modal-close:hover { background: #f1f1f8; border-color: #d5d7e6; }
+    .modal-card.pro .modal-body { padding: 24px 28px 30px; gap: 18px; background: #f5f6fb; }
+    .pro-eyebrow { font-size: 11px; font-weight: 900; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); }
+    .modal-card.pro .pro-folio {
+      margin: 4px 0 0;
+      font-family: "Space Mono", ui-monospace, monospace;
+      font-size: 24px;
+      letter-spacing: -.01em;
+    }
+    .pro-meta { display: flex; flex-wrap: wrap; gap: 8px 10px; align-items: center; margin-top: 12px; font-size: 13px; color: var(--muted); }
+    .pro-meta .sep { opacity: .5; }
+    .pro-card, .pro-fold {
+      background: white;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 22px 24px;
+      box-shadow: 0 1px 2px rgba(13,13,22,.04), 0 12px 28px -16px rgba(13,13,22,.12);
+      min-width: 0;
+    }
+    .pro-card-head { display: flex; align-items: center; gap: 14px; margin-bottom: 18px; }
+    .pro-card-icon {
+      flex: 0 0 38px;
+      width: 38px; height: 38px;
+      border-radius: 11px;
+      display: grid; place-items: center;
+      background: #eef0ff;
+      color: var(--blue);
+    }
+    .pro-card-icon.violet { background: #f2eaff; color: var(--violet); }
+    .pro-card-icon svg, .opt .oi svg, .step .dotc svg, .pro-note svg, .pro-fold .chev svg { width: 18px; height: 18px; display: block; }
+    .pro-card-title { margin: 0; font-size: 16px; font-weight: 800; }
+    .pro-card-sub { margin: 2px 0 0; font-size: 12.5px; color: var(--muted); }
+    .pro-quote {
+      background: #f8f8fc;
+      border-left: 3px solid var(--blue);
+      border-radius: 0 10px 10px 0;
+      padding: 14px 18px;
+      white-space: pre-wrap;
+      line-height: 1.55;
+      font-size: 14px;
+    }
+    .pro-empty {
+      border: 1.5px dashed #d9dbec;
+      border-radius: 12px;
+      padding: 22px;
+      text-align: center;
+      color: #555e80;
+      font-weight: 700;
+      font-size: 14px;
+    }
+    .pro-empty small { display: block; margin-top: 4px; color: var(--muted); font-weight: 500; font-size: 12.5px; }
+    .pro-sublabel { color: #555e80; font-size: 12px; font-weight: 800; letter-spacing: .03em; }
+    .pro-attach { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 0; margin-top: 14px; }
+    .pro-attach .lbl { width: 100%; margin-bottom: 4px; }
+
+    .stepper { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); margin: 4px 0 6px; }
+    .step { position: relative; display: grid; justify-items: center; gap: 9px; text-align: center; font-size: 12.5px; font-weight: 800; color: var(--muted); }
+    .step::before { content: ""; position: absolute; top: 16px; right: 50%; width: 100%; height: 2px; background: #e3e5ef; }
+    .step:first-child::before { display: none; }
+    .step .dotc {
+      position: relative; z-index: 1;
+      width: 34px; height: 34px;
+      border-radius: 50%;
+      display: grid; place-items: center;
+      background: #eef0f7; border: 2px solid #eef0f7; color: var(--muted);
+      font-size: 13px; font-weight: 900;
+    }
+    .step.done, .step.current { color: var(--ink); }
+    .step.done::before, .step.current::before { background: var(--blue); }
+    .step.done .dotc { background: var(--blue); border-color: var(--blue); color: white; }
+    .step.current .dotc { background: white; border-color: var(--blue); color: var(--blue); box-shadow: 0 0 0 5px rgba(0,0,250,.1); }
+    .step.final.done .dotc { background: var(--ok); border-color: var(--ok); }
+    .step.final.done::before { background: var(--ok); }
+    .pro-last { margin-top: 18px; background: #f8f8fc; border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; display: grid; gap: 10px; }
+    .pro-last-top { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; }
+    .pro-last-date { font-size: 12px; color: var(--muted); }
+    .pro-last-text { margin: 0; font-size: 14px; line-height: 1.5; color: #2b2f45; white-space: pre-wrap; }
+    .pro-decline { border-left: 3px solid var(--danger); background: #fff5f5; border-radius: 0 10px 10px 0; padding: 10px 14px; font-size: 13.5px; line-height: 1.45; }
+    .pro-decline b { display: block; color: #a20d16; font-size: 11px; letter-spacing: .08em; text-transform: uppercase; margin-bottom: 3px; }
+    .pro-hint { margin: 14px 0 0; text-align: center; font-size: 13px; color: var(--muted); }
+
+    .pro-form { display: grid; gap: 16px; margin-top: 20px; padding-top: 20px; border-top: 1px solid var(--line); }
+    .opt-grid { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 10px; }
+    .opt {
+      position: relative;
+      display: flex; align-items: flex-start; gap: 12px;
+      text-align: left;
+      padding: 14px 16px;
+      background: white;
+      border: 1.5px solid var(--line);
+      border-radius: 12px;
+      color: var(--ink);
+      transition: border-color .15s, background .15s, box-shadow .15s, transform .15s;
+    }
+    .opt:hover { border-color: #c4c8e8; transform: translateY(-1px); box-shadow: 0 8px 20px -12px rgba(13,13,22,.25); }
+    .opt:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
+    .opt .oi { flex: 0 0 38px; width: 38px; height: 38px; border-radius: 11px; display: grid; place-items: center; background: var(--tint); color: var(--c); }
+    .opt b { display: block; font-size: 14px; }
+    .opt small { display: block; margin-top: 2px; color: var(--muted); font-size: 12px; line-height: 1.35; font-weight: 500; }
+    .opt .chk {
+      position: absolute; top: 10px; right: 10px;
+      width: 20px; height: 20px; border-radius: 50%;
+      background: var(--c); color: white;
+      display: none; place-items: center;
+    }
+    .opt .chk svg { width: 12px; height: 12px; }
+    .opt.selected { border-color: var(--c); background: var(--tint); box-shadow: 0 0 0 3px color-mix(in srgb, var(--c) 16%, transparent); }
+    .opt.selected .chk { display: grid; }
+    #avanceMotivoBox textarea:focus { border-color: var(--danger); box-shadow: 0 0 0 3px rgba(229,72,77,.1); }
+    .pro-actions { display: flex; align-items: center; justify-content: space-between; gap: 14px; flex-wrap: wrap; }
+    .pro-note { display: inline-flex; align-items: center; gap: 8px; font-size: 12.5px; color: var(--muted); }
+    .pro-actions .btn { min-width: 240px; box-shadow: 0 10px 22px -10px rgba(0,0,250,.6); }
+
+    .pro-fold { padding: 0; overflow: hidden; }
+    .pro-fold summary {
+      display: flex; align-items: center; justify-content: space-between; gap: 12px;
+      padding: 18px 24px;
+      cursor: pointer;
+      font-size: 15px; font-weight: 800;
+      list-style: none;
+    }
+    .pro-fold summary::-webkit-details-marker { display: none; }
+    .pro-fold summary small { display: block; margin-top: 2px; color: var(--muted); font-size: 12.5px; font-weight: 500; }
+    .pro-fold .chev { color: var(--muted); transition: transform .2s; }
+    .pro-fold[open] .chev { transform: rotate(180deg); }
+    .pro-fold .detail-grid { margin: 0; padding: 0 24px 22px; }
+    @media (max-width: 640px) {
+      .modal-card.pro .modal-head { padding: 22px 18px 16px; }
+      .modal-card.pro .modal-body { padding: 16px 14px 24px; gap: 14px; }
+      .modal-card.pro .pro-folio { font-size: 20px; }
+      .pro-card { padding: 18px 16px; }
+      .pro-fold summary { padding: 16px; }
+      .pro-fold .detail-grid { padding: 0 16px 18px; }
+      .opt-grid { grid-template-columns: 1fr; }
+      .pro-actions { flex-direction: column; align-items: stretch; }
+      .pro-actions .btn { min-width: 0; }
+      .step { font-size: 11px; }
+    }
     @media (max-width: 640px) {
       .modal-overlay { padding: 0; }
       .modal-card { max-height: 100vh; height: 100vh; width: 100%; border-radius: 0; }
@@ -1383,39 +1545,83 @@
   </div>
 
   <div class="modal-overlay" id="commissionerDetailModal">
-    <div class="modal-card">
+    <div class="modal-card pro">
       <div class="modal-head">
-        <div><h2 id="commissionerDetailTitle">Detalle de solicitud</h2><p class="sub" id="commissionerDetailMeta"></p></div>
-        <button class="modal-close" type="button" data-close-modal="commissionerDetailModal">&times;</button>
+        <div>
+          <div class="pro-eyebrow">Solicitud de recomendaci&oacute;n</div>
+          <h2 class="pro-folio" id="commissionerDetailTitle">Detalle</h2>
+          <div class="pro-meta" id="commissionerDetailMeta"></div>
+        </div>
+        <button class="modal-close" type="button" data-close-modal="commissionerDetailModal" aria-label="Cerrar">&times;</button>
       </div>
       <div class="modal-body">
-        <div id="commissionerRecommendation" class="detail-grid"></div>
-        <div class="section-card avance-card">
-          <div class="section-title">AVANCE DEL FOLIO</div>
-          <div class="section-body">
-            <div id="commissionerAvanceCurrent" class="detail-grid"></div>
-            <form id="avanceForm">
-              <input type="hidden" name="folio" />
-              <label>Estatus del folio *
-                <select name="avanceEstado" required>
-                  <option value="">Selecciona un estatus</option>
-                  <option value="Propuesta enviada">Propuesta enviada</option>
-                  <option value="Prueba autorizada por cliente">Prueba autorizada por cliente</option>
-                  <option value="Venta">Venta</option>
-                  <option value="Declinacion de propuesta">Declinación de propuesta</option>
-                </select>
-              </label>
-              <label>Comentario de seguimiento
-                <textarea name="avanceComentario" placeholder="¿Cómo va con el cliente?"></textarea>
-              </label>
-              <label id="avanceMotivoBox" class="hidden">Motivo de la declinación *
-                <textarea name="avanceMotivo" placeholder="Explica por qué se declinó la propuesta"></textarea>
-              </label>
-              <button class="btn full" id="saveAvanceBtn" type="submit" style="margin-top:4px;">Enviar estatus a gerencia</button>
-            </form>
+        <section class="pro-card">
+          <div class="pro-card-head">
+            <span class="pro-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></span>
+            <div><h3 class="pro-card-title">Recomendaci&oacute;n de soporte</h3><p class="pro-card-sub">Respuesta t&eacute;cnica a tu solicitud.</p></div>
           </div>
-        </div>
-        <div id="commissionerRequestDetail" class="detail-grid"></div>
+          <div id="commissionerRecommendation"></div>
+        </section>
+
+        <section class="pro-card">
+          <div class="pro-card-head">
+            <span class="pro-card-icon violet"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m22 7-8.5 8.5-5-5L2 17"/><path d="M16 7h6v6"/></svg></span>
+            <div><h3 class="pro-card-title">Seguimiento comercial</h3><p class="pro-card-sub">Mant&eacute;n a gerencia al tanto de c&oacute;mo va tu cliente.</p></div>
+          </div>
+          <div id="avanceStepper"></div>
+          <div id="commissionerAvanceCurrent"></div>
+          <form id="avanceForm" class="pro-form">
+            <input type="hidden" name="folio" />
+            <select name="avanceEstado" class="hidden" tabindex="-1" aria-hidden="true">
+              <option value="">Selecciona un estatus</option>
+              <option value="Propuesta enviada">Propuesta enviada</option>
+              <option value="Prueba autorizada por cliente">Prueba autorizada por cliente</option>
+              <option value="Venta">Venta</option>
+              <option value="Declinacion de propuesta">Declinaci&oacute;n de propuesta</option>
+            </select>
+            <div class="pro-sublabel">ACTUALIZAR ESTATUS *</div>
+            <div class="opt-grid" id="avanceOptions">
+              <button type="button" class="opt" data-value="Propuesta enviada" style="--c:#1d4fd8;--tint:#eef2ff">
+                <span class="oi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4 20-7z"/></svg></span>
+                <span><b>Propuesta enviada</b><small>Ya le presentaste la propuesta al cliente.</small></span>
+                <span class="chk"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5L20 7"/></svg></span>
+              </button>
+              <button type="button" class="opt" data-value="Prueba autorizada por cliente" style="--c:#7c3ff2;--tint:#f5efff">
+                <span class="oi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="2" width="8" height="4" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="m9 14 2 2 4-4"/></svg></span>
+                <span><b>Prueba autorizada</b><small>El cliente aprob&oacute; hacer una prueba.</small></span>
+                <span class="chk"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5L20 7"/></svg></span>
+              </button>
+              <button type="button" class="opt" data-value="Venta" style="--c:#0d9f6e;--tint:#e9faf3">
+                <span class="oi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8"/><path d="M12 6v2m0 8v2"/></svg></span>
+                <span><b>Venta</b><small>Se concret&oacute; la venta.</small></span>
+                <span class="chk"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5L20 7"/></svg></span>
+              </button>
+              <button type="button" class="opt" data-value="Declinacion de propuesta" style="--c:#e5484d;--tint:#fff3f3">
+                <span class="oi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6M9 9l6 6"/></svg></span>
+                <span><b>Declinaci&oacute;n</b><small>El cliente no acept&oacute; la propuesta.</small></span>
+                <span class="chk"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5L20 7"/></svg></span>
+              </button>
+            </div>
+            <label>Comentario de seguimiento
+              <textarea name="avanceComentario" placeholder="¿Cómo va con el cliente?"></textarea>
+            </label>
+            <label id="avanceMotivoBox" class="hidden">Motivo de la declinación *
+              <textarea name="avanceMotivo" placeholder="Explica por qué se declinó la propuesta"></textarea>
+            </label>
+            <div class="pro-actions">
+              <span class="pro-note"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 6L2 7"/></svg>Se notificar&aacute; a gerencia por correo</span>
+              <button class="btn" id="saveAvanceBtn" type="submit">Enviar estatus a gerencia</button>
+            </div>
+          </form>
+        </section>
+
+        <details class="pro-fold">
+          <summary>
+            <span>Formulario capturado<small>Datos t&eacute;cnicos, condiciones de operaci&oacute;n y archivos adjuntos.</small></span>
+            <span class="chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></span>
+          </summary>
+          <div id="commissionerRequestDetail" class="detail-grid"></div>
+        </details>
       </div>
     </div>
   </div>
@@ -3075,32 +3281,67 @@
       const detailRows = (fullDetail.length ? mergeDetailWithTemplate(fullDetail, r) : fallbackFullDetail(r))
         .filter(item => item.label !== "Fotos / archivos");
       target.innerHTML = [
-        detailTitle("FORMULARIO CAPTURADO"),
         ...detailRows.map(item => detailBlock(item.label, item.value, String(item.value).length > 90 || item.value === "No capturado")),
         `<div class="detail-block full"><span>FOTOS / ARCHIVOS ADJUNTOS</span><b>${renderRequestAttachments(r)}</b></div>`
       ].join("");
     }
 
+    const AVANCE_STEPS = ["Propuesta enviada", "Prueba autorizada por cliente", "Venta"];
+    const AVANCE_STEP_LABELS = ["Propuesta enviada", "Prueba autorizada", "Venta"];
+    const CHECK_SVG = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5L20 7"/></svg>`;
+
+    function renderAvanceStepper(estado) {
+      const reached = AVANCE_STEPS.indexOf(estado);
+      return `<div class="stepper">${AVANCE_STEPS.map((_, i) => {
+        const isLast = i === AVANCE_STEPS.length - 1;
+        const done = i < reached || (i === reached && isLast);
+        const current = i === reached && !isLast;
+        const cls = ["step", done ? "done" : "", current ? "current" : "", isLast ? "final" : ""].filter(Boolean).join(" ");
+        return `<div class="${cls}"><span class="dotc">${done ? CHECK_SVG : i + 1}</span><span>${AVANCE_STEP_LABELS[i]}</span></div>`;
+      }).join("")}</div>`;
+    }
+
+    function renderAvanceSummary(r) {
+      const estado = readField(r, ["AVANCE_ESTADO"]);
+      if (!estado) return `<p class="pro-hint">Todavía no has actualizado el avance de este folio.</p>`;
+      const comentario = readField(r, ["AVANCE_COMENTARIO"]);
+      const motivo = readField(r, ["AVANCE_MOTIVO"]);
+      return `<div class="pro-last">
+        <div class="pro-last-top">${avanceBadge(estado)}<span class="pro-last-date">Última actualización: ${esc(fmtDate(readField(r, ["AVANCE_FECHA"])))}</span></div>
+        ${comentario ? `<p class="pro-last-text">${esc(comentario)}</p>` : ""}
+        ${estado === "Declinacion de propuesta" && motivo ? `<div class="pro-decline"><b>Motivo de declinación</b>${esc(motivo)}</div>` : ""}
+      </div>`;
+    }
+
+    function syncAvanceCards() {
+      const value = $("avanceForm").avanceEstado.value;
+      document.querySelectorAll("#avanceOptions .opt").forEach(btn => {
+        const on = btn.dataset.value === value;
+        btn.classList.toggle("selected", on);
+        btn.setAttribute("aria-pressed", on ? "true" : "false");
+      });
+    }
+
     window.openCommissionerDetail = function(folio) {
       const r = state.solicitudes.find(x => x.FOLIO === folio);
       if (!r) return toast("Folio no encontrado");
-      $("commissionerDetailTitle").textContent = "Solicitud " + folio;
-      $("commissionerDetailMeta").textContent = [displayStatus(r.ESTADO), r.BUSQUEDA_ORIGINAL || r.LUBRICANTE_ACTUAL, fmtDate(r.FECHA_CREACION)].filter(Boolean).join(" | ");
-      const respuesta = readField(r, ["RESPUESTA", "respuesta"]) || "Aún no hay respuesta de soporte.";
-      $("commissionerRecommendation").innerHTML = [
-        detailTitle("RECOMENDACIÓN DE SOPORTE"),
-        detailBlock("Estado", displayStatus(readField(r, ["ESTADO"]))),
-        detailBlock("Respuesta", respuesta, true),
-        `<div class="detail-block full"><span>ADJUNTOS DE RESPUESTA</span><b>${renderSupportAttachments(r)}</b></div>`
-      ].filter(Boolean).join("");
+      $("commissionerDetailTitle").textContent = folio;
+      $("commissionerDetailMeta").innerHTML = [
+        `<span class="badge ${esc(r.ESTADO)}">${esc(displayStatus(r.ESTADO))}</span>`,
+        avanceBadge(r.AVANCE_ESTADO),
+        r.BUSQUEDA_ORIGINAL || r.LUBRICANTE_ACTUAL ? `<span class="sep">·</span><span>${esc(r.BUSQUEDA_ORIGINAL || r.LUBRICANTE_ACTUAL)}</span>` : "",
+        `<span class="sep">·</span><span>${esc(fmtDate(r.FECHA_CREACION))}</span>`
+      ].join("");
+
+      const respuesta = readField(r, ["RESPUESTA", "respuesta"]);
+      $("commissionerRecommendation").innerHTML = respuesta
+        ? `<div class="pro-quote">${esc(respuesta)}</div>
+           <div class="pro-attach"><span class="pro-sublabel lbl">ADJUNTOS DE LA RESPUESTA</span>${renderSupportAttachments(r)}</div>`
+        : `<div class="pro-empty">Aún no hay respuesta de soporte.<small>Te avisaremos por correo en cuanto esté lista.</small></div>`;
 
       const avanceEstado = readField(r, ["AVANCE_ESTADO"]);
-      $("commissionerAvanceCurrent").innerHTML = avanceEstado ? [
-        detailBlock("Estatus actual", avanceEstado),
-        detailBlock("Comentario", readField(r, ["AVANCE_COMENTARIO"]) || "Sin comentario", true),
-        avanceEstado === "Declinacion de propuesta" ? detailBlock("Motivo de declinación", readField(r, ["AVANCE_MOTIVO"]), true) : "",
-        detailBlock("Última actualización", fmtDate(readField(r, ["AVANCE_FECHA"])))
-      ].filter(Boolean).join("") : `<div class="detail-block full"><b>Todavía no has actualizado el avance de este folio.</b></div>`;
+      $("avanceStepper").innerHTML = avanceEstado === "Declinacion de propuesta" ? "" : renderAvanceStepper(avanceEstado);
+      $("commissionerAvanceCurrent").innerHTML = renderAvanceSummary(r);
 
       const form = $("avanceForm");
       form.folio.value = folio;
@@ -3108,8 +3349,11 @@
       form.avanceComentario.value = "";
       form.avanceMotivo.value = "";
       $("avanceMotivoBox").classList.add("hidden");
+      syncAvanceCards();
 
       renderDetailInto("commissionerRequestDetail", r);
+      document.querySelector("#commissionerDetailModal .pro-fold").open = false;
+      $("commissionerDetailModal").querySelector(".modal-card").scrollTop = 0;
       openModal("commissionerDetailModal");
     };
 
@@ -3226,6 +3470,14 @@
 
     $("avanceForm").elements.avanceEstado.addEventListener("change", (ev) => {
       $("avanceMotivoBox").classList.toggle("hidden", ev.target.value !== "Declinacion de propuesta");
+    });
+    $("avanceOptions").addEventListener("click", (ev) => {
+      const btn = ev.target.closest(".opt");
+      if (!btn) return;
+      const select = $("avanceForm").avanceEstado;
+      select.value = btn.dataset.value;
+      select.dispatchEvent(new Event("change"));
+      syncAvanceCards();
     });
 
     function setAvanceSubmitting(isSubmitting) {
