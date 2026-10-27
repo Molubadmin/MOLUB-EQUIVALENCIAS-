@@ -1362,6 +1362,11 @@
       .result-item .ri-syn { grid-column: 1; }
       .result-item .ri-go { grid-row: 1 / span 2; grid-column: 2; }
     }
+    .pro-lock { display: flex; align-items: center; gap: 14px; margin-top: 20px; padding: 16px 18px; border: 1px dashed #f1d9a6; border-radius: 12px; background: #fffaf0; }
+    .pro-lock .lock-ico { flex: 0 0 40px; width: 40px; height: 40px; border-radius: 12px; display: grid; place-items: center; background: #fff3d8; color: #8a5b00; }
+    .pro-lock .lock-ico svg { width: 20px; height: 20px; }
+    .pro-lock b { display: block; font-size: 14px; color: #5e4310; }
+    .pro-lock span:not(.lock-ico) { display: block; margin-top: 2px; color: #7a5a12; font-size: 12.5px; line-height: 1.45; }
   </style>
 </head>
 <body>
@@ -1880,6 +1885,10 @@
           </div>
           <div id="avanceStepper"></div>
           <div id="commissionerAvanceCurrent"></div>
+          <div class="pro-lock hidden" id="avanceLocked">
+            <span class="lock-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span>
+            <div><b>El estatus se habilita cuando soporte responda</b><span>Primero soporte debe enviarte su recomendación. Después podrás registrar aquí cómo va tu venta con el cliente.</span></div>
+          </div>
           <form id="avanceForm" class="pro-form">
             <input type="hidden" name="folio" />
             <select name="avanceEstado" class="hidden" tabindex="-1" aria-hidden="true">
@@ -2337,6 +2346,9 @@
         if (!item) return { ok: false, message: "Folio no encontrado." };
         if (norm(item.COMISIONISTA_CORREO) !== norm(payload.correo)) {
           return { ok: false, message: "Solo el comisionista que generó este folio puede actualizar su avance." };
+        }
+        if (item.ESTADO !== "Respondido" && !String(item.RESPUESTA || "").trim()) {
+          return { ok: false, message: "Aún no puedes actualizar el estatus: soporte todavía no responde esta solicitud." };
         }
         if (!AVANCE_ESTADOS_DEMO.includes(payload.avanceEstado)) {
           return { ok: false, message: "Selecciona un estatus válido." };
@@ -4845,6 +4857,9 @@
       $("avanceStepper").innerHTML = avanceEstado === "Declinacion de propuesta" ? "" : renderAvanceStepper(avanceEstado);
       $("commissionerAvanceCurrent").innerHTML = renderAvanceSummary(r);
 
+      const answered = Boolean(r.ESTADO === "Respondido" || String(r.RESPUESTA || "").trim());
+      $("avanceForm").classList.toggle("hidden", !answered);
+      $("avanceLocked").classList.toggle("hidden", answered);
       const form = $("avanceForm");
       form.folio.value = folio;
       form.avanceEstado.value = "";
@@ -5026,6 +5041,10 @@
       ev.preventDefault();
       if (state.avanceSubmitting) return;
       const form = ev.currentTarget;
+      const record = state.solicitudes.find(x => x.FOLIO === form.folio.value);
+      if (record && !(record.ESTADO === "Respondido" || String(record.RESPUESTA || "").trim())) {
+        return toast("Aún no puedes actualizar el estatus: soporte todavía no responde esta solicitud.");
+      }
       const estado = form.avanceEstado.value;
       if (!estado) return toast("Selecciona un estatus del folio.");
       const motivo = form.avanceMotivo.value.trim();
