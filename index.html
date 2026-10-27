@@ -122,11 +122,25 @@
       border-radius: 8px;
       box-shadow: 0 1px 0 rgba(13,13,22,.02);
     }
-    .stat { padding: 22px; min-height: 118px; }
+    .stat { position: relative; padding: 22px; min-height: 118px; transition: transform .18s, box-shadow .18s; }
+    .stat:hover { transform: translateY(-2px); box-shadow: 0 14px 30px -18px rgba(13,13,22,.3); }
     .stat.primary { background: var(--blue); color: white; border-color: var(--blue); }
     .stat span { color: var(--muted); font-size: 12px; font-weight: 800; letter-spacing: .08em; }
     .stat.primary span { color: rgba(255,255,255,.68); }
-    .stat strong { display: block; margin-top: 10px; font-size: 30px; }
+    .stat strong { display: block; margin-top: 10px; font-size: 32px; letter-spacing: -.02em; font-variant-numeric: tabular-nums; }
+    .stat small { color: var(--muted); }
+    .stat.primary small { color: rgba(255,255,255,.8); }
+    .stat .stat-ico {
+      position: absolute; top: 18px; right: 18px;
+      width: 38px; height: 38px; border-radius: 11px;
+      display: grid; place-items: center;
+      background: #eef0ff; color: var(--blue);
+    }
+    .stat .stat-ico svg { width: 18px; height: 18px; display: block; }
+    .stat.primary .stat-ico { background: rgba(255,255,255,.16); color: white; }
+    .stat.alert { border-color: #f7c9cb; background: linear-gradient(180deg, #fff 0%, #fff7f7 100%); }
+    .stat.alert strong { color: var(--danger); }
+    .stat.alert .stat-ico { background: #ffe9ea; color: var(--danger); }
     .panel { padding: 24px; }
     .panel-head { display: flex; justify-content: space-between; gap: 16px; align-items: flex-start; margin-bottom: 18px; }
     .panel h2 { margin: 0; font-size: 18px; }
@@ -352,21 +366,51 @@
       max-width: 100%;
       overflow-x: auto;
       -webkit-overflow-scrolling: touch;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: white;
     }
     th {
-      background: #f1f1f5;
+      background: #fafbfd;
       color: var(--muted);
       text-align: left;
-      padding: 13px 14px;
-      font-size: 12px;
-      letter-spacing: .06em;
+      padding: 14px 18px;
+      font-size: 11px;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: .09em;
+      border-bottom: 1px solid var(--line);
+      white-space: nowrap;
     }
-    td { padding: 14px; border-bottom: 1px solid var(--line); vertical-align: top; }
-    .badge { display: inline-flex; align-items: center; border-radius: 999px; padding: 5px 10px; font-size: 12px; font-weight: 900; }
+    td { padding: 16px 18px; border-bottom: 1px solid #eef0f6; vertical-align: middle; }
+    tbody tr { transition: background .12s; }
+    tbody tr:hover { background: #fafaff; }
+    tbody tr:last-child td { border-bottom: 0; }
+    .badge { display: inline-flex; align-items: center; gap: 7px; border-radius: 999px; padding: 5px 11px; font-size: 12px; font-weight: 900; white-space: nowrap; }
+    .badge::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor; opacity: .85; }
+    .table-meta { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin: 0 2px 10px; color: var(--muted); font-size: 12.5px; font-weight: 700; }
+    .sort-hint { display: inline-flex; align-items: center; gap: 6px; font-weight: 600; }
+    .sort-hint svg { width: 14px; height: 14px; }
+    .filter-chip .n { margin-left: 8px; padding: 1px 8px; border-radius: 999px; background: #eef0f7; color: #667085; font-size: 11px; font-weight: 900; }
+    .filter-chip.active .n { background: rgba(255,255,255,.24); color: white; }
+    .cell-main { font-weight: 700; line-height: 1.3; }
+    .cell-sub { margin-top: 2px; color: var(--muted); font-size: 12px; font-weight: 500; }
+    .latest-chip { display: inline-block; margin-left: 8px; padding: 2px 8px; border-radius: 999px; background: var(--blue); color: white; font-family: "DM Sans", sans-serif; font-size: 10px; font-weight: 900; letter-spacing: .06em; text-transform: uppercase; vertical-align: middle; }
+    .person { display: flex; align-items: center; gap: 10px; }
+    .avatar { flex: 0 0 32px; width: 32px; height: 32px; border-radius: 50%; display: grid; place-items: center; background: #eef0ff; color: var(--blue); font-size: 12px; font-weight: 900; }
+    .row-btn { min-height: 38px; padding: 8px 14px; font-size: 13px; border-radius: 999px; transition: border-color .15s, color .15s, background .15s; }
+    .row-btn svg { width: 14px; height: 14px; transition: transform .15s; }
+    .row-btn:hover { border-color: var(--blue); color: var(--blue); background: #f5f5ff; }
+    .row-btn:hover svg { transform: translateX(3px); }
+    .empty-state { display: grid; justify-items: center; gap: 6px; padding: 38px 16px; text-align: center; }
+    .empty-state .ico { width: 52px; height: 52px; border-radius: 16px; display: grid; place-items: center; background: #eef0ff; color: var(--blue); margin-bottom: 6px; }
+    .empty-state .ico svg { width: 24px; height: 24px; }
+    .empty-state b { font-size: 15px; }
+    .empty-state span { color: var(--muted); font-size: 13px; }
     .Pendiente { color: #8a5b00; background: #fff3d8; }
     .Respondido { color: #057a4f; background: #def8ee; }
     .Vencido { color: #a20d16; background: #ffe2e4; }
-    .folio-mono { font-family: "Space Mono", ui-monospace, monospace; letter-spacing: .01em; }
+    .folio-mono { font-family: "Space Mono", ui-monospace, monospace; letter-spacing: .01em; white-space: nowrap; }
     .badge.avance-none { color: var(--muted); background: #eef0f7; }
     .badge.avance-propuesta { color: #1d4fd8; background: #e2e9ff; }
     .badge.avance-prueba { color: #7c3ff2; background: #f0e6ff; }
@@ -1011,6 +1055,9 @@
       }
       .table-wrap {
         overflow: visible;
+        border: 0;
+        border-radius: 0;
+        background: transparent;
       }
       table {
         display: block;
@@ -1145,10 +1192,10 @@
         </div>
         <div class="stats-wrap">
           <div class="stats" id="statsRow">
-            <div class="stat primary" id="eqStatCard"><span>EQUIVALENCIAS</span><strong id="eqCount">0</strong><small>Registros disponibles</small></div>
-            <div class="stat"><span id="pendingStatLabel">PENDIENTES</span><strong id="pendingCount">0</strong><small id="pendingStatSub">Nuevos por atender</small></div>
-            <div class="stat"><span id="doneStatLabel">ENVIADOS</span><strong id="doneCount">0</strong><small id="doneStatSub">Folios enviados</small></div>
-            <div class="stat"><span>VENCIDOS</span><strong id="lateCount">0</strong><small>M&aacute;s de 24 horas</small></div>
+            <div class="stat primary" id="eqStatCard"><i class="stat-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5v14a9 3 0 0 0 18 0V5"/><path d="M3 12a9 3 0 0 0 18 0"/></svg></i><span>EQUIVALENCIAS</span><strong id="eqCount">0</strong><small>Registros disponibles</small></div>
+            <div class="stat"><i class="stat-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg></i><span id="pendingStatLabel">PENDIENTES</span><strong id="pendingCount">0</strong><small id="pendingStatSub">Nuevos por atender</small></div>
+            <div class="stat"><i class="stat-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="m9 11 3 3L22 4"/></svg></i><span id="doneStatLabel">ENVIADOS</span><strong id="doneCount">0</strong><small id="doneStatSub">Folios enviados</small></div>
+            <div class="stat" id="lateStatCard"><i class="stat-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg></i><span>VENCIDOS</span><strong id="lateCount">0</strong><small>M&aacute;s de 24 horas</small></div>
           </div>
         </div>
       </div>
@@ -1441,6 +1488,7 @@
                 <input class="filter-search" id="mySearch" placeholder="Buscar por nombre, empresa o folio" />
               </div>
             </div>
+            <div class="table-meta"><span id="myTableMeta"></span><span class="sort-hint"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14"/><path d="m19 12-7 7-7-7"/></svg>Las m&aacute;s recientes primero</span></div>
             <div class="table-wrap"><table id="myTable"></table></div>
           </section>
         </div>
@@ -1461,6 +1509,7 @@
                 <input class="filter-search" id="supportSearch" placeholder="Buscar por comisionista o folio" />
               </div>
             </div>
+            <div class="table-meta"><span id="supportTableMeta"></span><span class="sort-hint"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14"/><path d="m19 12-7 7-7-7"/></svg>Las m&aacute;s recientes primero</span></div>
             <div class="table-wrap"><table id="supportTable"></table></div>
           </section>
         </div>
@@ -2615,17 +2664,62 @@
         looseIncludes(row.FOLIO, query);
     }
 
+    const requestTime = (r) => {
+      const t = new Date(r.FECHA_CREACION).getTime();
+      return isNaN(t) ? 0 : t;
+    };
+    const sortNewestFirst = (rows) => [...rows].sort((a, b) =>
+      requestTime(b) - requestTime(a) || String(b.FOLIO || "").localeCompare(String(a.FOLIO || "")));
+
+    function timeAgo(value) {
+      const t = new Date(value).getTime();
+      if (isNaN(t)) return "";
+      const min = Math.floor((Date.now() - t) / 60000);
+      if (min < 1) return "justo ahora";
+      if (min < 60) return `hace ${min} min`;
+      const hours = Math.floor(min / 60);
+      if (hours < 24) return `hace ${hours} h`;
+      const days = Math.floor(hours / 24);
+      if (days < 30) return days === 1 ? "hace 1 día" : `hace ${days} días`;
+      const months = Math.floor(days / 30);
+      if (months < 12) return months === 1 ? "hace 1 mes" : `hace ${months} meses`;
+      const years = Math.floor(months / 12);
+      return years === 1 ? "hace 1 año" : `hace ${years} años`;
+    }
+
+    function initials(name) {
+      const parts = String(name || "").trim().split(/\s+/).filter(Boolean);
+      return ((parts[0] || "?")[0] + (parts.length > 1 ? parts[parts.length - 1][0] : "")).toUpperCase();
+    }
+
+    function decorateChips(barId, baseRows) {
+      const bar = $(barId);
+      if (!bar) return;
+      bar.querySelectorAll(".filter-chip").forEach(chip => {
+        let n = chip.querySelector(".n");
+        if (!n) {
+          n = document.createElement("span");
+          n.className = "n";
+          chip.appendChild(n);
+        }
+        n.textContent = baseRows.filter(r => matchesFilter(r, chip.dataset.filter)).length;
+      });
+    }
+
     function renderMyTable() {
-      const own = isSupport(state.user.rol)
+      const own = sortNewestFirst(isSupport(state.user.rol)
         ? state.solicitudes.filter(r => r.COMISIONISTA_CORREO === state.user.correo)
-        : state.solicitudes;
+        : state.solicitudes);
       const rows = own.filter(r => matchesFilter(r, state.myFilter) && matchesSearch(r, state.mySearch));
-      renderTable("myTable", rows, false);
+      decorateChips("myFilterBar", own);
+      renderTable("myTable", rows, false, { latest: own[0] && own[0].FOLIO, total: own.length });
     }
 
     function renderSupportTable() {
-      const rows = state.solicitudes.filter(r => matchesFilter(r, state.supportFilter) && matchesSearch(r, state.supportSearch));
-      renderTable("supportTable", rows, true);
+      const all = sortNewestFirst(state.solicitudes);
+      const rows = all.filter(r => matchesFilter(r, state.supportFilter) && matchesSearch(r, state.supportSearch));
+      decorateChips("supportFilterBar", all);
+      renderTable("supportTable", rows, true, { latest: all[0] && all[0].FOLIO, total: all.length });
     }
 
     function wireFilterBar(barId, searchId, stateKey, searchKey, renderFn) {
@@ -2917,23 +3011,37 @@
     function renderStats() {
       $("pendingCount").textContent = state.solicitudes.filter(r => r.ESTADO === "Pendiente").length;
       $("doneCount").textContent = state.solicitudes.filter(r => r.ESTADO === "Respondido").length;
-      $("lateCount").textContent = state.solicitudes.filter(r => r.ESTADO === "Vencido").length;
+      const late = state.solicitudes.filter(r => r.ESTADO === "Vencido").length;
+      $("lateCount").textContent = late;
+      $("lateStatCard").classList.toggle("alert", late > 0);
     }
 
-    function renderTable(id, rows, supportMode) {
+    function renderTable(id, rows, supportMode, opts = {}) {
       const table = $(id);
-      table.innerHTML = `<thead><tr><th>Folio</th><th>Fecha</th><th>Búsqueda</th><th>Comisionista</th><th>Estado soporte</th><th>Avance</th><th></th></tr></thead><tbody></tbody>`;
+      const columns = supportMode ? 7 : 6;
+      const arrow = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg>`;
+      table.innerHTML = `<thead><tr><th>Folio</th><th>Fecha</th><th>${supportMode ? "Búsqueda" : "Producto / equipo"}</th>${supportMode ? "<th>Comisionista</th>" : ""}<th>Estado soporte</th><th>Avance</th><th></th></tr></thead><tbody></tbody>`;
       const body = table.querySelector("tbody");
-      body.innerHTML = rows.map(r => `
+      body.innerHTML = rows.map(r => {
+        const search = r.BUSQUEDA_ORIGINAL || r.LUBRICANTE_ACTUAL || "";
+        return `
         <tr>
-          <td data-label="Folio"><b class="folio-mono">${esc(r.FOLIO)}</b></td>
-          <td data-label="Fecha">${fmtDate(r.FECHA_CREACION)}</td>
-          <td data-label="Búsqueda">${esc(r.BUSQUEDA_ORIGINAL || r.LUBRICANTE_ACTUAL)}</td>
-          <td data-label="Comisionista">${esc(r.COMISIONISTA_NOMBRE || "")}</td>
+          <td data-label="Folio"><div><b class="folio-mono">${esc(r.FOLIO)}</b>${r.FOLIO === opts.latest ? `<span class="latest-chip">Más reciente</span>` : ""}</div></td>
+          <td data-label="Fecha"><div class="cell-main">${esc(fmtDate(r.FECHA_CREACION))}</div><div class="cell-sub">${esc(timeAgo(r.FECHA_CREACION))}</div></td>
+          <td data-label="${supportMode ? "Búsqueda" : "Producto / equipo"}"><div class="cell-main">${esc(search)}</div>${r.NOMBRE_EQUIPO ? `<div class="cell-sub">${esc(r.NOMBRE_EQUIPO)}</div>` : ""}</td>
+          ${supportMode ? `<td data-label="Comisionista"><div class="person"><span class="avatar">${esc(initials(r.COMISIONISTA_NOMBRE))}</span><div><div class="cell-main">${esc(r.COMISIONISTA_NOMBRE || "")}</div><div class="cell-sub">${esc(r.EMPRESA || r.COMISIONISTA_CORREO || "")}</div></div></div></td>` : ""}
           <td data-label="Estado soporte"><span class="badge ${esc(r.ESTADO)}">${esc(displayStatus(r.ESTADO))}</span></td>
           <td data-label="Avance">${avanceBadge(r.AVANCE_ESTADO)}</td>
-          <td data-label="Acción"><button class="btn ghost" type="button" onclick="${supportMode ? "openResponse" : "openCommissionerDetail"}('${esc(r.FOLIO)}')">Detalle</button></td>
-        </tr>`).join("") || `<tr><td data-label="Solicitudes" colspan="7"><span class="sub">Sin solicitudes todavia.</span></td></tr>`;
+          <td data-label="Acción"><button class="btn ghost row-btn" type="button" onclick="${supportMode ? "openResponse" : "openCommissionerDetail"}('${esc(r.FOLIO)}')">${supportMode ? "Abrir folio" : "Ver detalle"}${arrow}</button></td>
+        </tr>`;
+      }).join("") || `<tr><td data-label="Solicitudes" colspan="${columns}"><div class="empty-state"><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-6l-2 3h-4l-2-3H2"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg></div><b>No hay solicitudes para mostrar</b><span>${supportMode ? "Prueba con otro filtro o cambia la búsqueda." : "Prueba con otro filtro, o crea una nueva desde “Solicitar recomendación”."}</span></div></td></tr>`;
+      const meta = $(id + "Meta");
+      if (meta) {
+        const total = opts.total ?? rows.length;
+        meta.textContent = rows.length === total
+          ? `${total} ${total === 1 ? "solicitud" : "solicitudes"}`
+          : `Mostrando ${rows.length} de ${total} solicitudes`;
+      }
     }
 
     function displayStatus(status) {
