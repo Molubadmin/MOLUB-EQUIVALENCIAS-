@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Molub | Equivalencias SYNLOX</title>
+  <title>Molub | Selección técnica MOLUB</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,700;0,800;1,400&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
@@ -56,8 +56,8 @@
     }
     .brand { display: flex; gap: 14px; align-items: center; }
     .brand-mark {
-      width: 46px; height: 46px; border-radius: 10px;
-      display: grid; place-items: center; background: var(--blue);
+      width: 50px; height: 50px; flex: 0 0 50px;
+      display: grid; place-items: center;
       font-weight: 900;
     }
     .brand b { display: block; font-size: 19px; }
@@ -1174,6 +1174,84 @@
       .wizard-actions.first { grid-template-columns: 1fr; }
       .sla-pill { justify-self: start; }
     }
+
+    /* Marca: engranaje girando */
+    .brand .brand-fallback {
+      display: none;
+      width: 46px; height: 46px; border-radius: 10px;
+      background: var(--blue); color: #fff;
+      font-size: 16px; font-weight: 900; letter-spacing: 0;
+      place-items: center;
+    }
+    .brand-mark img {
+      width: 100%; height: 100%; object-fit: contain;
+      animation: logoSpin 9s linear infinite;
+      filter: drop-shadow(0 6px 14px rgba(0,0,250,.55));
+    }
+    @media (prefers-reduced-motion: reduce) { .brand-mark img { animation: none; } }
+
+    /* Ventana de soporte */
+    .sum-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+    .fact { background: #f8f8fc; border: 1px solid var(--line); border-radius: 12px; padding: 13px 15px; min-width: 0; }
+    .fact .k { display: block; margin-bottom: 5px; color: var(--muted); font-size: 11px; font-weight: 900; letter-spacing: .07em; text-transform: uppercase; }
+    .fact .v { display: block; font-size: 14px; font-weight: 700; line-height: 1.35; overflow-wrap: anywhere; }
+    .fact .s { display: block; margin-top: 2px; color: var(--muted); font-size: 12px; font-weight: 500; overflow-wrap: anywhere; }
+    .fact.late { background: #fff5f5; border-color: #f7c9cb; }
+    .fact.late .v { color: #b42318; }
+    .fact.ok { background: #f2fbf7; border-color: #c4ecd9; }
+    .fact.ok .v { color: #067647; }
+    .rform { padding-bottom: 0 !important; gap: 18px; }
+    .rform textarea { min-height: 160px; }
+
+    /* Reportes */
+    .report-filters {
+      display: grid; grid-template-columns: minmax(200px, 1.4fr) 1fr 1fr auto; gap: 14px; align-items: end;
+      padding: 16px; margin-bottom: 12px;
+      background: #f8f8fc; border: 1px solid var(--line); border-radius: 14px;
+    }
+    .presets { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-bottom: 18px; }
+    .presets .lbl { margin-right: 4px; color: var(--muted); font-size: 12px; font-weight: 800; }
+    .presets .range-count { margin-left: auto; color: var(--muted); font-size: 12px; font-weight: 800; }
+    .kpi-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; margin-bottom: 18px; }
+    .kpi {
+      position: relative; padding: 18px 20px;
+      background: #fff; border: 1px solid var(--line); border-radius: 14px;
+      box-shadow: 0 1px 2px rgba(13,13,22,.04), 0 12px 28px -18px rgba(13,13,22,.14);
+    }
+    .kpi .k { color: var(--muted); font-size: 11px; font-weight: 900; letter-spacing: .08em; text-transform: uppercase; }
+    .kpi .v { margin-top: 8px; font-size: 30px; font-weight: 800; letter-spacing: -.02em; font-variant-numeric: tabular-nums; }
+    .kpi .s { margin-top: 4px; color: var(--muted); font-size: 12.5px; }
+    .kpi .ico { position: absolute; top: 16px; right: 16px; width: 38px; height: 38px; border-radius: 11px; display: grid; place-items: center; background: #eef0ff; color: var(--blue); }
+    .kpi .ico svg { width: 18px; height: 18px; display: block; }
+    .kpi.good .ico { background: #e9faf3; color: #0d9f6e; }
+    .kpi.good .v { color: #067647; }
+    .kpi.bad { border-color: #f7c9cb; background: linear-gradient(180deg, #fff 0%, #fff7f7 100%); }
+    .kpi.bad .ico { background: #ffe9ea; color: var(--danger); }
+    .kpi.bad .v { color: var(--danger); }
+    .funnel { margin-bottom: 18px; padding: 20px 22px; background: #fff; border: 1px solid var(--line); border-radius: 14px; box-shadow: 0 1px 2px rgba(13,13,22,.04); }
+    .funnel h3 { margin: 0 0 4px; font-size: 15px; }
+    .funnel .sub { margin: 0 0 12px; color: var(--muted); font-size: 12.5px; }
+    .fbar { display: grid; grid-template-columns: 170px minmax(0, 1fr) 90px; gap: 14px; align-items: center; padding: 7px 0; font-size: 13px; font-weight: 700; }
+    .fbar .track { height: 10px; border-radius: 99px; background: #eef0f7; overflow: hidden; }
+    .fbar .track i { display: block; height: 100%; width: var(--w); border-radius: 99px; background: var(--c); transition: width .4s; }
+    .fbar .n { text-align: right; font-variant-numeric: tabular-nums; }
+    .fbar .n small { color: var(--muted); font-weight: 600; }
+    .conv { display: flex; align-items: center; gap: 10px; min-width: 140px; }
+    .conv .track { flex: 1; height: 8px; border-radius: 99px; background: #eef0f7; overflow: hidden; }
+    .conv .track i { display: block; height: 100%; border-radius: 99px; background: var(--ok); }
+    .conv b { min-width: 40px; text-align: right; font-variant-numeric: tabular-nums; }
+    .btn .bi { width: 16px; height: 16px; flex: 0 0 16px; }
+    tr.total-row td { background: #fafbfd; font-weight: 800; }
+    @media (max-width: 1180px) {
+      .kpi-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .report-filters { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+    @media (max-width: 640px) {
+      .kpi-grid, .report-filters, .sum-grid { grid-template-columns: 1fr; }
+      .fbar { grid-template-columns: 1fr 70px; }
+      .fbar .track { grid-column: 1 / -1; grid-row: 2; }
+      .presets .range-count { margin-left: 0; width: 100%; }
+    }
   </style>
 </head>
 <body>
@@ -1191,7 +1269,7 @@
         <div class="splash-fallback"></div>
       </div>
       <h1 class="splash-title">MOLUB</h1>
-      <p class="splash-sub">Equivalencias SYNLOX</p>
+      <p class="splash-sub">Selección técnica MOLUB</p>
       <div class="access-panel">
         <label>Correo
           <input id="loginEmail" type="email" autocomplete="email" required placeholder="correo@molub.com.mx" />
@@ -1217,7 +1295,7 @@
   <div id="app" class="app hidden">
     <aside class="sidebar">
       <div class="brand">
-        <div class="brand-mark">M</div>
+        <div class="brand-mark"><img src="logo-blanco-engranaje.png?v=20260819-2" alt="" onerror="this.style.display='none';this.nextElementSibling.style.display='grid';" /><span class="brand-fallback">M</span></div>
         <div><b>Molub</b><span>CRM B2B</span></div>
       </div>
       <div>
@@ -1590,25 +1668,34 @@
 
         <div id="view-reportes" class="view">
           <section class="panel">
-            <div class="sticky-subhead">
-              <div class="panel-head">
-                <div><h2>Reportes</h2><p class="sub">Estadísticas por comisionista en el rango de fechas que elijas.</p></div>
-                <button class="btn secondary" id="downloadReportBtn" type="button">Descargar PDF</button>
-              </div>
-              <div class="filter-grid" style="grid-template-columns: 1.3fr 1fr 1fr auto 1fr;">
-                <label>Comisionista
-                  <select id="reportCommissioner"><option value="">Todos los comisionistas</option></select>
-                </label>
-                <label>Desde
-                  <input type="date" id="reportFrom" />
-                </label>
-                <label>Hasta
-                  <input type="date" id="reportTo" />
-                </label>
-                <button class="btn" id="applyReportRange" type="button">Aplicar</button>
-                <div class="filter-count" id="reportRangeLabel">0 folios en el rango</div>
-              </div>
+            <div class="panel-head">
+              <div><h2>Reportes</h2><p class="sub">Indicadores de desempe&ntilde;o y detalle por comisionista en el rango que elijas.</p></div>
+              <button class="btn" id="downloadReportBtn" type="button"><svg class="bi" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5"/><path d="M12 15V3"/></svg>Descargar reporte PDF</button>
             </div>
+            <div class="report-filters">
+              <label>Comisionista
+                <select id="reportCommissioner"><option value="">Todos los comisionistas</option></select>
+              </label>
+              <label>Desde
+                <input type="date" id="reportFrom" />
+              </label>
+              <label>Hasta
+                <input type="date" id="reportTo" />
+              </label>
+              <button class="btn" id="applyReportRange" type="button">Aplicar</button>
+            </div>
+            <div class="presets" id="reportPresets">
+              <span class="lbl">Rango r&aacute;pido</span>
+              <button class="filter-chip" type="button" data-preset="mes">Este mes</button>
+              <button class="filter-chip" type="button" data-preset="mesAnterior">Mes anterior</button>
+              <button class="filter-chip" type="button" data-preset="30dias">&Uacute;ltimos 30 d&iacute;as</button>
+              <button class="filter-chip" type="button" data-preset="anio">Este a&ntilde;o</button>
+              <button class="filter-chip" type="button" data-preset="todo">Todo</button>
+              <span class="range-count" id="reportRangeLabel">0 folios en el rango</span>
+            </div>
+            <div class="kpi-grid" id="reportKpis"></div>
+            <div class="funnel" id="reportFunnel"></div>
+            <div class="table-meta"><span>Desempe&ntilde;o por comisionista</span></div>
             <div class="table-wrap"><table id="reportsTable"></table></div>
           </section>
         </div>
@@ -1735,24 +1822,62 @@
   </div>
 
   <div class="modal-overlay" id="supportDetailModal">
-    <div class="modal-card">
+    <div class="modal-card pro">
       <div class="modal-head">
-        <div><h2 id="responseTitle">Responder folio</h2><p class="sub" id="responseMeta"></p></div>
-        <button class="modal-close" type="button" data-close-modal="supportDetailModal">&times;</button>
+        <div>
+          <div class="pro-eyebrow" id="responseEyebrow">Responder solicitud</div>
+          <h2 class="pro-folio" id="responseTitle">Folio</h2>
+          <div class="pro-meta" id="responseMeta"></div>
+        </div>
+        <button class="modal-close" type="button" data-close-modal="supportDetailModal" aria-label="Cerrar">&times;</button>
       </div>
       <div class="modal-body">
-        <div id="supportAvanceReadonly" class="detail-grid"></div>
-        <div id="requestDetail" class="detail-grid"></div>
-        <div id="supportAnsweredPanel" class="detail-grid hidden"></div>
-        <form id="responseForm" class="form-grid">
-          <input type="hidden" name="folio" />
-          <label class="full">Recomendaci&oacute;n<textarea name="respuesta" required></textarea></label>
-          <label class="full">Adjuntos de respuesta
-            <input name="adjuntos" id="supportFiles" type="file" multiple accept=".pdf,image/*,.doc,.docx,.xlsx" />
-          </label>
-          <div class="detail-block full hidden" id="supportFilesPreview"><span>ARCHIVOS SELECCIONADOS</span><b></b></div>
-          <button class="btn full" id="saveResponseBtn" type="submit">Guardar respuesta y avisar al comisionista</button>
-        </form>
+        <section class="pro-card">
+          <div class="pro-card-head">
+            <span class="pro-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="2" width="8" height="4" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M9 12h6M9 16h4"/></svg></span>
+            <div><h3 class="pro-card-title">Resumen de la solicitud</h3><p class="pro-card-sub">Datos clave y plazo de respuesta.</p></div>
+          </div>
+          <div class="sum-grid" id="supportSummary"></div>
+        </section>
+
+        <details class="pro-fold" open>
+          <summary>
+            <span>Formulario capturado<small>Condiciones t&eacute;cnicas y operativas que reporta el comisionista.</small></span>
+            <span class="chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></span>
+          </summary>
+          <div id="requestDetail" class="detail-grid"></div>
+        </details>
+
+        <section class="pro-card">
+          <div class="pro-card-head">
+            <span class="pro-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></span>
+            <div><h3 class="pro-card-title">Recomendaci&oacute;n t&eacute;cnica</h3><p class="pro-card-sub" id="supportRespSub">Esta respuesta se env&iacute;a por correo al comisionista.</p></div>
+          </div>
+          <div id="supportAnsweredPanel" class="hidden"></div>
+          <form id="responseForm" class="wizard rform">
+            <input type="hidden" name="folio" />
+            <label>Recomendaci&oacute;n para el comisionista
+              <textarea name="respuesta" required placeholder="Producto SYNLOX recomendado, justificaci&oacute;n t&eacute;cnica, intervalos de relubricaci&oacute;n, observaciones..."></textarea>
+            </label>
+            <label>Adjuntos de respuesta
+              <input name="adjuntos" id="supportFiles" type="file" multiple accept=".pdf,image/*,.doc,.docx,.xlsx" />
+            </label>
+            <div class="detail-block full hidden" id="supportFilesPreview"><span>ARCHIVOS SELECCIONADOS</span><b></b></div>
+            <div class="pro-actions">
+              <span class="pro-note"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 6L2 7"/></svg>Se notificar&aacute; al comisionista por correo</span>
+              <button class="btn" id="saveResponseBtn" type="submit">Guardar respuesta y avisar al comisionista</button>
+            </div>
+          </form>
+        </section>
+
+        <section class="pro-card">
+          <div class="pro-card-head">
+            <span class="pro-card-icon violet"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m22 7-8.5 8.5-5-5L2 17"/><path d="M16 7h6v6"/></svg></span>
+            <div><h3 class="pro-card-title">Seguimiento comercial</h3><p class="pro-card-sub">Lo captura el comisionista; aqu&iacute; es solo lectura.</p></div>
+          </div>
+          <div id="supportStepper"></div>
+          <div id="supportAvanceReadonly"></div>
+        </section>
       </div>
     </div>
   </div>
@@ -2885,24 +3010,112 @@
       select.value = commissioners.some(u => norm(u.correo) === norm(current)) ? current : "";
     }
 
-    function computeReportRows() {
+    const REPORT_FUNNEL = [
+      { key: "Propuesta enviada", label: "Propuesta enviada", color: "#1d4fd8", rgb: [29, 79, 216], field: "propuestas" },
+      { key: "Prueba autorizada por cliente", label: "Prueba autorizada", color: "#7c3ff2", rgb: [124, 63, 242], field: "pruebas" },
+      { key: "Venta", label: "Venta", color: "#0d9f6e", rgb: [13, 159, 110], field: "ventas" },
+      { key: "Declinacion de propuesta", label: "Declinación", color: "#e5484d", rgb: [229, 72, 77], field: "declinadas" },
+      { key: "", label: "Sin avance registrado", color: "#98a2b3", rgb: [152, 162, 179], field: "sinAvance" }
+    ];
+
+    function reportPresetRange(key) {
+      const now = new Date();
+      const y = now.getFullYear();
+      const m = now.getMonth();
+      if (key === "mes") return { from: toDateInputValue(new Date(y, m, 1)), to: toDateInputValue(now) };
+      if (key === "mesAnterior") return { from: toDateInputValue(new Date(y, m - 1, 1)), to: toDateInputValue(new Date(y, m, 0)) };
+      if (key === "30dias") return { from: toDateInputValue(new Date(y, m, now.getDate() - 29)), to: toDateInputValue(now) };
+      if (key === "anio") return { from: toDateInputValue(new Date(y, 0, 1)), to: toDateInputValue(now) };
+      return { from: "", to: "" };
+    }
+
+    function syncReportPresetChips() {
+      const from = $("reportFrom").value;
+      const to = $("reportTo").value;
+      document.querySelectorAll("#reportPresets .filter-chip").forEach(chip => {
+        const range = reportPresetRange(chip.dataset.preset);
+        chip.classList.toggle("active", range.from === from && range.to === to);
+      });
+    }
+
+    function getReportRequests() {
       const fromVal = $("reportFrom").value;
       const toVal = $("reportTo").value;
       const commissionerFilter = $("reportCommissioner") ? $("reportCommissioner").value : "";
       const fromDate = fromVal ? new Date(fromVal + "T00:00:00") : null;
       const toDate = toVal ? new Date(toVal + "T23:59:59") : null;
-
-      const inRange = state.solicitudes.filter(r => {
+      return sortNewestFirst(state.solicitudes.filter(r => {
         const created = new Date(r.FECHA_CREACION);
         if (isNaN(created.getTime())) return false;
         if (fromDate && created < fromDate) return false;
         if (toDate && created > toDate) return false;
         if (commissionerFilter && norm(r.COMISIONISTA_CORREO) !== norm(commissionerFilter)) return false;
         return true;
-      });
+      }));
+    }
 
+    // Estado del plazo de 24 h de un folio: respondido (a tiempo o no), vencido o pendiente.
+    function requestSla(r, now = new Date()) {
+      const created = new Date(r.FECHA_CREACION);
+      const limitRaw = new Date(r.FECHA_LIMITE);
+      const limit = isNaN(limitRaw.getTime()) ? new Date(created.getTime() + 24 * 3600000) : limitRaw;
+      const answered = r.ESTADO === "Respondido" || String(r.RESPUESTA || "").trim();
+      if (answered) {
+        const respondedAt = new Date(r.FECHA_RESPUESTA);
+        const valid = !isNaN(respondedAt.getTime()) && !isNaN(created.getTime());
+        return {
+          state: "answered",
+          limit,
+          hours: valid ? Math.max(0, (respondedAt - created) / 3600000) : null,
+          onTime: valid ? respondedAt <= limit : null
+        };
+      }
+      if (now > limit) return { state: "overdue", limit, overdueMs: now - limit };
+      return { state: "pending", limit, remainingMs: limit - now };
+    }
+
+    function formatDuration(ms) {
+      const mins = Math.max(0, Math.round(ms / 60000));
+      if (mins < 1) return "menos de 1 min";
+      if (mins < 60) return `${mins} min`;
+      const hours = Math.floor(mins / 60);
+      if (hours < 24) {
+        const rest = mins % 60;
+        return rest ? `${hours} h ${rest} min` : `${hours} h`;
+      }
+      const days = Math.floor(hours / 24);
+      const restHours = hours % 24;
+      const dayText = `${days} ${days === 1 ? "día" : "días"}`;
+      return restHours ? `${dayText} ${restHours} h` : dayText;
+    }
+
+    function computeReportKpis(list) {
+      const k = { total: list.length, answered: 0, overdue: 0, pending: 0, onTime: 0, evaluated: 0, hoursSum: 0, hoursN: 0,
+        ventas: 0, declinadas: 0, propuestas: 0, pruebas: 0, sinAvance: 0 };
+      list.forEach(r => {
+        const sla = requestSla(r);
+        if (sla.state === "answered") {
+          k.answered++;
+          if (sla.onTime !== null) { k.evaluated++; if (sla.onTime) k.onTime++; }
+          if (sla.hours !== null) { k.hoursSum += sla.hours; k.hoursN++; }
+        } else if (sla.state === "overdue") k.overdue++;
+        else k.pending++;
+        const avance = String(r.AVANCE_ESTADO || "");
+        if (avance === "Venta") k.ventas++;
+        else if (avance === "Declinacion de propuesta") k.declinadas++;
+        else if (avance === "Propuesta enviada") k.propuestas++;
+        else if (avance === "Prueba autorizada por cliente") k.pruebas++;
+        else k.sinAvance++;
+      });
+      k.slaPct = k.evaluated ? Math.round((k.onTime / k.evaluated) * 100) : null;
+      k.avgMs = k.hoursN ? (k.hoursSum / k.hoursN) * 3600000 : null;
+      k.convPct = k.total ? Math.round((k.ventas / k.total) * 100) : 0;
+      return k;
+    }
+
+    function computeReportRows(list) {
       const byPerson = new Map();
-      inRange.forEach(r => {
+      list.forEach(r => {
         const key = norm(r.COMISIONISTA_CORREO);
         if (!byPerson.has(key)) {
           byPerson.set(key, {
@@ -2918,154 +3131,492 @@
         if (avance === "Venta") entry.ventas++;
         if (avance === "Declinacion de propuesta") entry.declinadas++;
       });
+      return [...byPerson.values()].sort((a, b) => b.total - a.total);
+    }
 
-      return { rows: [...byPerson.values()].sort((a, b) => b.total - a.total), totalFolios: inRange.length };
+    function renderReportKpis(k) {
+      const icon = (paths) => `<span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${paths}</svg></span>`;
+      const pct = (n) => (k.total ? Math.round((n / k.total) * 100) : 0);
+      const unanswered = k.overdue + k.pending;
+      const tiles = [
+        { cls: "", ico: icon('<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M16 13H8M16 17H8M10 9H8"/>'),
+          k: "Solicitudes", v: k.total, s: `${k.answered} con respuesta de soporte` },
+        { cls: "good", ico: icon('<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="m9 11 3 3L22 4"/>'),
+          k: "Respondidas", v: k.answered, s: `${pct(k.answered)}% del total` },
+        { cls: k.overdue ? "bad" : "", ico: icon('<circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>'),
+          k: "Sin respuesta", v: unanswered, s: k.overdue ? `${k.overdue} fuera del plazo de 24 h` : "Todas dentro del plazo" },
+        { cls: k.slaPct !== null && k.slaPct >= 80 ? "good" : "", ico: icon('<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/>'),
+          k: "Cumplimiento SLA 24 h", v: k.slaPct === null ? "—" : `${k.slaPct}%`, s: k.evaluated ? `${k.onTime} de ${k.evaluated} respondidas a tiempo` : "Sin respuestas para medir" },
+        { cls: "", ico: icon('<path d="M5 22h14M5 2h14M17 22v-4.172a2 2 0 0 0-.586-1.414L12 12l-4.414 4.414A2 2 0 0 0 7 17.828V22M7 2v4.172a2 2 0 0 0 .586 1.414L12 12l4.414-4.414A2 2 0 0 0 17 6.172V2"/>'),
+          k: "Tiempo promedio de respuesta", v: k.avgMs === null ? "—" : formatDuration(k.avgMs), s: "Desde que se crea el folio" },
+        { cls: k.ventas ? "good" : "", ico: icon('<path d="m22 7-8.5 8.5-5-5L2 17"/><path d="M16 7h6v6"/>'),
+          k: "Conversión a venta", v: `${k.convPct}%`, s: `${k.ventas} ${k.ventas === 1 ? "venta" : "ventas"} · ${k.declinadas} ${k.declinadas === 1 ? "declinada" : "declinadas"}` }
+      ];
+      $("reportKpis").innerHTML = tiles.map(t => `
+        <div class="kpi ${t.cls}">${t.ico}<div class="k">${esc(t.k)}</div><div class="v">${esc(String(t.v))}</div><div class="s">${esc(t.s)}</div></div>`).join("");
+    }
+
+    function renderReportFunnel(k) {
+      const total = k.total || 1;
+      $("reportFunnel").innerHTML = `
+        <h3>Estatus comercial de las solicitudes</h3>
+        <p class="sub">Cómo va cada folio con el cliente, según lo que registran los comisionistas.</p>
+        ${REPORT_FUNNEL.map(item => {
+          const n = k[item.field];
+          const share = Math.round((n / total) * 100);
+          return `<div class="fbar"><span>${esc(item.label)}</span><div class="track"><i style="--w:${share}%;--c:${item.color}"></i></div><span class="n">${n} <small>(${share}%)</small></span></div>`;
+        }).join("")}`;
     }
 
     function renderReportsTable() {
       const table = $("reportsTable");
       if (!table) return;
-      const { rows, totalFolios } = computeReportRows();
-      state.currentReportRows = rows;
-      $("reportRangeLabel").textContent = `${totalFolios} folio(s) en el rango`;
+      const list = getReportRequests();
+      const rows = computeReportRows(list);
+      const kpis = computeReportKpis(list);
+      state.currentReport = { list, rows, kpis };
+      syncReportPresetChips();
+      $("reportRangeLabel").textContent = `${list.length} ${list.length === 1 ? "folio" : "folios"} en el rango`;
+      renderReportKpis(kpis);
+      renderReportFunnel(kpis);
 
       const totals = rows.reduce((acc, p) => {
         acc.total += p.total; acc.pendientes += p.pendientes; acc.enviados += p.enviados;
         acc.ventas += p.ventas; acc.declinadas += p.declinadas;
         return acc;
       }, { total: 0, pendientes: 0, enviados: 0, ventas: 0, declinadas: 0 });
+      const convCell = (p) => {
+        const pct = p.total ? Math.round((p.ventas / p.total) * 100) : 0;
+        return `<div class="conv"><div class="track"><i style="width:${pct}%"></i></div><b>${pct}%</b></div>`;
+      };
 
-      table.innerHTML = `<thead><tr><th>Comisionista</th><th>Correo</th><th>Folios</th><th>Pendientes</th><th>Enviados</th><th>Ventas</th><th>Declinadas</th><th>% Conversión</th></tr></thead><tbody></tbody>`;
+      table.innerHTML = `<thead><tr><th>Comisionista</th><th>Folios</th><th>Pendientes</th><th>Enviados</th><th>Ventas</th><th>Declinadas</th><th>Conversión a venta</th></tr></thead><tbody></tbody>`;
       const body = table.querySelector("tbody");
       body.innerHTML = rows.map(p => `
         <tr>
-          <td data-label="Comisionista"><b>${esc(p.nombre)}</b></td>
-          <td data-label="Correo">${esc(p.correo)}</td>
-          <td data-label="Folios">${p.total}</td>
+          <td data-label="Comisionista"><div class="person"><span class="avatar">${esc(initials(p.nombre))}</span><div><div class="cell-main">${esc(p.nombre)}</div><div class="cell-sub">${esc(p.correo)}</div></div></div></td>
+          <td data-label="Folios"><b>${p.total}</b></td>
           <td data-label="Pendientes">${p.pendientes}</td>
           <td data-label="Enviados">${p.enviados}</td>
           <td data-label="Ventas">${p.ventas}</td>
           <td data-label="Declinadas">${p.declinadas}</td>
-          <td data-label="% Conversión">${p.total ? Math.round((p.ventas / p.total) * 100) : 0}%</td>
-        </tr>`).join("") || `<tr><td data-label="Reportes" colspan="8"><span class="sub">Sin folios en este rango.</span></td></tr>`;
+          <td data-label="Conversión">${convCell(p)}</td>
+        </tr>`).join("") || `<tr><td data-label="Reportes" colspan="7"><div class="empty-state"><b>Sin folios en este rango</b><span>Prueba con otro rango de fechas o con otro comisionista.</span></div></td></tr>`;
 
       const commissionerSelected = $("reportCommissioner") && $("reportCommissioner").value;
       if (rows.length && (rows.length > 1 || !commissionerSelected)) {
         body.innerHTML += `
-        <tr style="background:#f8f8fc;">
-          <td data-label="Total" colspan="2"><b>Total general</b></td>
-          <td data-label="Folios"><b>${totals.total}</b></td>
-          <td data-label="Pendientes"><b>${totals.pendientes}</b></td>
-          <td data-label="Enviados"><b>${totals.enviados}</b></td>
-          <td data-label="Ventas"><b>${totals.ventas}</b></td>
-          <td data-label="Declinadas"><b>${totals.declinadas}</b></td>
-          <td data-label="% Conversión"><b>${totals.total ? Math.round((totals.ventas / totals.total) * 100) : 0}%</b></td>
+        <tr class="total-row">
+          <td data-label="Total">Total general</td>
+          <td data-label="Folios">${totals.total}</td>
+          <td data-label="Pendientes">${totals.pendientes}</td>
+          <td data-label="Enviados">${totals.enviados}</td>
+          <td data-label="Ventas">${totals.ventas}</td>
+          <td data-label="Declinadas">${totals.declinadas}</td>
+          <td data-label="Conversión">${convCell(totals)}</td>
         </tr>`;
       }
     }
 
-    function generateReportPDF() {
-      const rows = state.currentReportRows || [];
-      if (!rows.length) return toast("No hay datos para generar el PDF en este rango.");
+    // ---------- Reporte PDF ----------
+    function pdfSafe(value) {
+      let out = "";
+      const extra = [0x2013, 0x2014, 0x2018, 0x2019, 0x201C, 0x201D, 0x2022, 0x2026, 0x20AC];
+      for (const ch of String(value == null ? "" : value)) {
+        const c = ch.codePointAt(0);
+        if (c === 0xA0 || c === 0x2007 || c === 0x2009 || c === 0x202F) out += " ";
+        else if (c === 9 || c === 10 || (c >= 32 && c <= 126) || (c >= 0xA1 && c <= 0xFF) || extra.includes(c)) out += ch;
+      }
+      return out;
+    }
+
+    function fmtPdfDate(value) {
+      const d = new Date(value);
+      if (isNaN(d.getTime())) return "";
+      const pad = n => String(n).padStart(2, "0");
+      const hour = d.getHours() % 12 || 12;
+      return `${pad(d.getDate())}/${pad(d.getMonth() + 1)}/${d.getFullYear()} ${hour}:${pad(d.getMinutes())} ${d.getHours() >= 12 ? "PM" : "AM"}`;
+    }
+
+    function loadImageData(src) {
+      return new Promise(resolve => {
+        const img = new Image();
+        img.onload = () => {
+          try {
+            const scale = Math.min(1, 160 / Math.max(img.naturalWidth, img.naturalHeight));
+            const canvas = document.createElement("canvas");
+            canvas.width = Math.round(img.naturalWidth * scale);
+            canvas.height = Math.round(img.naturalHeight * scale);
+            canvas.getContext("2d").drawImage(img, 0, 0, canvas.width, canvas.height);
+            resolve({ data: canvas.toDataURL("image/png"), ratio: img.naturalWidth / img.naturalHeight });
+          } catch (err) {
+            resolve(null);
+          }
+        };
+        img.onerror = () => resolve(null);
+        img.src = src;
+      });
+    }
+
+    function describeRequest(r) {
+      const sla = requestSla(r);
+      const parts = [`Solicitud recibida el ${fmtPdfDate(r.FECHA_CREACION)}.`];
+      if (sla.state === "answered") {
+        const who = r.RESPONDIDO_POR ? ` por ${r.RESPONDIDO_POR}` : "";
+        if (sla.hours !== null) {
+          parts.push(`Soporte respondió${who} el ${fmtPdfDate(r.FECHA_RESPUESTA)}, ${formatDuration(sla.hours * 3600000)} después de recibirla, ${sla.onTime ? "dentro" : "fuera"} del plazo de 24 horas.`);
+        } else {
+          parts.push(`Soporte ya respondió la solicitud${who}.`);
+        }
+      } else if (sla.state === "overdue") {
+        parts.push(`Sin respuesta de soporte: el plazo de 24 horas venció el ${fmtPdfDate(sla.limit)} (${formatDuration(sla.overdueMs)} de retraso).`);
+      } else {
+        parts.push(`En espera de respuesta de soporte; el plazo de 24 horas vence el ${fmtPdfDate(sla.limit)}.`);
+      }
+      const avance = AVANCE_BADGE[String(r.AVANCE_ESTADO || "")];
+      parts.push(avance ? `Seguimiento comercial: ${avance.label.toLowerCase()}.` : "El comisionista aún no registra avance comercial.");
+      return pdfSafe(parts.join(" "));
+    }
+
+    function buildReportFindings(report) {
+      const { kpis: k, rows } = report;
+      const pct = (n) => (k.total ? Math.round((n / k.total) * 100) : 0);
+      const out = [];
+      out.push(`${k.answered} de ${k.total} solicitudes (${pct(k.answered)}%) ya cuentan con recomendación de soporte.`);
+      out.push(k.evaluated
+        ? `${k.slaPct}% de las respuestas se entregó dentro de las 24 horas, con un tiempo promedio de ${formatDuration(k.avgMs)}.`
+        : "Aún no hay respuestas con fecha registrada para medir el cumplimiento del plazo de 24 horas.");
+      out.push(k.overdue
+        ? `${k.overdue} ${k.overdue === 1 ? "solicitud sigue" : "solicitudes siguen"} sin respuesta fuera del plazo y requiere${k.overdue === 1 ? "" : "n"} atención inmediata.`
+        : "No hay solicitudes vencidas sin respuesta.");
+      out.push(`${k.ventas} ${k.ventas === 1 ? "venta" : "ventas"} y ${k.declinadas} ${k.declinadas === 1 ? "propuesta declinada" : "propuestas declinadas"}; conversión a venta de ${k.convPct}%.`);
+      if (rows.length > 1) {
+        const top = rows[0];
+        out.push(`${top.nombre} concentra ${top.total} solicitudes (${pct(top.total)}% del total).`);
+      }
+      return out.map(pdfSafe);
+    }
+
+    async function generateReportPDF() {
+      const report = state.currentReport;
+      if (!report || !report.list.length) return toast("No hay datos para generar el PDF en este rango.");
       if (!window.jspdf || !window.jspdf.jsPDF) {
         return toast("No se pudo cargar el generador de PDF. Revisa tu conexión e intenta de nuevo.");
       }
+      const btn = $("downloadReportBtn");
+      btn.disabled = true;
+      toast("Generando reporte PDF...");
+      try {
+        const { doc, fileName } = await buildReportPdf(report);
+        doc.save(fileName);
+      } catch (err) {
+        console.error(err);
+        toast("No se pudo generar el PDF. Intenta de nuevo.");
+      } finally {
+        btn.disabled = false;
+      }
+    }
 
+    async function buildReportPdf(report) {
+      const { list, rows, kpis } = report;
       const { jsPDF } = window.jspdf;
-      const doc = new jsPDF({ orientation: "landscape", unit: "pt", format: "a4" });
-      const pageWidth = doc.internal.pageSize.getWidth();
-      const pageHeight = doc.internal.pageSize.getHeight();
+      const doc = new jsPDF({ orientation: "landscape", unit: "pt", format: "a4", compress: true });
+      const W = doc.internal.pageSize.getWidth();
+      const H = doc.internal.pageSize.getHeight();
+      const M = 40;
+      const CW = W - M * 2;
+      const C = {
+        blue: [0, 0, 250], navy: [18, 22, 56], ink: [13, 13, 22], muted: [102, 112, 133],
+        line: [228, 231, 240], soft: [248, 248, 252], red: [217, 45, 32], green: [6, 118, 71], amber: [150, 95, 0]
+      };
+      const [logoWhite, logoBlue] = await Promise.all([
+        loadImageData("logo-blanco-engranaje.png?v=" + STATIC_VERSION),
+        loadImageData("logo-azul-engranaje.png?v=" + STATIC_VERSION)
+      ]);
 
       const fromVal = $("reportFrom").value;
       const toVal = $("reportTo").value;
-      const fromLabel = fromVal ? new Date(fromVal + "T00:00:00").toLocaleDateString("es-MX", { day: "2-digit", month: "2-digit", year: "numeric" }) : "Inicio";
-      const toLabel = toVal ? new Date(toVal + "T23:59:59").toLocaleDateString("es-MX", { day: "2-digit", month: "2-digit", year: "numeric" }) : "Hoy";
-
+      const dayLabel = (v) => new Date(v + "T00:00:00").toLocaleDateString("es-MX", { day: "2-digit", month: "2-digit", year: "numeric" });
+      const rangeText = fromVal || toVal
+        ? `${fromVal ? dayLabel(fromVal) : "Inicio"} al ${toVal ? dayLabel(toVal) : "hoy"}`
+        : "Todo el historial";
       const commissionerSelect = $("reportCommissioner");
       const commissionerFilter = commissionerSelect ? commissionerSelect.value : "";
       const commissionerLabel = commissionerFilter && commissionerSelect.options[commissionerSelect.selectedIndex]
         ? commissionerSelect.options[commissionerSelect.selectedIndex].textContent
         : "Todos los comisionistas";
+      const generatedBy = state.user.nombre || state.user.correo;
+      const generatedAt = fmtPdfDate(new Date());
 
+      // ----- Portada / encabezado de marca -----
+      doc.setFillColor(...C.blue);
+      doc.rect(0, 0, W, 86, "F");
+      doc.setFillColor(0, 0, 190);
+      doc.rect(0, 86, W, 3, "F");
+      let textX = M;
+      if (logoWhite) {
+        const h = 46;
+        doc.addImage(logoWhite.data, "PNG", M, 20, h * logoWhite.ratio, h, "logoWhite", "FAST");
+        textX = M + h * logoWhite.ratio + 14;
+      }
+      doc.setTextColor(255, 255, 255);
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(24);
+      doc.text("MOLUB", textX, 48);
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(10);
+      doc.text("Reporte de actividad  |  Selección técnica MOLUB", textX, 66);
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(9);
+      doc.text("REPORTE GENERAL", W - M, 38, { align: "right" });
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(8);
+      doc.text(pdfSafe(`Generado el ${generatedAt}`), W - M, 52, { align: "right" });
+
+      // ----- Datos del reporte -----
+      const info = [
+        ["Rango de fechas", rangeText],
+        ["Comisionista", commissionerLabel],
+        ["Generado por", generatedBy],
+        ["Solicitudes incluidas", String(kpis.total)]
+      ];
+      info.forEach(([label, value], i) => {
+        const x = M + i * (CW / info.length);
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(6.5);
+        doc.setTextColor(...C.muted);
+        doc.text(label.toUpperCase(), x, 110);
+        doc.setFontSize(10);
+        doc.setTextColor(...C.ink);
+        doc.text(pdfSafe(value), x, 124, { maxWidth: CW / info.length - 12 });
+      });
+
+      // ----- Indicadores -----
+      const tile = (x, y, w, h, label, value, sub, rgb, size = 17) => {
+        doc.setFillColor(255, 255, 255);
+        doc.setDrawColor(...C.line);
+        doc.setLineWidth(0.7);
+        doc.roundedRect(x, y, w, h, 6, 6, "FD");
+        doc.setFillColor(...rgb);
+        doc.roundedRect(x, y + 10, 3, h - 20, 1.5, 1.5, "F");
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(6.3);
+        doc.setTextColor(...C.muted);
+        doc.text(pdfSafe(label).toUpperCase(), x + 12, y + 17, { maxWidth: w - 18 });
+        doc.setFontSize(size);
+        doc.setTextColor(...rgb);
+        doc.text(pdfSafe(value), x + 12, y + 41, { maxWidth: w - 18 });
+        doc.setFont("helvetica", "normal");
+        doc.setFontSize(6.8);
+        doc.setTextColor(...C.muted);
+        doc.text(pdfSafe(sub), x + 12, y + 55, { maxWidth: w - 18 });
+      };
+      const pctOf = (n) => (kpis.total ? Math.round((n / kpis.total) * 100) : 0);
+      const tiles = [
+        ["Solicitudes", String(kpis.total), `${kpis.answered} respondidas`, C.blue],
+        ["Respondidas", String(kpis.answered), `${pctOf(kpis.answered)}% del total`, C.green],
+        ["Sin respuesta", String(kpis.overdue + kpis.pending), `${kpis.overdue} fuera de plazo`, kpis.overdue ? C.red : C.ink],
+        ["Cumplimiento SLA 24 h", kpis.slaPct === null ? "-" : `${kpis.slaPct}%`, kpis.evaluated ? `${kpis.onTime} de ${kpis.evaluated} a tiempo` : "Sin datos para medir", kpis.slaPct !== null && kpis.slaPct >= 80 ? C.green : C.ink],
+        ["Tiempo promedio", kpis.avgMs === null ? "-" : formatDuration(kpis.avgMs), "de respuesta de soporte", C.ink],
+        ["Conversión a venta", `${kpis.convPct}%`, `${kpis.ventas} ${kpis.ventas === 1 ? "venta" : "ventas"} / ${kpis.declinadas} ${kpis.declinadas === 1 ? "declinada" : "declinadas"}`, kpis.ventas ? C.green : C.ink]
+      ];
+      const gap = 10;
+      const tileW = (CW - gap * (tiles.length - 1)) / tiles.length;
+      tiles.forEach((t, i) => tile(M + i * (tileW + gap), 142, tileW, 66, t[0], t[1], t[2], t[3], t[1].length > 8 ? 12 : 17));
+
+      // ----- Estatus comercial + hallazgos -----
+      const sectionTitle = (text, x, y) => {
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(11);
+        doc.setTextColor(...C.ink);
+        doc.text(pdfSafe(text), x, y);
+        doc.setFillColor(...C.blue);
+        doc.rect(x, y + 4, 22, 2.2, "F");
+      };
+      sectionTitle("Estatus comercial", M, 234);
+      const barX = M + 118;
+      const barW = 210;
+      REPORT_FUNNEL.forEach((item, i) => {
+        const y = 258 + i * 24;
+        const n = kpis[item.field];
+        const share = pctOf(n);
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(8.5);
+        doc.setTextColor(...C.ink);
+        doc.text(pdfSafe(item.label), M, y + 6);
+        doc.setFillColor(238, 240, 247);
+        doc.roundedRect(barX, y, barW, 8, 4, 4, "F");
+        if (share > 0) {
+          doc.setFillColor(...item.rgb);
+          doc.roundedRect(barX, y, Math.max(8, (barW * share) / 100), 8, 4, 4, "F");
+        }
+        doc.setFont("helvetica", "normal");
+        doc.setFontSize(8.5);
+        doc.setTextColor(...C.muted);
+        doc.text(`${n} (${share}%)`, barX + barW + 10, y + 7);
+      });
+
+      const fx = M + 400;
+      sectionTitle("Hallazgos clave", fx, 234);
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(8.5);
+      let fy = 256;
+      buildReportFindings(report).forEach(text => {
+        const lines = doc.splitTextToSize(text, CW - 400 - 14);
+        doc.setFillColor(...C.blue);
+        doc.circle(fx + 3, fy - 2.6, 1.7, "F");
+        doc.setTextColor(...C.ink);
+        doc.text(lines, fx + 12, fy);
+        fy += lines.length * 11 + 7;
+      });
+
+      // ----- Desempeño por comisionista -----
+      sectionTitle("Desempeño por comisionista", M, 392);
       const totals = rows.reduce((acc, p) => {
         acc.total += p.total; acc.pendientes += p.pendientes; acc.enviados += p.enviados;
         acc.ventas += p.ventas; acc.declinadas += p.declinadas;
         return acc;
       }, { total: 0, pendientes: 0, enviados: 0, ventas: 0, declinadas: 0 });
-
-      // Encabezado de marca
-      doc.setFillColor(0, 0, 250);
-      doc.rect(0, 0, pageWidth, 70, "F");
-      doc.setTextColor(255, 255, 255);
-      doc.setFont("helvetica", "bold");
-      doc.setFontSize(20);
-      doc.text("MOLUB", 40, 32);
-      doc.setFontSize(11);
-      doc.setFont("helvetica", "normal");
-      doc.text(`Reporte de solicitudes SYNLOX · ${commissionerFilter ? commissionerLabel : "Estadísticas por comisionista"}`, 40, 50);
-
-      // Datos del reporte
-      doc.setTextColor(20, 20, 30);
-      doc.setFontSize(10);
-      const metaY = 92;
-      doc.text(`Rango: ${fromLabel} — ${toLabel}`, 40, metaY);
-      doc.text(`Comisionista: ${commissionerLabel}`, 40, metaY + 16);
-      doc.text(`Generado por: ${state.user.nombre || state.user.correo} (${state.user.correo})`, 40, metaY + 32);
-      doc.text(`Fecha de generación: ${new Date().toLocaleString("es-MX", { dateStyle: "long", timeStyle: "short" })}`, 40, metaY + 48);
-      doc.text(`Total de folios en el rango: ${totals.total}`, 40, metaY + 64);
-
-      const body = rows.map(p => [
-        p.nombre, p.correo, String(p.total), String(p.pendientes), String(p.enviados),
-        String(p.ventas), String(p.declinadas),
-        (p.total ? Math.round((p.ventas / p.total) * 100) : 0) + "%"
-      ]);
-      const showFoot = rows.length > 1 || !commissionerFilter;
-
+      const conv = (p) => (p.total ? Math.round((p.ventas / p.total) * 100) : 0) + "%";
+      const tableMargin = { left: M, right: M, top: 58, bottom: 46 };
       doc.autoTable({
-        startY: metaY + 80,
-        head: [["Comisionista", "Correo", "Folios", "Pendientes", "Enviados", "Ventas", "Declinadas", "% Conversión"]],
-        body: body,
-        foot: showFoot ? [[
-          "Total general", "", String(totals.total), String(totals.pendientes), String(totals.enviados),
-          String(totals.ventas), String(totals.declinadas),
-          (totals.total ? Math.round((totals.ventas / totals.total) * 100) : 0) + "%"
-        ]] : undefined,
+        startY: 404,
+        margin: tableMargin,
+        head: [["Comisionista", "Correo", "Folios", "Pendientes", "Enviados", "Ventas", "Declinadas", "Conversión"]],
+        body: rows.map(p => [pdfSafe(p.nombre), pdfSafe(p.correo), String(p.total), String(p.pendientes), String(p.enviados), String(p.ventas), String(p.declinadas), conv(p)]),
+        foot: rows.length > 1 ? [["Total general", "", String(totals.total), String(totals.pendientes), String(totals.enviados), String(totals.ventas), String(totals.declinadas), conv(totals)]] : undefined,
         theme: "grid",
-        headStyles: { fillColor: [0, 0, 250], textColor: [255, 255, 255], fontStyle: "bold", halign: "center" },
-        footStyles: { fillColor: [239, 239, 248], textColor: [13, 13, 22], fontStyle: "bold", halign: "center" },
-        alternateRowStyles: { fillColor: [248, 248, 252] },
-        styles: { fontSize: 9, cellPadding: 7, textColor: [13, 13, 22], lineColor: [231, 232, 239], lineWidth: 0.5 },
+        headStyles: { fillColor: C.blue, textColor: 255, fontStyle: "bold", halign: "center", fontSize: 8 },
+        footStyles: { fillColor: [239, 239, 248], textColor: C.ink, fontStyle: "bold", halign: "center" },
+        alternateRowStyles: { fillColor: C.soft },
+        styles: { fontSize: 8.5, cellPadding: 5, textColor: C.ink, lineColor: C.line, lineWidth: 0.5 },
         columnStyles: {
-          0: { cellWidth: 170 },
-          1: { cellWidth: 190 },
-          2: { cellWidth: 55, halign: "center" },
-          3: { cellWidth: 65, halign: "center" },
-          4: { cellWidth: 60, halign: "center" },
-          5: { cellWidth: 55, halign: "center" },
-          6: { cellWidth: 65, halign: "center" },
-          7: { cellWidth: 80, halign: "center" }
-        },
-        margin: { left: 40, right: 40 }
+          0: { cellWidth: 170, fontStyle: "bold" }, 1: { cellWidth: 190 },
+          2: { halign: "center" }, 3: { halign: "center" }, 4: { halign: "center" },
+          5: { halign: "center" }, 6: { halign: "center" }, 7: { halign: "center", fontStyle: "bold" }
+        }
       });
 
-      // Pie de página: se agrega al final porque autoTable crea las páginas
-      // sobre la marcha y el total de páginas solo se conoce ya terminado.
+      // ----- Detalle de solicitudes -----
+      doc.addPage();
+      let y = 62;
+      sectionTitle("Detalle de solicitudes", M, y);
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(8.5);
+      doc.setTextColor(...C.muted);
+      doc.text(pdfSafe(`${list.length} ${list.length === 1 ? "solicitud" : "solicitudes"}, de la más reciente a la más antigua. Cada ficha resume el caso, la respuesta de soporte y el seguimiento comercial.`), M, y + 20, { maxWidth: CW });
+      y += 36;
+
+      const val = (x) => pdfSafe(String(x == null ? "" : x).trim());
+      const labelCell = (text) => ({ content: pdfSafe(text) });
+      list.forEach(r => {
+        const sla = requestSla(r);
+        const supportLabel = sla.state === "answered" ? "Respondido" : sla.state === "overdue" ? "Vencido" : "Pendiente";
+        const avance = AVANCE_BADGE[String(r.AVANCE_ESTADO || "")];
+        const headColor = sla.state === "overdue" ? C.red : sla.state === "answered" ? C.navy : C.amber;
+        const headText = `${val(r.FOLIO)}     |     Creada ${fmtPdfDate(r.FECHA_CREACION)}     |     Soporte: ${supportLabel}     |     Avance: ${avance ? avance.label : "Sin avance"}`;
+
+        const pair = (l1, v1, l2, v2) => ((v1 || v2) ? [labelCell(l1), v1 || "-", labelCell(l2), v2 || "-"] : null);
+        const longRow = (label, text, styles = {}) => [labelCell(label), { content: text, colSpan: 3, styles }];
+        const operation = [
+          val(r.TEMPERATURA) ? `${val(r.TEMPERATURA)} °C` : "",
+          val(r.RPM) ? `${val(r.RPM)} RPM` : "",
+          val(r.CARGA) ? `Carga ${val(r.CARGA)}` : "",
+          val(r.VIBRACION) ? `Vibración ${val(r.VIBRACION)}` : ""
+        ].filter(Boolean).join("  |  ");
+
+        let response = "Aún sin respuesta de soporte.";
+        if (sla.state === "answered") {
+          response = val(r.RESPUESTA) || "Respondida sin texto de recomendación.";
+          const who = [val(r.RESPONDIDO_POR), fmtPdfDate(r.FECHA_RESPUESTA)].filter(Boolean).join(" - ");
+          if (who) response += `\n\nRespondió: ${who}`;
+          if (val(r.ADJUNTOS_RESPUESTA)) response += "\nIncluye archivos adjuntos en el panel.";
+        }
+        let follow = "El comisionista aún no registra avance comercial.";
+        if (avance) {
+          follow = `${avance.label}${r.AVANCE_FECHA ? ` (actualizado el ${fmtPdfDate(r.AVANCE_FECHA)})` : ""}`;
+          if (val(r.AVANCE_COMENTARIO)) follow += `\nComentario: ${val(r.AVANCE_COMENTARIO)}`;
+          if (String(r.AVANCE_ESTADO) === "Declinacion de propuesta" && val(r.AVANCE_MOTIVO)) follow += `\nMotivo de la declinación: ${val(r.AVANCE_MOTIVO)}`;
+        }
+        const notes = val(r.COMENTARIOS);
+
+        const body = [
+          longRow("Lectura del caso", describeRequest(r), { fontStyle: "italic", fillColor: [245, 247, 255] }),
+          pair("Comisionista", [val(r.COMISIONISTA_NOMBRE), val(r.COMISIONISTA_CORREO)].filter(Boolean).join(" - "), "Empresa", val(r.EMPRESA)),
+          pair("Producto buscado", val(r.BUSQUEDA_ORIGINAL || r.LUBRICANTE_ACTUAL), "Equipo / Área", [val(r.NOMBRE_EQUIPO), val(r.AREA)].filter(Boolean).join(" / ")),
+          pair("Elemento", [val(r.TIPO_ELEMENTO), val(r.TIPO_CODIGO_ELEMENTO)].filter(Boolean).join(" - "), "Lubricante actual", val(r.LUBRICANTE_ACTUAL)),
+          pair("Lubricación", [val(r.METODO), val(r.SISTEMA), val(r.VISCOSIDAD)].filter(Boolean).join("  |  "), "Operación", operation),
+          pair("Contaminantes y agua", [val(r.CONTAMINACION), val(r.AGUA)].filter(Boolean).join("  |  "), "Problema reportado", val(r.PROBLEMAS)),
+          notes ? longRow("Observaciones del comisionista", notes.length > 700 ? notes.slice(0, 700) + "..." : notes) : null,
+          longRow("Recomendación de soporte", response.length > 2200 ? response.slice(0, 2200) + "..." : response),
+          longRow("Seguimiento comercial", follow)
+        ].filter(Boolean);
+
+        if (y > H - 190) { doc.addPage(); y = 62; }
+        const valueW = (CW - 192) / 2;
+        doc.autoTable({
+          startY: y,
+          margin: tableMargin,
+          theme: "grid",
+          head: [[{ content: headText, colSpan: 4, styles: { fillColor: headColor, textColor: 255, halign: "left", fontSize: 9, fontStyle: "bold", cellPadding: { top: 7, bottom: 7, left: 10, right: 10 } } }]],
+          body,
+          rowPageBreak: "avoid",
+          styles: { fontSize: 8.5, cellPadding: { top: 5, bottom: 5, left: 8, right: 8 }, lineColor: C.line, lineWidth: 0.5, textColor: C.ink, valign: "top" },
+          columnStyles: {
+            0: { cellWidth: 96, fillColor: C.soft, textColor: C.muted, fontStyle: "bold", fontSize: 7.5 },
+            1: { cellWidth: valueW },
+            2: { cellWidth: 96, fillColor: C.soft, textColor: C.muted, fontStyle: "bold", fontSize: 7.5 },
+            3: { cellWidth: valueW }
+          }
+        });
+        y = doc.lastAutoTable.finalY + 16;
+      });
+
+      // ----- Encabezado y pie en todas las páginas -----
       const pageCount = doc.internal.getNumberOfPages();
       for (let i = 1; i <= pageCount; i++) {
         doc.setPage(i);
-        doc.setFontSize(8);
+        if (i > 1) {
+          let hx = M;
+          if (logoBlue) {
+            doc.addImage(logoBlue.data, "PNG", M, 16, 20 * logoBlue.ratio, 20, "logoBlue", "FAST");
+            hx = M + 20 * logoBlue.ratio + 8;
+          }
+          doc.setFont("helvetica", "bold");
+          doc.setFontSize(9);
+          doc.setTextColor(...C.ink);
+          doc.text("MOLUB", hx, 30);
+          doc.setFont("helvetica", "normal");
+          doc.setFontSize(8);
+          doc.setTextColor(...C.muted);
+          doc.text(pdfSafe(`Reporte de actividad  |  ${rangeText}  |  ${commissionerLabel}`), W - M, 30, { align: "right" });
+          doc.setDrawColor(...C.line);
+          doc.setLineWidth(0.6);
+          doc.line(M, 42, W - M, 42);
+        }
+        doc.setDrawColor(...C.line);
+        doc.setLineWidth(0.6);
+        doc.line(M, H - 34, W - M, H - 34);
+        doc.setFont("helvetica", "normal");
+        doc.setFontSize(7.5);
         doc.setTextColor(140, 145, 170);
-        doc.text("Generado automáticamente por el panel de Equivalencias SYNLOX · MOLUB", 40, pageHeight - 20);
-        doc.text(`Página ${i} de ${pageCount}`, pageWidth - 100, pageHeight - 20);
+        doc.text(pdfSafe(`MOLUB  ·  Selección técnica  ·  Generado por ${generatedBy}  ·  ${generatedAt}`), M, H - 20);
+        doc.text(`Página ${i} de ${pageCount}`, W - M, H - 20, { align: "right" });
       }
 
-      const from = fromVal || "inicio";
-      const to = toVal || "hoy";
-      const commissionerSlug = commissionerFilter
-        ? "_" + norm(commissionerLabel).replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "")
-        : "";
-      doc.save(`reporte_molub_${from}_a_${to}${commissionerSlug}.pdf`);
+      const slug = commissionerFilter ? "_" + norm(commissionerLabel).replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "") : "";
+      return { doc, fileName: `reporte_molub_${fromVal || "inicio"}_a_${toVal || "hoy"}${slug}.pdf` };
     }
+
+    // Presets de rango, cambios manuales de fecha y descarga del PDF.
+    document.querySelectorAll("#reportPresets .filter-chip").forEach(chip => {
+      chip.addEventListener("click", () => {
+        const range = reportPresetRange(chip.dataset.preset);
+        $("reportFrom").value = range.from;
+        $("reportTo").value = range.to;
+        renderReportsTable();
+      });
+    });
 
     if ($("applyReportRange")) $("applyReportRange").addEventListener("click", renderReportsTable);
     if ($("reportFrom")) $("reportFrom").addEventListener("change", renderReportsTable);
@@ -3474,9 +4025,11 @@
       }).join("")}</div>`;
     }
 
-    function renderAvanceSummary(r) {
+    function renderAvanceSummary(r, viewer = "commissioner") {
       const estado = readField(r, ["AVANCE_ESTADO"]);
-      if (!estado) return `<p class="pro-hint">Todavía no has actualizado el avance de este folio.</p>`;
+      if (!estado) {
+        return `<p class="pro-hint">${viewer === "support" ? "El comisionista aún no registra avance para este folio." : "Todavía no has actualizado el avance de este folio."}</p>`;
+      }
       const comentario = readField(r, ["AVANCE_COMENTARIO"]);
       const motivo = readField(r, ["AVANCE_MOTIVO"]);
       return `<div class="pro-last">
@@ -3533,37 +4086,71 @@
     window.openResponse = function(folio) {
       const r = state.solicitudes.find(x => x.FOLIO === folio);
       if (!r) return toast("Folio no encontrado");
-      $("responseForm").folio.value = folio;
-      $("responseForm").respuesta.value = r.RESPUESTA || "";
-      $("responseTitle").textContent = "Responder " + folio;
-      $("responseMeta").textContent = [r.COMISIONISTA_NOMBRE, r.BUSQUEDA_ORIGINAL, r.NOMBRE_EQUIPO].filter(Boolean).join(" | ");
+      const answered = Boolean(r.ESTADO === "Respondido" || String(r.RESPUESTA || "").trim());
+      const sla = requestSla(r);
+      const searchText = r.BUSQUEDA_ORIGINAL || r.LUBRICANTE_ACTUAL || "";
+
+      $("responseEyebrow").textContent = answered ? "Solicitud respondida" : "Responder solicitud";
+      $("responseTitle").textContent = folio;
+      $("responseMeta").innerHTML = [
+        `<span class="badge ${esc(r.ESTADO)}">${esc(displayStatus(r.ESTADO))}</span>`,
+        avanceBadge(r.AVANCE_ESTADO),
+        searchText ? `<span class="sep">·</span><span>${esc(searchText)}</span>` : "",
+        `<span class="sep">·</span><span>${esc(fmtDate(r.FECHA_CREACION))}</span>`
+      ].join("");
+
+      let slaFact;
+      if (sla.state === "answered") {
+        slaFact = `<div class="fact ok"><span class="k">Plazo de respuesta</span><span class="v">${sla.hours !== null ? "Respondida en " + esc(formatDuration(sla.hours * 3600000)) : "Respondida"}</span><span class="s">${sla.onTime === null ? "" : sla.onTime ? "Dentro del plazo de 24 h" : "Fuera del plazo de 24 h"}</span></div>`;
+      } else if (sla.state === "overdue") {
+        slaFact = `<div class="fact late"><span class="k">Plazo de respuesta</span><span class="v">Vencida hace ${esc(formatDuration(sla.overdueMs))}</span><span class="s">Límite: ${esc(fmtDate(sla.limit))}</span></div>`;
+      } else {
+        slaFact = `<div class="fact"><span class="k">Plazo de respuesta</span><span class="v">Vence en ${esc(formatDuration(sla.remainingMs))}</span><span class="s">Límite: ${esc(fmtDate(sla.limit))}</span></div>`;
+      }
+      const fact = (k, v, s) => `<div class="fact"><span class="k">${esc(k)}</span><span class="v">${esc(v || "—")}</span>${s ? `<span class="s">${esc(s)}</span>` : ""}</div>`;
+      $("supportSummary").innerHTML = [
+        fact("Comisionista", r.COMISIONISTA_NOMBRE, r.COMISIONISTA_CORREO),
+        fact("Empresa", r.EMPRESA),
+        fact("Producto buscado", searchText),
+        fact("Equipo / Área", [r.NOMBRE_EQUIPO, r.AREA].filter(Boolean).join(" · ")),
+        fact("Creada", fmtDate(r.FECHA_CREACION)),
+        slaFact
+      ].join("");
+
+      renderDetailInto("requestDetail", r);
+      document.querySelector("#supportDetailModal .pro-fold").open = true;
+
+      const form = $("responseForm");
+      form.folio.value = folio;
+      form.respuesta.value = r.RESPUESTA || "";
+      form.adjuntos.value = "";
+      $("supportFilesPreview").classList.add("hidden");
+      const saveBtn = $("saveResponseBtn");
+      saveBtn.disabled = false;
+      saveBtn.classList.remove("btn-success");
+      saveBtn.textContent = "Guardar respuesta y avisar al comisionista";
+
+      form.classList.toggle("hidden", answered);
+      $("supportAnsweredPanel").classList.toggle("hidden", !answered);
+      if (answered) {
+        const sentBy = [readField(r, ["RESPONDIDO_POR"]), fmtDate(readField(r, ["FECHA_RESPUESTA"]))].filter(Boolean).join(" · ");
+        $("supportRespSub").textContent = "Recomendación enviada al comisionista.";
+        $("supportAnsweredPanel").innerHTML = `
+          <div class="pro-quote">${esc(r.RESPUESTA || "Sin texto de respuesta")}</div>
+          <div class="pro-attach"><span class="pro-sublabel lbl">ADJUNTOS ENVIADOS</span>${renderSupportAttachments(r)}</div>
+          ${sentBy ? `<p class="pro-last-date" style="margin:14px 0 0;">Enviada por ${esc(sentBy)}</p>` : ""}`;
+      } else {
+        $("supportRespSub").textContent = "Esta respuesta se envía por correo al comisionista.";
+        $("supportAnsweredPanel").innerHTML = "";
+      }
 
       // Soporte puede VER el avance comercial que el comisionista capturó,
       // pero nunca puede editarlo: solo el comisionista sabe cómo va con su cliente.
       const avanceEstado = readField(r, ["AVANCE_ESTADO"]);
-      $("supportAvanceReadonly").innerHTML = [
-        detailTitle("AVANCE DEL COMISIONISTA (SOLO LECTURA)"),
-        avanceEstado ? detailBlock("Estatus", avanceEstado) : detailBlock("Estatus", "Sin avance capturado todavía"),
-        avanceEstado ? detailBlock("Comentario", readField(r, ["AVANCE_COMENTARIO"]) || "Sin comentario", true) : "",
-        avanceEstado === "Declinacion de propuesta" ? detailBlock("Motivo de declinación", readField(r, ["AVANCE_MOTIVO"]), true) : "",
-        avanceEstado ? detailBlock("Última actualización", fmtDate(readField(r, ["AVANCE_FECHA"]))) : ""
-      ].filter(Boolean).join("");
+      $("supportStepper").innerHTML = avanceEstado === "Declinacion de propuesta" ? "" : renderAvanceStepper(avanceEstado);
+      $("supportAvanceReadonly").innerHTML = renderAvanceSummary(r, "support");
 
-      renderRequestDetail(r);
-      const alreadyAnswered = r.ESTADO === "Respondido" || String(r.RESPUESTA || "").trim();
-      $("responseForm").classList.toggle("hidden", alreadyAnswered);
-      $("supportAnsweredPanel").classList.toggle("hidden", !alreadyAnswered);
-      if (alreadyAnswered) {
-        $("responseTitle").textContent = "Folio enviado " + folio;
-        $("supportAnsweredPanel").innerHTML = [
-          detailTitle("RECOMENDACIÓN ENVIADA"),
-          detailBlock("Estado", "Enviado"),
-          detailBlock("Respuesta", r.RESPUESTA || "Sin texto de respuesta", true),
-          `<div class="detail-block full"><span>ADJUNTOS ENVIADOS</span><b>${renderSupportAttachments(r)}</b></div>`
-        ].join("");
-      } else {
-        $("supportAnsweredPanel").innerHTML = "";
-      }
+      $("supportDetailModal").querySelector(".modal-card").scrollTop = 0;
       openModal("supportDetailModal");
     };
 
