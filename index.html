@@ -1270,6 +1270,7 @@
     .cmp-title p { margin: 3px 0 0; color: var(--muted); font-size: 13px; }
     .cmp-chips { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; }
     .cmp-chip { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 999px; background: #eef0ff; color: var(--blue); font-size: 11px; font-weight: 900; letter-spacing: .05em; text-transform: uppercase; white-space: nowrap; }
+    .cmp-chip.draft { background: #fff3d8; color: #8a5b00; }
     .cmp-chip::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
     .cmp-empty { margin: 0 22px 22px; padding: 22px; border: 1.5px dashed #d9dbec; border-radius: 12px; color: #555e80; font-size: 13.5px; line-height: 1.5; text-align: center; }
     .cmp-verdict { display: grid; grid-template-columns: auto 1fr; gap: 18px; align-items: center; margin: 0 22px 18px; padding: 16px 18px; border: 1px solid #c4ecd9; border-radius: 14px; background: linear-gradient(135deg, #f2fbf7 0%, #eef7ff 100%); }
@@ -1338,6 +1339,28 @@
       .cmp-why { padding-left: 14px; padding-right: 14px; }
       .cmp-foot { padding-left: 14px; padding-right: 14px; }
       .cmp-empty { margin: 0 12px 16px; }
+    }
+
+    /* Resultados de búsqueda */
+    .result-list { display: grid; gap: 10px; margin-top: 16px; }
+    .result-item {
+      display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr) auto; gap: 14px; align-items: center;
+      width: 100%; padding: 14px 16px; text-align: left;
+      border: 1.5px solid var(--line); border-radius: 12px; background: #fff; color: var(--ink);
+      transition: border-color .15s, background .15s, transform .15s;
+    }
+    .result-item:hover { border-color: var(--blue); background: #f8f8ff; transform: translateY(-1px); }
+    .result-item .ri-main b { display: block; font-size: 14px; line-height: 1.3; overflow-wrap: anywhere; }
+    .result-item .ri-main small { display: block; margin-top: 2px; color: var(--muted); font-size: 12px; }
+    .result-item .ri-syn { color: var(--blue); font-size: 13px; font-weight: 800; overflow-wrap: anywhere; }
+    .result-item .ri-syn.none { color: var(--muted); font-weight: 600; }
+    .result-item .ri-go { color: var(--muted); font-size: 18px; transition: transform .15s, color .15s; }
+    .result-item:hover .ri-go { color: var(--blue); transform: translateX(3px); }
+    .back-btn { margin-bottom: 14px; min-height: 38px; padding: 8px 14px; font-size: 13px; }
+    @media (max-width: 640px) {
+      .result-item { grid-template-columns: minmax(0, 1fr) auto; }
+      .result-item .ri-syn { grid-column: 1; }
+      .result-item .ri-go { grid-row: 1 / span 2; grid-column: 2; }
     }
   </style>
 </head>
@@ -1441,7 +1464,7 @@
               <input id="complexToggle" type="checkbox" />
               Es un equipo complejo, necesito recomendaci&oacute;n
             </label>
-            <div class="beta-note"><b>M&oacute;dulo en proceso.</b> Al mostrar el equivalente SYNLOX ver&aacute;s una comparativa t&eacute;cnica, basada en su ficha t&eacute;cnica, que explica por qu&eacute; ese producto es la mejor opci&oacute;n. Puedes editarla si algo necesita corregirse.</div>
+            <div class="beta-note"><b>M&oacute;dulo en proceso.</b> Cada equivalente SYNLOX muestra una comparativa t&eacute;cnica. Si a&uacute;n no est&aacute; revisada, aparece como borrador autom&aacute;tico generado a partir de los nombres de los productos, y el equipo autorizado puede corregirla con las fichas t&eacute;cnicas.</div>
           </section>
 
           <section class="result" id="resultBox"></section>
@@ -2632,6 +2655,12 @@
 
     $("searchInput").addEventListener("input", showSuggestions);
     $("searchBtn").addEventListener("click", runSearch);
+    $("searchInput").addEventListener("keydown", (ev) => {
+      if (ev.key === "Enter") {
+        ev.preventDefault();
+        runSearch();
+      }
+    });
     $("complexToggle").addEventListener("change", () => {
       if ($("complexToggle").checked) openRequestForm("Equipo complejo");
       else $("formPanel").classList.add("hidden");
@@ -2658,6 +2687,32 @@
       });
     });
 
+    // Busca por palabras en cualquier orden, sin importar acentos, mayúsculas ni
+    // signos. Revisa producto SYNLOX, producto de la competencia y marca.
+    function searchEquivalences(query) {
+      const tokens = norm(query).split(/[^a-z0-9]+/).filter(Boolean);
+      if (!tokens.length) return [];
+      const compactQuery = compactNorm(query);
+      const scored = [];
+      state.equivalencias.forEach(r => {
+        const text = [r.SYNLOX, r.COMPETENCIA, r.MARCA].join(" ");
+        const hay = norm(text);
+        const hayWords = hay.split(/[^a-z0-9]+/).filter(Boolean);
+        const byWords = tokens.every(token => hay.includes(token));
+        if (!byWords && !compactNorm(text).includes(compactQuery)) return;
+        let score = 0;
+        if (compactNorm(r.COMPETENCIA) === compactQuery || compactNorm(r.SYNLOX) === compactQuery) score += 1000;
+        tokens.forEach(token => {
+          if (hayWords.includes(token)) score += 10;
+          else if (hayWords.some(word => word.startsWith(token))) score += 5;
+        });
+        if (hasSynlox(r)) score += 3;
+        score -= Math.min(hay.length, 200) / 100;
+        scored.push({ r, score });
+      });
+      return scored.sort((a, b) => b.score - a.score).map(item => item.r);
+    }
+
     function showSuggestions() {
       const q = $("searchInput").value;
       const box = $("suggestions");
@@ -2665,9 +2720,7 @@
         box.style.display = "none";
         return;
       }
-      const matches = state.equivalencias.filter(r =>
-        looseIncludes(r.SYNLOX, q) || looseIncludes(r.COMPETENCIA, q) || looseIncludes(r.MARCA, q)
-      ).slice(0, 8);
+      const matches = searchEquivalences(q).slice(0, 8);
       box.innerHTML = matches.map((r, i) =>
         `<button type="button" data-i="${i}"><b>${hasSynlox(r) ? esc(r.SYNLOX) : "Sin equivalencia SYNLOX"}</b><br><small>${esc(r.COMPETENCIA)} - ${esc(r.MARCA)}</small></button>`
       ).join("");
@@ -2675,6 +2728,7 @@
         b.addEventListener("click", () => {
           $("searchInput").value = matches[i].COMPETENCIA || matches[i].SYNLOX;
           box.style.display = "none";
+          state.lastResults = null;
           showResult(matches[i]);
         });
       });
@@ -2683,32 +2737,69 @@
 
     function runSearch() {
       const q = $("searchInput").value;
-      const normalizedQuery = norm(q);
-      const compactQuery = compactNorm(q);
       $("suggestions").style.display = "none";
-      const match = state.equivalencias.find(r =>
-        norm(r.SYNLOX) === normalizedQuery || norm(r.COMPETENCIA) === normalizedQuery ||
-        compactNorm(r.SYNLOX) === compactQuery || compactNorm(r.COMPETENCIA) === compactQuery
-      ) || state.equivalencias.find(r =>
-        looseIncludes(r.SYNLOX, q) || looseIncludes(r.COMPETENCIA, q) || looseIncludes(r.MARCA, q)
-      );
-      if (match) showResult(match);
-      else {
+      if (norm(q).length < 2) {
+        toast("Escribe al menos 2 letras del producto que buscas.");
+        $("searchInput").focus();
+        return;
+      }
+      const matches = searchEquivalences(q);
+      if (!matches.length) {
+        state.lastResults = null;
+        $("formPanel").classList.add("hidden");
         $("resultBox").style.display = "block";
         $("resultBox").classList.add("no-match");
-        $("resultBox").innerHTML = `<h3>No hay equivalencia SYNLOX</h3><p class="sub">No encontramos una equivalencia directa para este producto. Genera un folio para que soporte emita recomendación.</p><button class="btn" type="button" onclick="openRequestForm('Sin equivalencia')">Crear folio</button>`;
-        openRequestForm("Sin equivalencia");
+        $("resultBox").innerHTML = `<h3>No encontramos ese producto</h3><p class="sub">No hay coincidencias para “${esc(q)}”. Revisa la escritura o busca solo una parte del nombre (por ejemplo la marca y el modelo). Si el producto no está registrado, genera un folio para que soporte emita una recomendación.</p><div style="margin-top:16px;"><button class="btn" type="button" onclick="openRequestForm('Sin equivalencia')">Crear folio de recomendación</button></div>`;
+        return;
       }
+      const exact = compactNorm(matches[0].COMPETENCIA) === compactNorm(q) || compactNorm(matches[0].SYNLOX) === compactNorm(q);
+      if (matches.length === 1 || exact) {
+        state.lastResults = null;
+        showResult(matches[0]);
+        return;
+      }
+      showSearchResults(matches, q);
     }
+
+    function showSearchResults(matches, q) {
+      state.lastResults = { matches, q };
+      state.currentMatch = null;
+      const shown = matches.slice(0, 30);
+      const box = $("resultBox");
+      $("formPanel").classList.add("hidden");
+      box.style.display = "block";
+      box.classList.remove("no-match");
+      box.innerHTML = `
+        <h3>${matches.length} ${matches.length === 1 ? "resultado" : "resultados"} para “${esc(q)}”</h3>
+        <p class="sub">Elige el producto para ver su equivalente SYNLOX y la comparativa técnica.${matches.length > shown.length ? ` Mostrando los primeros ${shown.length}; escribe más palabras para afinar.` : ""}</p>
+        <div class="result-list">${shown.map((r, i) => `
+          <button type="button" class="result-item" data-i="${i}">
+            <span class="ri-main"><b>${esc(r.COMPETENCIA || r.SYNLOX)}</b><small>${esc([r.MARCA, r.TIPO_LUBRICANTE].filter(Boolean).join(" · "))}</small></span>
+            <span class="ri-syn ${hasSynlox(r) ? "" : "none"}">${hasSynlox(r) ? esc(r.SYNLOX) : "Sin equivalencia SYNLOX"}</span>
+            <span class="ri-go" aria-hidden="true">&rarr;</span>
+          </button>`).join("")}</div>`;
+      box.querySelectorAll(".result-item").forEach(btn => {
+        btn.addEventListener("click", () => showResult(shown[Number(btn.dataset.i)]));
+      });
+      box.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    window.backToResults = function() {
+      if (state.lastResults) showSearchResults(state.lastResults.matches, state.lastResults.q);
+    };
 
     function showResult(r) {
       state.currentMatch = r;
       $("formPanel").classList.add("hidden");
       $("resultBox").style.display = "block";
       const fichaUrl = technicalSheetUrl(r);
+      const back = state.lastResults
+        ? `<button class="btn ghost back-btn" type="button" onclick="backToResults()">&larr; Volver a los resultados</button>`
+        : "";
       if (!hasSynlox(r)) {
         $("resultBox").classList.add("no-match");
         $("resultBox").innerHTML = `
+          ${back}
           <h3>No hay equivalencia SYNLOX</h3>
           <div class="kv">
           <span>Producto buscado</span><b>${esc(r.COMPETENCIA || $("searchInput").value)}</b>
@@ -2719,11 +2810,11 @@
           <div style="margin-top:16px;display:flex;gap:10px;flex-wrap:wrap;">
             <button class="btn" type="button" onclick="openRequestForm('Sin equivalencia')">Crear folio de recomendación</button>
           </div>`;
-        openRequestForm("Sin equivalencia");
         return;
       }
       $("resultBox").classList.remove("no-match");
       $("resultBox").innerHTML = `
+        ${back}
         <h3>Equivalencia encontrada</h3>
         <div class="kv">
           <span>SYNLOX</span><b>${esc(r.SYNLOX)}</b>
@@ -2732,11 +2823,9 @@
           <span>Tipo</span><b>${esc(r.TIPO_LUBRICANTE)}</b>
           <span>Condición especial</span><b>${esc(r.CONDICION_ESPECIAL || "Sin condición especial")}</b>
         </div>
-        <div style="margin-top:16px;display:flex;gap:10px;flex-wrap:wrap;">
-          ${fichaUrl ? `<a class="btn" href="${esc(fichaUrl)}" target="_blank" rel="noopener">Ver ficha técnica</a>` : ""}
-          <button class="btn secondary" type="button" onclick="openRequestForm('Confirmación técnica')">Pedir confirmación técnica</button>
-        </div>
+        ${fichaUrl ? `<div style="margin-top:16px;display:flex;gap:10px;flex-wrap:wrap;"><a class="btn" href="${esc(fichaUrl)}" target="_blank" rel="noopener">Ver ficha técnica</a></div>` : ""}
         ${renderComparisonCard(r)}`;
+      $("resultBox").scrollIntoView({ behavior: "smooth", block: "start" });
     }
 
     // ---------- Comparativa técnica (editable por los correos autorizados) ----------
@@ -2745,16 +2834,6 @@
       equal: { label: "Equivalente", icon: '<path d="M5 9h14M5 15h14"/>' },
       check: { label: "Verificar", icon: '<path d="M12 8v4M12 16h.01"/>' }
     };
-    const CMP_DEFAULT_ROWS = [
-      { p: "Grado NLGI", s: "Consistencia de la grasa", bar: "" },
-      { p: "Espesante", s: "Tipo de jabón", bar: "" },
-      { p: "Aceite base", s: "Naturaleza del fluido", bar: "" },
-      { p: "Viscosidad del aceite base a 40 °C", s: "cSt", bar: "" },
-      { p: "Punto de gota", s: "°C, mayor es mejor", bar: "high" },
-      { p: "Temperatura máxima de operación", s: "°C, mayor es mejor", bar: "high" },
-      { p: "Carga de soldadura 4 bolas", s: "kgf, mayor es mejor", bar: "high" },
-      { p: "Lavado por agua a 79 °C", s: "% de pérdida, menor es mejor", bar: "low" }
-    ];
     let cmpEditor = null;
 
     const comparisonKey = (row) => `${compactNorm(row.SYNLOX)}|${compactNorm(row.COMPETENCIA)}`;
@@ -2784,38 +2863,127 @@
       return synloxBetter ? "better" : "check";
     }
 
-    function autoComparisonVerdict(rows, row) {
-      const total = rows.length;
-      const check = rows.filter(r => r.res === "check").length;
-      const better = rows.filter(r => r.res === "better").length;
-      const ok = total - check;
-      const title = check
-        ? `Equivalente o superior en ${ok} de ${total} propiedades; ${check} por verificar`
-        : `Equivalente o superior en ${ok} de ${total} propiedades`;
-      const text = check
-        ? `${row.SYNLOX} cumple en ${ok} de ${total} propiedades; hay ${check} ${check === 1 ? "punto" : "puntos"} que conviene verificar con soporte antes de recomendarlo.`
-        : `${row.SYNLOX} iguala al producto de la competencia${better ? ` y lo supera en ${better} ${better === 1 ? "propiedad" : "propiedades"} clave` : ""}. Es una sustitución directa.`;
-      return { title, text, ok, pct: total ? Math.round((ok / total) * 100) : 0, warn: check > 0 };
+    const CMP_THICKENERS = [
+      ["complejo de litio", "Complejo de litio"], ["complejo de aluminio", "Complejo de aluminio"],
+      ["sulfonato de calcio", "Sulfonato de calcio"], ["poliurea", "Poliurea"], ["bentonita", "Bentonita"],
+      ["ptfe", "PTFE"], ["arcilla", "Arcilla"], ["litio", "Litio"], ["aluminio", "Aluminio"], ["calcio", "Calcio"]
+    ];
+
+    // Lee del nombre del producto lo que sí viene escrito: grado NLGI, ISO, SAE,
+    // espesante, aceite base, grado alimenticio y aditivos. No inventa nada.
+    function parseProductSpecs(name) {
+      const t = norm(name);
+      const specs = { nlgi: "", iso: "", sae: "", thickener: "", base: "", h1: false, additives: [] };
+      let m = t.match(/(?:grado|nlgi)\s*(000|00|0|1|2|3|4|5|6)\b/);
+      if (m) specs.nlgi = m[1];
+      m = t.match(/iso\s*(?:vg\s*)?(\d[\d,\sym]*)/);
+      if (m) specs.iso = (m[1].match(/\d+m?/g) || []).join(", ").toUpperCase();
+      m = t.match(/sae\s*([0-9w][0-9w,\s\/y-]*)/);
+      if (m) specs.sae = (m[1].match(/\d+(?:w\d+)?/g) || []).join(", ").toUpperCase();
+      const thick = CMP_THICKENERS.find(([key]) => t.includes(key));
+      if (thick) specs.thickener = thick[1];
+      if (/semisintetic/.test(t)) specs.base = "Semisintético";
+      else if (/poliolester/.test(t)) specs.base = "Sintético (poliol éster)";
+      else if (/\bpag\b/.test(t)) specs.base = "Sintético (PAG)";
+      else if (/pfpe|fluorinad/.test(t)) specs.base = "Sintético (PFPE)";
+      else if (/sintetic|\bpao\b|polialfa/.test(t)) specs.base = "Sintético";
+      else if (/vegetal/.test(t)) specs.base = "Vegetal";
+      else if (/mineral/.test(t)) specs.base = "Mineral";
+      specs.h1 = /\bh1\b|\bfg\b|grado alimenticio|food/.test(t);
+      if (/\bep\b/.test(t)) specs.additives.push("Extrema presión (EP)");
+      if (/moly|molibden/.test(t)) specs.additives.push("Bisulfuro de molibdeno");
+      if (/grafito/.test(t)) specs.additives.push("Grafito");
+      if (/azufre/.test(t)) specs.additives.push("Azufre");
+      if (/fosforo/.test(t)) specs.additives.push("Fósforo");
+      return specs;
+    }
+
+    // Borrador automático para equivalencias que todavía no tienen comparativa
+    // guardada: compara solo lo que se lee en los nombres y deja en blanco las
+    // propiedades numéricas para capturarlas desde la ficha técnica.
+    function buildDraftComparison(row) {
+      const a = parseProductSpecs(row.COMPETENCIA);
+      const b = parseProductSpecs(row.SYNLOX);
+      const rows = [];
+      const add = (p, s, c, y, bar = "") => {
+        if (!c && !y) return;
+        const same = c && y && norm(c) === norm(y);
+        rows.push({ p, s, c: c || "", y: y || "", res: same ? "equal" : "check", bar });
+      };
+      add("Grado NLGI", "Consistencia de la grasa", a.nlgi, b.nlgi);
+      add("Espesante", "Tipo de jabón", a.thickener, b.thickener);
+      add("Viscosidad ISO VG", "Grado ISO del aceite", a.iso, b.iso);
+      add("Viscosidad SAE", "Grado SAE", a.sae, b.sae);
+      add("Aceite base", "Naturaleza del fluido", a.base, b.base);
+      add("Aditivos", "Paquete de desempeño", [...a.additives].sort().join(", "), [...b.additives].sort().join(", "));
+      add("Grado alimenticio", "Registro H1", a.h1 ? "H1" : "", b.h1 ? "H1" : "");
+      const grease = norm(row.TIPO_LUBRICANTE).includes("grasa");
+      const pending = grease
+        ? [["Punto de gota", "°C, mayor es mejor", "high"], ["Temperatura máxima de operación", "°C, mayor es mejor", "high"],
+           ["Carga de soldadura 4 bolas", "kgf, mayor es mejor", "high"], ["Lavado por agua a 79 °C", "% de pérdida, menor es mejor", "low"]]
+        : [["Viscosidad cinemática a 40 °C", "cSt", ""], ["Índice de viscosidad", "Mayor es mejor", "high"],
+           ["Punto de inflamación", "°C, mayor es mejor", "high"], ["Punto de fluidez", "°C, menor es mejor", "low"]];
+      pending.forEach(([p, s, bar]) => rows.push({ p, s, c: "", y: "", res: "check", bar }));
+      return { rows, ventajas: [], borrador: true };
+    }
+
+    const cmpCompared = (rows) => rows.filter(r => String(r.c || "").trim() && String(r.y || "").trim());
+
+    function autoComparisonVerdict(rows, row, draft) {
+      if (draft) {
+        const considered = rows.filter(r => String(r.c || "").trim() || String(r.y || "").trim());
+        const waiting = rows.length - considered.length;
+        const needReview = considered.filter(r => r.res === "check").length;
+        const matching = considered.length - needReview;
+        if (!considered.length) {
+          return {
+            title: "Borrador automático: faltan datos de la ficha técnica",
+            text: "Captura los valores de las fichas técnicas con «Revisar y editar» para generar el veredicto.",
+            pct: 0, warn: true
+          };
+        }
+        return {
+          title: `Borrador automático: ${matching} de ${considered.length} características coinciden`,
+          text: `Se identificaron ${considered.length} características en el nombre de los productos: ${matching} coinciden y ${needReview} ${needReview === 1 ? "requiere" : "requieren"} revisión, porque el nombre de un producto puede no traer todos sus datos.${waiting ? ` Faltan ${waiting} ${waiting === 1 ? "propiedad" : "propiedades"} por capturar de la ficha técnica.` : ""}`,
+          pct: Math.round((matching / considered.length) * 100), warn: true
+        };
+      }
+      const compared = cmpCompared(rows);
+      const pending = rows.length - compared.length;
+      if (!compared.length) {
+        return {
+          title: draft ? "Borrador automático: faltan datos de la ficha técnica" : "Sin datos para comparar todavía",
+          text: "Captura los valores de las fichas técnicas con «Editar comparativa» para generar el veredicto.",
+          pct: 0, warn: true
+        };
+      }
+      const check = compared.filter(r => r.res === "check").length;
+      const better = compared.filter(r => r.res === "better").length;
+      const ok = compared.length - check;
+      const pct = Math.round((ok / compared.length) * 100);
+      const missing = pending ? ` Faltan ${pending} ${pending === 1 ? "propiedad" : "propiedades"} por capturar de la ficha técnica.` : "";
+      return {
+        title: check
+          ? `Equivalente o superior en ${ok} de ${compared.length} propiedades; ${check} por verificar`
+          : `Equivalente o superior en ${ok} de ${compared.length} propiedades`,
+        text: check
+          ? `${row.SYNLOX} cumple en ${ok} de ${compared.length} propiedades; hay ${check} ${check === 1 ? "punto" : "puntos"} que conviene verificar con soporte antes de recomendarlo.${missing}`
+          : `${row.SYNLOX} iguala al producto de la competencia${better ? ` y lo supera en ${better} ${better === 1 ? "propiedad" : "propiedades"} clave` : ""}. Es una sustitución directa.${missing}`,
+        pct, warn: check > 0
+      };
     }
 
     function renderComparisonCard(row) {
       const canEdit = canManageEquivalences(state.user.correo);
       const found = findComparison(row);
+      const draft = !found;
+      const d = found ? (found.data || {}) : buildDraftComparison(row);
+      const rows = Array.isArray(d.rows) ? d.rows : [];
+      const verdict = autoComparisonVerdict(rows, row, draft);
       const editBtn = canEdit
-        ? `<button class="btn ghost row-btn" type="button" onclick="openComparisonEditor()">${found ? "Editar comparativa" : "Crear comparativa"}</button>`
+        ? `<button class="btn ghost row-btn" type="button" onclick="openComparisonEditor()">${draft ? "Revisar y editar" : "Editar comparativa"}</button>`
         : "";
       const icon = `<span class="cmp-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18M5 7l-3 6a3 3 0 0 0 6 0zM19 7l-3 6a3 3 0 0 0 6 0zM3 7h18"/></svg></span>`;
-      if (!found) {
-        return `<div class="cmp-card">
-          <div class="cmp-head"><div class="cmp-title">${icon}<div><h3>Comparativa técnica</h3><p>Por qué este producto SYNLOX es el equivalente, con base en su ficha técnica.</p></div></div>
-            <div class="cmp-chips"><span class="beta-pill">En proceso</span>${editBtn}</div></div>
-          <div class="cmp-empty">Todavía no hay comparativa capturada para este equivalente.${canEdit ? " Usa «Crear comparativa» para llenarla con los datos de las fichas técnicas." : ""}</div>
-        </div>`;
-      }
-
-      const d = found.data || {};
-      const rows = Array.isArray(d.rows) ? d.rows : [];
-      const verdict = autoComparisonVerdict(rows, row);
       const cell = (r, value, side) => {
         const a = cmpNumber(r.c);
         const b = cmpNumber(r.y);
@@ -2845,11 +3013,14 @@
         synloxSheet ? `<a href="${esc(synloxSheet)}" target="_blank" rel="noopener">Ver ficha SYNLOX</a>` : "",
         compSheet ? `<a href="${esc(compSheet)}" target="_blank" rel="noopener">Ver ficha de la competencia</a>` : ""
       ].filter(Boolean).join("");
-      const updated = [found.actualizadoPor, found.fecha ? fmtDate(found.fecha) : ""].filter(Boolean).join(" · ");
+      const updated = found ? [found.actualizadoPor, found.fecha ? fmtDate(found.fecha) : ""].filter(Boolean).join(" · ") : "";
+      const footNote = draft
+        ? "Generado automáticamente a partir de los nombres de los productos. Revísalo y corrígelo con las fichas técnicas."
+        : (updated ? `Editado por ${esc(updated)}` : "");
 
       return `<div class="cmp-card">
         <div class="cmp-head"><div class="cmp-title">${icon}<div><h3>¿Por qué ${esc(row.SYNLOX)}?</h3><p>Comparativa técnica contra ${esc(row.COMPETENCIA)}</p></div></div>
-          <div class="cmp-chips"><span class="cmp-chip">Basado en ficha técnica</span><span class="beta-pill">En proceso</span>${editBtn}</div></div>
+          <div class="cmp-chips">${draft ? `<span class="cmp-chip draft">Borrador automático</span>` : `<span class="cmp-chip">Basado en ficha técnica</span>`}<span class="beta-pill">En proceso</span>${editBtn}</div></div>
         <div class="cmp-verdict ${verdict.warn ? "warn" : ""}">
           <div class="cmp-score" style="--p:${verdict.pct};--c:${verdict.warn ? "#f4a62a" : "#0d9f6e"}"><b>${verdict.pct}%</b></div>
           <div><h4>${esc(d.titulo || verdict.title)}</h4><p>${esc(d.resumen || verdict.text)}</p></div>
@@ -2859,7 +3030,7 @@
           <tbody>${tableRows || `<tr><td colspan="4"><span class="sub">Sin propiedades capturadas.</span></td></tr>`}</tbody>
         </table></div>
         ${why}
-        <div class="cmp-foot"><span>${updated ? `Editado por ${esc(updated)}` : ""}</span><span class="links">${links}</span></div>
+        <div class="cmp-foot"><span>${footNote}</span><span class="links">${links}</span></div>
       </div>`;
     }
 
@@ -2873,7 +3044,7 @@
       cmpEditor = {
         row,
         exists: Boolean(found),
-        rows: savedRows || CMP_DEFAULT_ROWS.map(r => ({ p: r.p, s: r.s, c: "", y: "", res: "equal", bar: r.bar, auto: true })),
+        rows: savedRows || buildDraftComparison(row).rows.map(r => ({ ...r, auto: true })),
         ventajas: (Array.isArray(d.ventajas) ? d.ventajas : []).map(v => ({ t: v.t || "", d: v.d || "" })),
         titulo: d.titulo || "",
         resumen: d.resumen || "",
