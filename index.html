@@ -246,84 +246,122 @@
     }
     .full { grid-column: 1 / -1; }
     label { display: grid; gap: 7px; color: #555e80; font-size: 12px; font-weight: 800; letter-spacing: .03em; }
-    .wizard {
-      display: grid;
-      gap: 18px;
-      padding-bottom: 86px;
-    }
-    .steps {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 10px;
-      margin-bottom: 6px;
-    }
+    .wizard { display: grid; gap: 20px; padding-bottom: 20px; }
+    .sla-pill { display: inline-flex; align-items: center; gap: 8px; padding: 8px 14px; border-radius: 999px; background: #eef0ff; color: var(--blue); font-size: 12px; font-weight: 800; white-space: nowrap; }
+    .sla-pill svg { width: 15px; height: 15px; }
+    .steps { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
     .step-dot {
-      border: 1px solid var(--line);
-      border-radius: 999px;
-      padding: 10px 12px;
+      display: flex; align-items: center; gap: 12px;
+      padding: 12px 16px;
+      border: 1.5px solid var(--line);
+      border-radius: 14px;
+      background: #fff;
       color: var(--muted);
-      background: #f8f8fc;
-      font-size: 12px;
-      font-weight: 900;
-      text-align: center;
+      font-size: 13px; font-weight: 800;
+      text-align: left;
+      transition: border-color .2s, background .2s, box-shadow .2s, color .2s;
     }
-    .step-dot.active {
-      background: var(--blue);
-      border-color: var(--blue);
-      color: white;
+    .step-dot .num {
+      flex: 0 0 30px; width: 30px; height: 30px; border-radius: 50%;
+      display: grid; place-items: center;
+      background: #eef0f7; color: var(--muted);
+      font-size: 13px; font-weight: 900;
+      transition: background .2s, color .2s;
     }
+    .step-dot .lbl { line-height: 1.25; }
+    .step-dot.active { border-color: var(--blue); background: #f5f5ff; color: var(--ink); box-shadow: 0 0 0 4px rgba(0,0,250,.07); }
+    .step-dot.active .num { background: var(--blue); color: #fff; }
+    .step-dot.done { color: var(--ink); }
+    .step-dot.done .num { background-color: var(--ok); color: transparent; background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3.5' stroke-linecap='round' stroke-linejoin='round'><path d='m5 12 5 5L20 7'/></svg>"); background-repeat: no-repeat; background-position: center; background-size: 14px; }
+    .steps-progress { height: 4px; margin-top: -8px; border-radius: 99px; background: #e8eaf3; overflow: hidden; }
+    .steps-progress i { display: block; height: 100%; width: 33.34%; border-radius: 99px; background: linear-gradient(90deg, var(--blue), var(--violet)); transition: width .35s ease; }
+    @keyframes stepIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
     .wizard-step { display: none; gap: 18px; }
-    .wizard-step.active { display: grid; }
+    .wizard-step.active { display: grid; animation: stepIn .3s ease-out; }
+    @media (prefers-reduced-motion: reduce) { .wizard-step.active { animation: none; } }
     .section-card {
       border: 1px solid var(--line);
-      border-radius: 8px;
-      background: white;
+      border-radius: 14px;
+      background: #fff;
       overflow: hidden;
+      box-shadow: 0 1px 2px rgba(13,13,22,.04), 0 12px 28px -18px rgba(13,13,22,.14);
     }
     .section-title {
-      background: var(--blue);
-      color: white;
-      padding: 14px 18px;
-      font-weight: 900;
-      letter-spacing: .05em;
-      font-size: 13px;
+      display: flex; align-items: center; gap: 12px;
+      padding: 15px 22px;
+      background: #fafbff;
+      border-bottom: 1px solid var(--line);
+      color: var(--ink);
+      font-weight: 900; letter-spacing: .07em; font-size: 12.5px;
     }
-    .section-body { padding: 18px; display: grid; gap: 18px; }
-    .field-row { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+    .section-title .ico { flex: 0 0 34px; width: 34px; height: 34px; border-radius: 10px; display: grid; place-items: center; background: #eef0ff; color: var(--blue); }
+    .section-title .ico svg { width: 17px; height: 17px; display: block; }
+    .section-body { padding: 22px; display: grid; gap: 22px; }
+    .field-row { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
+    .wizard label { gap: 8px; }
+    .wizard input:not([type="range"]):not([type="file"]):not([type="hidden"]), .wizard textarea {
+      border: 1.5px solid #e3e5f0;
+      border-radius: 10px;
+      background: #fcfcff;
+      padding: 14px 16px;
+      transition: border-color .15s, box-shadow .15s, background .15s;
+    }
+    .wizard input::placeholder, .wizard textarea::placeholder { color: #b3b8d0; font-weight: 500; }
+    .wizard input:hover:not(:focus):not([readonly]):not([type="range"]):not([type="file"]), .wizard textarea:hover:not(:focus) { border-color: #c9cdea; }
+    .wizard input:focus:not([type="range"]):not([type="file"]), .wizard textarea:focus { background: #fff; border-color: var(--blue); box-shadow: 0 0 0 4px rgba(0,0,250,.08); }
+    .wizard input[readonly] { background: #f3f4f9; color: #667085; cursor: not-allowed; }
     .choice-group { display: flex; flex-wrap: wrap; gap: 10px; }
     .choice {
-      border: 1px solid var(--line);
-      background: white;
+      border: 1.5px solid #e3e5f0;
+      background: #fff;
       color: #555e80;
-      border-radius: 999px;
-      min-height: 42px;
-      padding: 9px 16px;
-      font-weight: 800;
+      border-radius: 12px;
+      min-height: 46px;
+      padding: 10px 18px;
+      font-weight: 800; font-size: 14px;
+      transition: border-color .15s, background .15s, color .15s, box-shadow .15s, transform .15s;
     }
-    .choice.active {
-      color: white;
-      background: var(--blue);
-      border-color: var(--blue);
-      box-shadow: 0 0 0 3px rgba(0,0,250,.1);
+    .choice:hover { border-color: #b9beea; background: #f8f8ff; color: var(--blue); transform: translateY(-1px); }
+    .choice.active { color: #fff; background: var(--blue); border-color: var(--blue); box-shadow: 0 10px 20px -10px rgba(0,0,250,.6); transform: none; }
+    .slider-value { text-align: center; color: var(--ink); font-weight: 900; font-size: 26px; letter-spacing: -.02em; }
+    .slider-value span { color: var(--blue); }
+    input[type="range"] {
+      -webkit-appearance: none; appearance: none;
+      width: 100%; height: 8px; min-height: 0; padding: 0; border: 0; border-radius: 99px;
+      background: linear-gradient(90deg, #3b82f6 0%, #16c784 35%, #f4a62a 65%, #e5484d 100%);
+      cursor: pointer;
     }
-    .slider-value {
-      text-align: center;
-      color: var(--blue);
-      font-weight: 900;
-      font-size: 20px;
+    input[type="range"]:focus { box-shadow: 0 0 0 4px rgba(0,0,250,.1); }
+    input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 24px; height: 24px; border-radius: 50%; background: #fff; border: 3px solid var(--blue); box-shadow: 0 4px 10px rgba(13,13,22,.25); }
+    input[type="range"]::-moz-range-thumb { width: 20px; height: 20px; border-radius: 50%; background: #fff; border: 3px solid var(--blue); box-shadow: 0 4px 10px rgba(13,13,22,.25); }
+    .wizard input[type="file"] {
+      padding: 28px 16px;
+      border: 2px dashed #ccd0ee; border-radius: 14px;
+      background: #f8f8ff; color: #555e80;
+      font-weight: 700; cursor: pointer;
+      transition: border-color .15s, background .15s;
     }
-    input[type="range"] { accent-color: var(--blue); padding: 0; }
+    .wizard input[type="file"]:hover { border-color: var(--blue); background: #f1f1ff; }
+    .wizard input[type="file"]::file-selector-button {
+      margin-right: 14px; padding: 10px 18px;
+      border: 0; border-radius: 999px;
+      background: var(--blue); color: #fff;
+      font: inherit; font-weight: 800; cursor: pointer;
+    }
     .wizard-actions {
-      position: sticky;
-      bottom: 0;
-      display: grid;
-      grid-template-columns: 170px 1fr;
-      gap: 12px;
-      background: rgba(243,243,246,.92);
-      padding: 14px 0 0;
-      backdrop-filter: blur(8px);
+      position: sticky; bottom: 12px;
+      display: grid; grid-template-columns: 170px 1fr; gap: 12px;
+      padding: 12px;
+      background: rgba(255,255,255,.88);
+      border: 1px solid var(--line); border-radius: 16px;
+      backdrop-filter: blur(12px);
+      box-shadow: 0 18px 40px -18px rgba(13,13,22,.35);
       z-index: 5;
     }
+    .wizard-actions .btn { min-height: 50px; font-size: 15px; border-radius: 12px; }
+    #nextStep { box-shadow: 0 12px 24px -12px rgba(0,0,250,.65); }
+    #nextStep:not(:disabled):not([data-last])::after { content: "\2192"; font-size: 17px; }
+    #prevStep::before { content: "\2190"; font-size: 17px; }
     .wizard-actions.first { grid-template-columns: 1fr; }
     .no-match { border-left-color: var(--warn); }
     .detail-grid {
@@ -1117,6 +1155,25 @@
         gap: 4px;
       }
     }
+    @media (max-width: 980px) {
+      .steps { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+      .wizard-actions { grid-template-columns: 130px 1fr; }
+    }
+    @media (max-width: 640px) {
+      .steps { display: flex; }
+      .step-dot { flex: 0 0 auto; padding: 10px; gap: 0; justify-content: center; border-radius: 12px; }
+      .step-dot .lbl { display: none; }
+      .step-dot.active { flex: 1 1 auto; gap: 10px; justify-content: flex-start; padding: 10px 14px; }
+      .step-dot.active .lbl { display: inline; }
+      .section-title { padding: 14px 16px; }
+      .section-body { padding: 16px; gap: 18px; }
+      .choice-group { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .choice { border-radius: 12px; }
+      .wizard { padding-bottom: 12px; }
+      .wizard-actions { margin: 0; padding: 10px; border: 1px solid var(--line); border-radius: 14px; grid-template-columns: 110px 1fr; bottom: calc(8px + env(safe-area-inset-bottom)); }
+      .wizard-actions.first { grid-template-columns: 1fr; }
+      .sla-pill { justify-self: start; }
+    }
   </style>
 </head>
 <body>
@@ -1228,6 +1285,7 @@
                 <h2>Nueva solicitud</h2>
                 <p class="sub">Se generar&aacute; folio y se notificar&aacute; a soporte con SLA de 24 horas.</p>
               </div>
+              <span class="sla-pill"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>Respuesta en 24 h</span>
             </div>
             <form id="requestForm" class="wizard" novalidate>
               <input type="hidden" name="busquedaOriginal" id="busquedaOriginal" />
@@ -1245,14 +1303,15 @@
               <input type="hidden" name="problemas" />
 
               <div class="steps">
-                <div class="step-dot active" data-step-label="1">1 · Condiciones técnicas</div>
-                <div class="step-dot" data-step-label="2">2 · Condiciones operativas</div>
-                <div class="step-dot" data-step-label="3">3 · Evidencia y envío</div>
+                <div class="step-dot active" data-step-label="1"><span class="num">1</span><span class="lbl">Condiciones técnicas</span></div>
+                <div class="step-dot" data-step-label="2"><span class="num">2</span><span class="lbl">Condiciones operativas</span></div>
+                <div class="step-dot" data-step-label="3"><span class="num">3</span><span class="lbl">Evidencia y envío</span></div>
               </div>
+              <div class="steps-progress" aria-hidden="true"><i id="stepsFill"></i></div>
 
               <div class="wizard-step active" data-step="1">
                 <div class="section-card">
-                  <div class="section-title">IDENTIFICACIÓN DEL EQUIPO</div>
+                  <div class="section-title"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><path d="M15 2v2M15 20v2M2 15h2M2 9h2M20 15h2M20 9h2M9 2v2M9 20v2"/></svg></span><span>IDENTIFICACIÓN DEL EQUIPO</span></div>
                   <div class="section-body">
                     <div class="field-row">
                       <label>ID / Nombre del equipo *
@@ -1283,7 +1342,7 @@
                 </div>
 
                 <div class="section-card">
-                  <div class="section-title">TIPO DE ELEMENTO TRIBOLÓGICO</div>
+                  <div class="section-title"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></span><span>TIPO DE ELEMENTO TRIBOLÓGICO</span></div>
                   <div class="section-body">
                     <div>
                       <label>Selecciona el elemento *</label>
@@ -1303,7 +1362,7 @@
                 </div>
 
                 <div class="section-card">
-                  <div class="section-title">PARÁMETROS DE LUBRICACIÓN</div>
+                  <div class="section-title"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/></svg></span><span>PARÁMETROS DE LUBRICACIÓN</span></div>
                   <div class="section-body">
                     <div class="field-row">
                       <label>cSt a 40°C — aceites
@@ -1338,7 +1397,7 @@
 
               <div class="wizard-step" data-step="2">
                 <div class="section-card">
-                  <div class="section-title">LUBRICANTE ACTUAL</div>
+                  <div class="section-title"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6"/><path d="M10 3v6l-5 9a2 2 0 0 0 1.7 3h10.6a2 2 0 0 0 1.7-3l-5-9V3"/></svg></span><span>LUBRICANTE ACTUAL</span></div>
                   <div class="section-body">
                     <div>
                       <label>Estado del lubricante *</label>
@@ -1354,20 +1413,20 @@
                 </div>
 
                 <div class="section-card">
-                  <div class="section-title">TEMPERATURA · VELOCIDAD</div>
+                  <div class="section-title"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0z"/></svg></span><span>TEMPERATURA · VELOCIDAD</span></div>
                   <div class="section-body">
                     <label>Temperatura de carcasa (°C)
                       <div class="slider-value"><span id="tempValue">60</span> °C</div>
                       <input name="temperatura" id="tempRange" type="range" min="-20" max="200" value="60" />
                     </label>
-                    <label>Velocidad real <span class="sub">(si aplica)</span>
+                    <label><span>Velocidad real <span class="sub">(si aplica)</span></span>
                       <input name="rpm" placeholder="RPM" />
                     </label>
                   </div>
                 </div>
 
                 <div class="section-card">
-                  <div class="section-title">TIPO DE CONTAMINANTES</div>
+                  <div class="section-title"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.7 7.7a2.5 2.5 0 1 1 1.8 4.3H2"/><path d="M9.6 4.6A2 2 0 1 1 11 8H2"/><path d="M12.6 19.4A2 2 0 1 0 14 16H2"/></svg></span><span>TIPO DE CONTAMINANTES</span></div>
                   <div class="section-body">
                     <div>
                       <label>Selecciona todos los que apliquen</label>
@@ -1383,7 +1442,7 @@
                 </div>
 
                 <div class="section-card">
-                  <div class="section-title">CARGA · VIBRACIÓN · AGUA</div>
+                  <div class="section-title"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></span><span>CARGA · VIBRACIÓN · AGUA</span></div>
                   <div class="section-body">
                     <div>
                       <label>Carga *</label>
@@ -1416,7 +1475,7 @@
                 </div>
 
                 <div class="section-card">
-                  <div class="section-title">PROBLEMA REPORTADO</div>
+                  <div class="section-title"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg></span><span>PROBLEMA REPORTADO</span></div>
                   <div class="section-body">
                     <div>
                       <label>Selecciona el problema *</label>
@@ -1438,16 +1497,16 @@
 
               <div class="wizard-step" data-step="3">
                 <div class="section-card">
-                  <div class="section-title">FOTO DEL EQUIPO</div>
+                  <div class="section-title"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg></span><span>FOTO DEL EQUIPO</span></div>
                   <div class="section-body">
-                    <p class="sub">Adjunta fotos, PDF, ficha técnica u otros archivos. En producción se guardan en Drive y el link queda en la hoja.</p>
-                    <label>Seleccionar fotos
+                    <p class="sub">Adjunta fotos, PDF, ficha técnica u otros archivos del equipo. Puedes elegir varios a la vez.</p>
+                    <label>Seleccionar archivos
                       <input name="fotos" type="file" multiple accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx" />
                     </label>
                   </div>
                 </div>
                 <div class="section-card">
-                  <div class="section-title">DATOS DE CONTACTO</div>
+                  <div class="section-title"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span><span>DATOS DE CONTACTO</span></div>
                   <div class="section-body">
                     <div class="field-row">
                       <label>Empresa
@@ -2456,7 +2515,13 @@
     function setRequestStep(step) {
       state.requestStep = Math.max(1, Math.min(3, step));
       document.querySelectorAll(".wizard-step").forEach(item => item.classList.toggle("active", Number(item.dataset.step) === state.requestStep));
-      document.querySelectorAll("[data-step-label]").forEach(item => item.classList.toggle("active", Number(item.dataset.stepLabel) === state.requestStep));
+      document.querySelectorAll("[data-step-label]").forEach(item => {
+        const n = Number(item.dataset.stepLabel);
+        item.classList.toggle("active", n === state.requestStep);
+        item.classList.toggle("done", n < state.requestStep);
+      });
+      $("stepsFill").style.width = (state.requestStep / 3 * 100) + "%";
+      $("nextStep").toggleAttribute("data-last", state.requestStep === 3);
       $("prevStep").classList.toggle("hidden", state.requestStep === 1);
       $("nextStep").textContent = state.requestStep === 3 ? "Enviar reporte" : "Siguiente paso";
       $("wizardActions").classList.toggle("first", state.requestStep === 1);
