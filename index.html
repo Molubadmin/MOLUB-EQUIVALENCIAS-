@@ -1175,6 +1175,13 @@
       .sla-pill { justify-self: start; }
     }
 
+    /* Módulo en proceso */
+    .beta-pill { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 999px; background: #fff3d8; color: #8a5b00; font-size: 11px; font-weight: 900; letter-spacing: .06em; text-transform: uppercase; white-space: nowrap; }
+    .beta-pill::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: #f4a62a; }
+    .nav button .beta-pill.nav-pill { margin-left: 8px; padding: 3px 8px; font-size: 9px; vertical-align: middle; }
+    .beta-note { margin-top: 14px; padding: 12px 14px; border: 1px dashed #f1d9a6; border-radius: 10px; background: #fffaf0; color: #7a5a12; font-size: 12.5px; line-height: 1.5; }
+    .beta-note .beta-pill { padding: 3px 9px; margin-right: 6px; font-size: 10px; }
+
     /* Marca: engranaje girando */
     .brand .brand-fallback {
       display: none;
@@ -1343,6 +1350,7 @@
                 <h2>B&uacute;squeda r&aacute;pida</h2>
                 <p class="sub">Si hay equivalencia, se muestra al instante. Si no, genera folio para soporte.</p>
               </div>
+              <span class="beta-pill">En proceso</span>
             </div>
             <div class="searchbox">
               <input id="searchInput" placeholder="Ej. MOBILGREASE XHP 222 o SYNLOX LITHPLEX" autocomplete="off" />
@@ -1353,6 +1361,7 @@
               <input id="complexToggle" type="checkbox" />
               Es un equipo complejo, necesito recomendaci&oacute;n
             </label>
+            <div class="beta-note"><b>M&oacute;dulo en proceso.</b> Pr&oacute;ximamente, al mostrar el equivalente SYNLOX tambi&eacute;n ver&aacute;s una comparativa t&eacute;cnica, basada en su ficha t&eacute;cnica, que explica por qu&eacute; ese producto es la mejor opci&oacute;n.</div>
           </section>
 
           <section class="result" id="resultBox"></section>
@@ -1925,10 +1934,17 @@
     const DEMO_MODE = API_URL.includes("PEGA_AQUI");
     const DEMO_SCHEMA_VERSION = "2026-08-19-full-form-v5";
     const STATIC_VERSION = "20260819-2";
-    // Interruptor del módulo de búsqueda de equivalencias. En false solo queda
-    // habilitado el formulario de solicitud de recomendación; ponlo en true para
-    // volver a activar la búsqueda.
-    const EQUIVALENCE_SEARCH_ENABLED = false;
+    // La búsqueda de equivalencias está "en proceso": solo estas cuentas la ven.
+    // Para todos los demás, la pantalla principal es el formulario de solicitud.
+    const EQUIVALENCE_SEARCH_EMAILS = new Set([
+      "gerenciaventas@molub.com.mx",
+      "ventas@molub.com.mx",
+      "soporte@molub.com.mx",
+      "facturacion@molub.com.mx",
+      "aux.ventas@molub.com.mx"
+    ]);
+    const equivalenceSearchEnabled = () =>
+      Boolean(state.user) && EQUIVALENCE_SEARCH_EMAILS.has(String(state.user.correo || "").trim().toLowerCase());
     const state = {
       equivalencias: [],
       usuarios: [],
@@ -2363,7 +2379,10 @@
     }
 
     function applyEquivalenceSearchMode() {
-      if (EQUIVALENCE_SEARCH_ENABLED) return;
+      if (equivalenceSearchEnabled()) {
+        $("searchNav").innerHTML = `Buscar equivalencia <span class="beta-pill nav-pill">En proceso</span>`;
+        return;
+      }
       $("searchPanel").classList.add("hidden");
       $("resultBox").classList.add("hidden");
       $("eqStatCard").classList.add("hidden");
@@ -2491,7 +2510,7 @@
       document.querySelectorAll(".nav button").forEach(b => b.classList.toggle("active", b.dataset.view === name));
       document.querySelectorAll(".view").forEach(v => v.classList.toggle("active", v.id === "view-" + name));
       const titles = {
-        buscar: EQUIVALENCE_SEARCH_ENABLED
+        buscar: equivalenceSearchEnabled()
           ? ["Equivalencias", "Busca por producto SYNLOX o producto de la competencia"]
           : ["Solicitar recomendación", "Llena el formulario para que soporte te recomiende un producto SYNLOX"],
         mis: ["Mis solicitudes", "Historial y respuestas de soporte"],
@@ -2620,7 +2639,8 @@
         <div style="margin-top:16px;display:flex;gap:10px;flex-wrap:wrap;">
           ${fichaUrl ? `<a class="btn" href="${esc(fichaUrl)}" target="_blank" rel="noopener">Ver ficha técnica</a>` : ""}
           <button class="btn secondary" type="button" onclick="openRequestForm('Confirmación técnica')">Pedir confirmación técnica</button>
-        </div>`;
+        </div>
+        <div class="beta-note"><span class="beta-pill">En proceso</span> Comparativa técnica: pronto aquí se explicará por qué este producto SYNLOX es el equivalente, con base en su ficha técnica.</div>`;
     }
 
     function technicalSheetUrl(row) {
@@ -2765,7 +2785,7 @@
           payload.estadoLubricante ? `Estado del lubricante: ${payload.estadoLubricante}` : "",
           comentariosFinales
         ].filter(Boolean).join("\n\n");
-        if (!EQUIVALENCE_SEARCH_ENABLED && !String(payload.busquedaOriginal || "").trim()) {
+        if (!equivalenceSearchEnabled() && !String(payload.busquedaOriginal || "").trim()) {
           payload.busquedaOriginal = payload.lubricanteActual || "Solicitud directa";
         }
         payload.action = "createRequest";
@@ -2811,7 +2831,7 @@
           $("nextStep").disabled = false;
           $("prevStep").disabled = false;
           setRequestStep(1);
-          if (EQUIVALENCE_SEARCH_ENABLED) $("formPanel").classList.add("hidden");
+          if (equivalenceSearchEnabled()) $("formPanel").classList.add("hidden");
           else showDirectRequestForm();
         }, 1100);
         return;
@@ -3297,6 +3317,38 @@
       return out.map(pdfSafe);
     }
 
+    // Ligas de Drive guardadas en la hoja (separadas por " | ").
+    function parseDriveLinks(text) {
+      return String(text || "").split("|").map(item => item.trim()).filter(item => /^https?:\/\//i.test(item)).map(url => {
+        const match = url.match(/\/d\/([-\w]{20,})/) || url.match(/[?&]id=([-\w]{20,})/);
+        return { url, id: match ? match[1] : "" };
+      });
+    }
+
+    function collectEvidence(r) {
+      const photos = parseDriveLinks(r.FOTOS).map((link, i) => ({ ...link, group: "Archivo del comisionista", fallback: `Archivo ${i + 1}` }));
+      const support = parseDriveLinks(r.ADJUNTOS_RESPUESTA).map((link, i) => ({ ...link, group: "Adjunto de soporte", fallback: `Adjunto ${i + 1}` }));
+      return [...photos, ...support];
+    }
+
+    // Pide al backend el nombre y la miniatura de cada archivo. Devuelve false si
+    // el backend todavía no tiene la función (en ese caso el PDF lleva solo las ligas).
+    async function loadAttachmentPreviews(ids) {
+      state.attachmentCache = state.attachmentCache || {};
+      const missing = ids.filter(id => !state.attachmentCache[id]);
+      for (let i = 0; i < missing.length; i += 6) {
+        toast(`Cargando fotos y archivos (${Math.min(i + 6, missing.length)} de ${missing.length})...`);
+        try {
+          const res = await apiPost({ action: "getAttachmentPreviews", correo: state.user.correo, ids: missing.slice(i, i + 6) });
+          if (!res || !res.ok) return false;
+          Object.assign(state.attachmentCache, res.items || {});
+        } catch (err) {
+          return false;
+        }
+      }
+      return true;
+    }
+
     async function generateReportPDF() {
       const report = state.currentReport;
       if (!report || !report.list.length) return toast("No hay datos para generar el PDF en este rango.");
@@ -3307,7 +3359,11 @@
       btn.disabled = true;
       toast("Generando reporte PDF...");
       try {
-        const { doc, fileName } = await buildReportPdf(report);
+        const ids = [...new Set(report.list.flatMap(r => collectEvidence(r)).map(item => item.id).filter(Boolean))].slice(0, 60);
+        if (ids.length && !(await loadAttachmentPreviews(ids))) {
+          toast("Se incluyen solo las ligas de los archivos; no se pudieron cargar las miniaturas.");
+        }
+        const { doc, fileName } = await buildReportPdf(report, state.attachmentCache || {});
         doc.save(fileName);
       } catch (err) {
         console.error(err);
@@ -3317,7 +3373,7 @@
       }
     }
 
-    async function buildReportPdf(report) {
+    async function buildReportPdf(report, previews = {}) {
       const { list, rows, kpis } = report;
       const { jsPDF } = window.jspdf;
       const doc = new jsPDF({ orientation: "landscape", unit: "pt", format: "a4", compress: true });
@@ -3509,6 +3565,95 @@
 
       const val = (x) => pdfSafe(String(x == null ? "" : x).trim());
       const labelCell = (text) => ({ content: pdfSafe(text) });
+      const clip = (text, width) => doc.splitTextToSize(pdfSafe(text), width)[0] || "";
+
+      // Fotos como miniaturas con su liga y, para el resto de archivos, la liga
+      // clicable. Va justo debajo de la ficha de cada solicitud.
+      const drawEvidence = (items, startY, folio) => {
+        let ey = startY;
+        const need = (h) => { if (ey + h > H - 46) { doc.addPage(); ey = 62; } };
+        const hasThumbs = items.some(item => previews[item.id] && previews[item.id].thumb);
+        need(20 + (hasThumbs ? 118 + 28 + 10 : 28));
+        doc.setFillColor(...C.soft);
+        doc.setDrawColor(...C.line);
+        doc.setLineWidth(0.5);
+        doc.rect(M, ey, CW, 20, "FD");
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(7.5);
+        doc.setTextColor(...C.muted);
+        doc.text(pdfSafe(`EVIDENCIA ADJUNTA  |  ${folio}  |  ${items.length} ${items.length === 1 ? "archivo" : "archivos"}`), M + 8, ey + 13);
+        ey += 20;
+
+        const entries = items.map(item => {
+          const info = previews[item.id] || {};
+          const type = String(info.thumbType || "image/jpeg");
+          return {
+            ...item,
+            name: info.name || item.fallback,
+            thumbUrl: info.thumb ? `data:${type};base64,${info.thumb}` : "",
+            format: type.includes("png") ? "PNG" : "JPEG"
+          };
+        });
+        const images = entries.filter(entry => entry.thumbUrl);
+        const others = entries.filter(entry => !entry.thumbUrl);
+
+        if (images.length) {
+          const cols = 4;
+          const gapI = 10;
+          const boxW = (CW - gapI * (cols + 1)) / cols;
+          const boxH = 118;
+          const rowH = boxH + 28;
+          let rowTop = ey + 10;
+          images.forEach((entry, idx) => {
+            const col = idx % cols;
+            if (col === 0 && rowTop + rowH > H - 46) { doc.addPage(); rowTop = 62; }
+            const x = M + gapI + col * (boxW + gapI);
+            doc.setDrawColor(...C.line);
+            doc.setFillColor(255, 255, 255);
+            doc.roundedRect(x, rowTop, boxW, boxH, 4, 4, "FD");
+            try {
+              const props = doc.getImageProperties(entry.thumbUrl);
+              const scale = Math.min((boxW - 10) / props.width, (boxH - 10) / props.height);
+              const w = props.width * scale;
+              const h = props.height * scale;
+              doc.addImage(entry.thumbUrl, entry.format, x + (boxW - w) / 2, rowTop + (boxH - h) / 2, w, h, undefined, "FAST");
+            } catch (err) {
+              doc.setFont("helvetica", "normal");
+              doc.setFontSize(7.5);
+              doc.setTextColor(...C.muted);
+              doc.text("Vista previa no disponible", x + boxW / 2, rowTop + boxH / 2, { align: "center" });
+            }
+            doc.setFont("helvetica", "normal");
+            doc.setFontSize(7);
+            doc.setTextColor(...C.ink);
+            doc.text(clip(entry.name, boxW), x, rowTop + boxH + 11);
+            doc.setTextColor(...C.blue);
+            doc.textWithLink("Abrir original en Drive", x, rowTop + boxH + 22, { url: entry.url });
+            if (col === cols - 1) rowTop += rowH;
+          });
+          ey = images.length % cols === 0 ? rowTop : rowTop + rowH;
+        }
+
+        if (others.length) {
+          ey += images.length ? 2 : 10;
+          others.forEach(entry => {
+            need(18);
+            doc.setFont("helvetica", "bold");
+            doc.setFontSize(8);
+            doc.setTextColor(...C.ink);
+            doc.text(clip(`${entry.group}: ${entry.name}`, 330), M + 10, ey + 8);
+            doc.setFont("helvetica", "normal");
+            doc.setFontSize(7.5);
+            doc.setTextColor(...C.blue);
+            doc.textWithLink(clip(entry.url, CW - 360), M + 350, ey + 8, { url: entry.url });
+            ey += 17;
+          });
+        }
+        doc.setDrawColor(...C.line);
+        doc.setLineWidth(0.5);
+        doc.line(M, ey + 2, M + CW, ey + 2);
+        return ey + 2;
+      };
       list.forEach(r => {
         const sla = requestSla(r);
         const supportLabel = sla.state === "answered" ? "Respondido" : sla.state === "overdue" ? "Vencido" : "Pendiente";
@@ -3530,7 +3675,7 @@
           response = val(r.RESPUESTA) || "Respondida sin texto de recomendación.";
           const who = [val(r.RESPONDIDO_POR), fmtPdfDate(r.FECHA_RESPUESTA)].filter(Boolean).join(" - ");
           if (who) response += `\n\nRespondió: ${who}`;
-          if (val(r.ADJUNTOS_RESPUESTA)) response += "\nIncluye archivos adjuntos en el panel.";
+          if (val(r.ADJUNTOS_RESPUESTA)) response += "\nIncluye archivos adjuntos: ver sus ligas en Evidencia adjunta.";
         }
         let follow = "El comisionista aún no registra avance comercial.";
         if (avance) {
@@ -3569,7 +3714,10 @@
             3: { cellWidth: valueW }
           }
         });
-        y = doc.lastAutoTable.finalY + 16;
+        y = doc.lastAutoTable.finalY;
+        const evidence = collectEvidence(r);
+        if (evidence.length) y = drawEvidence(evidence, y, val(r.FOLIO));
+        y += 16;
       });
 
       // ----- Encabezado y pie en todas las páginas -----
