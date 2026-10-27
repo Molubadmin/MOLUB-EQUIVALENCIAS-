@@ -115,6 +115,7 @@
       padding-bottom: 2px;
     }
     .stats { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 20px; }
+    @media (min-width: 1181px) { .stats.no-eq { grid-template-columns: repeat(3, minmax(0,1fr)); } }
     .stat, .panel, .result, .login-card {
       background: white;
       border: 1px solid var(--line);
@@ -956,7 +957,7 @@
       <div>
         <div class="nav-label">PRINCIPAL</div>
         <div class="nav">
-          <button class="active" data-view="buscar">Buscar equivalencia</button>
+          <button class="active" data-view="buscar" id="searchNav">Buscar equivalencia</button>
           <button data-view="mis" id="myNav">Mis solicitudes</button>
           <button data-view="comisionistas" id="commissionersNav" class="hidden">Comisionistas</button>
           <button data-view="soporte" id="supportNav" class="hidden">Solicitudes</button>
@@ -981,8 +982,8 @@
           <div class="sync"><span class="dot"></span><span id="syncText">Conectado</span></div>
         </div>
         <div class="stats-wrap">
-          <div class="stats">
-            <div class="stat primary"><span>EQUIVALENCIAS</span><strong id="eqCount">0</strong><small>Registros disponibles</small></div>
+          <div class="stats" id="statsRow">
+            <div class="stat primary" id="eqStatCard"><span>EQUIVALENCIAS</span><strong id="eqCount">0</strong><small>Registros disponibles</small></div>
             <div class="stat"><span id="pendingStatLabel">PENDIENTES</span><strong id="pendingCount">0</strong><small id="pendingStatSub">Nuevos por atender</small></div>
             <div class="stat"><span id="doneStatLabel">ENVIADOS</span><strong id="doneCount">0</strong><small id="doneStatSub">Folios enviados</small></div>
             <div class="stat"><span>VENCIDOS</span><strong id="lateCount">0</strong><small>M&aacute;s de 24 horas</small></div>
@@ -992,7 +993,7 @@
 
       <section class="content">
         <div id="view-buscar" class="view active">
-          <section class="panel">
+          <section class="panel" id="searchPanel">
             <div class="panel-head">
               <div>
                 <h2>B&uacute;squeda r&aacute;pida</h2>
@@ -1485,6 +1486,10 @@
     const DEMO_MODE = API_URL.includes("PEGA_AQUI");
     const DEMO_SCHEMA_VERSION = "2026-08-19-full-form-v5";
     const STATIC_VERSION = "20260819-2";
+    // Interruptor del módulo de búsqueda de equivalencias. En false solo queda
+    // habilitado el formulario de solicitud de recomendación; ponlo en true para
+    // volver a activar la búsqueda.
+    const EQUIVALENCE_SEARCH_ENABLED = false;
     const state = {
       equivalencias: [],
       usuarios: [],
@@ -1908,6 +1913,28 @@
       }
     }
 
+    // Con la búsqueda deshabilitada, la pantalla principal es directamente el
+    // formulario de solicitud de recomendación.
+    function showDirectRequestForm() {
+      const form = $("requestForm");
+      $("formPanel").classList.remove("hidden");
+      form.elements.motivo.value = "Solicitud directa";
+      form.elements.correoVisible.value = state.user ? state.user.correo : "";
+      setRequestStep(1);
+    }
+
+    function applyEquivalenceSearchMode() {
+      if (EQUIVALENCE_SEARCH_ENABLED) return;
+      $("searchPanel").classList.add("hidden");
+      $("resultBox").classList.add("hidden");
+      $("eqStatCard").classList.add("hidden");
+      $("statsRow").classList.add("no-eq");
+      $("searchNav").textContent = "Solicitar recomendación";
+      $("pageTitle").textContent = "Solicitar recomendación";
+      $("pageSub").textContent = "Llena el formulario para que soporte te recomiende un producto SYNLOX";
+      showDirectRequestForm();
+    }
+
     function showApp() {
       $("login").classList.add("hidden");
       $("app").classList.remove("hidden");
@@ -1919,6 +1946,7 @@
       $("reportsNav").classList.toggle("hidden", !isSupport(state.user.rol));
       $("myNav").classList.toggle("hidden", isSupport(state.user.rol));
       applyStatLabels(isSupport(state.user.rol));
+      applyEquivalenceSearchMode();
       const folio = new URLSearchParams(location.search).get("folio");
       if (isSupport(state.user.rol)) {
         setView("soporte", true);
@@ -2024,7 +2052,9 @@
       document.querySelectorAll(".nav button").forEach(b => b.classList.toggle("active", b.dataset.view === name));
       document.querySelectorAll(".view").forEach(v => v.classList.toggle("active", v.id === "view-" + name));
       const titles = {
-        buscar: ["Equivalencias", "Busca por producto SYNLOX o producto de la competencia"],
+        buscar: EQUIVALENCE_SEARCH_ENABLED
+          ? ["Equivalencias", "Busca por producto SYNLOX o producto de la competencia"]
+          : ["Solicitar recomendación", "Llena el formulario para que soporte te recomiende un producto SYNLOX"],
         mis: ["Mis solicitudes", "Historial y respuestas de soporte"],
         soporte: ["Solicitudes", "Folios pendientes, vencidos y enviados"],
         comisionistas: ["Comisionistas", "Directorio y avance comercial de cada comisionista"],
@@ -2290,6 +2320,9 @@
           payload.estadoLubricante ? `Estado del lubricante: ${payload.estadoLubricante}` : "",
           comentariosFinales
         ].filter(Boolean).join("\n\n");
+        if (!EQUIVALENCE_SEARCH_ENABLED && !String(payload.busquedaOriginal || "").trim()) {
+          payload.busquedaOriginal = payload.lubricanteActual || "Solicitud directa";
+        }
         payload.action = "createRequest";
         payload.correo = state.user.correo;
         payload.nombreUsuario = state.user.nombre;
@@ -2333,7 +2366,8 @@
           $("nextStep").disabled = false;
           $("prevStep").disabled = false;
           setRequestStep(1);
-          $("formPanel").classList.add("hidden");
+          if (EQUIVALENCE_SEARCH_ENABLED) $("formPanel").classList.add("hidden");
+          else showDirectRequestForm();
         }, 1100);
         return;
       } catch (error) {
