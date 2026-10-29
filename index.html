@@ -4,6 +4,12 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Molub | Selección técnica MOLUB</title>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg?v=20261029" />
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=20261029" />
+  <link rel="apple-touch-icon" href="apple-touch-icon.png?v=20261029" />
+  <link rel="manifest" href="manifest.webmanifest?v=20261029" />
+  <meta name="theme-color" content="#0000fa" />
+  <meta name="apple-mobile-web-app-title" content="Selección MOLUB" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,700;0,800;1,400&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
@@ -1405,6 +1411,8 @@
       .success-badge::after { display: none; }
       .sc-check { animation: none; stroke-dashoffset: 0; }
     }
+    .btn.loading::before { content: ""; width: 16px; height: 16px; flex: 0 0 16px; border: 2.5px solid rgba(255,255,255,.4); border-top-color: #fff; border-radius: 50%; animation: btnSpin .7s linear infinite; }
+    @keyframes btnSpin { to { transform: rotate(360deg); } }
   </style>
 </head>
 <body>
@@ -3318,6 +3326,7 @@
       };
       const btn = $("cmpSaveBtn");
       btn.disabled = true;
+      btn.classList.add("loading");
       btn.textContent = "Guardando...";
       try {
         const res = await apiPost({
@@ -3341,6 +3350,7 @@
         toast("No se pudo guardar la comparativa. Revisa tu conexión e intenta de nuevo.");
       } finally {
         btn.disabled = false;
+        btn.classList.remove("loading");
         btn.textContent = "Guardar comparativa";
       }
     }
@@ -3558,6 +3568,7 @@
       if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(correo)) return toast("Escribe un correo válido.");
       const btn = $("saveUserBtn");
       btn.disabled = true;
+      btn.classList.add("loading");
       btn.textContent = "Guardando...";
       try {
         const ok = await sendUserChange({
@@ -3574,6 +3585,7 @@
         toast("No se pudo guardar el usuario. Revisa tu conexión e intenta de nuevo.");
       } finally {
         btn.disabled = false;
+        btn.classList.remove("loading");
         btn.textContent = "Guardar usuario";
       }
     });
