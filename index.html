@@ -2746,6 +2746,7 @@
         localStorage.setItem("molubUser", JSON.stringify(state.user));
         $("registerBox").classList.add("hidden");
         showApp();
+        showSuccess("Registro exitoso", "Bienvenido, " + (res.user.nombre || nombre));
       } catch (error) {
         toast("No se pudo registrar. Intenta de nuevo.");
       } finally {
@@ -3788,7 +3789,7 @@
         $("prevStep").disabled = true;
         $("nextStep").textContent = "¡Enviado!";
         $("nextStep").classList.add("btn-success");
-        toast("Reporte enviado. Folio: " + res.folio);
+        showSuccess("Solicitud enviada", "Folio: " + res.folio);
         refreshRequests();
         setTimeout(() => {
           form.reset();
@@ -4337,6 +4338,7 @@
         }
         const { doc, fileName } = await buildReportPdf(report, state.attachmentCache || {});
         doc.save(fileName);
+        showSuccess("Reporte descargado", fileName);
       } catch (err) {
         console.error(err);
         toast("No se pudo generar el PDF. Intenta de nuevo.");
@@ -5335,7 +5337,7 @@
         $("saveResponseBtn").disabled = true;
         $("saveResponseBtn").textContent = "¡Enviado!";
         $("saveResponseBtn").classList.add("btn-success");
-        toast("Respuesta guardada y enviada al comisionista.");
+        showSuccess("Respuesta enviada", "El comisionista fue notificado");
         form.adjuntos.value = "";
         $("supportFilesPreview").classList.add("hidden");
         $("supportFilesPreview").querySelector("b").textContent = "";
@@ -5398,7 +5400,7 @@
           toast(res.message || "No se pudo enviar el estatus a gerencia.");
           return;
         }
-        toast("Estatus enviado a gerencia.");
+        showSuccess("Estatus enviado", "Gerencia fue notificada");
         await refreshRequests();
         openCommissionerDetail(form.folio.value);
       } catch (error) {
