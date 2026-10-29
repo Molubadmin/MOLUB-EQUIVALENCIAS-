@@ -844,19 +844,21 @@
       box-shadow: inset 0 0 0 1px var(--line);
     }
     .access-panel .btn:hover { box-shadow: inset 0 0 0 2px var(--blue); }
-    .register-box {
-      display: grid;
-      gap: 12px;
-      text-align: left;
-      margin-top: 4px;
-      padding-top: 14px;
-      border-top: 1px solid var(--line);
-    }
-    .register-box .btn.secondary {
-      border-radius: 999px;
-      min-height: 50px;
-      box-shadow: inset 0 0 0 1px var(--line);
-    }
+    .auth-step { display: grid; gap: 12px; text-align: left; animation: authIn .22s ease-out; }
+    @keyframes authIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+    .auth-who { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 9px 14px; border-radius: 999px; background: #f3f4fb; color: #3b4263; font-size: 14px; font-weight: 700; }
+    .auth-who span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .auth-note { margin: 0; color: #555e80; font-size: 13.5px; line-height: 1.5; font-weight: 600; }
+    .link-btn { background: none; border: 0; padding: 6px; color: var(--blue); font: inherit; font-size: 14px; font-weight: 800; cursor: pointer; border-radius: 8px; }
+    .link-btn:hover:not(:disabled) { text-decoration: underline; }
+    .link-btn:disabled { color: #9aa0bd; cursor: default; }
+    .pass-wrap { position: relative; display: block; }
+    .pass-wrap input { width: 100%; padding-right: 48px; }
+    .pass-eye { position: absolute; right: 6px; top: 50%; transform: translateY(-50%); width: 38px; height: 38px; display: grid; place-items: center; background: none; border: 0; border-radius: 50%; color: #7b83a6; cursor: pointer; }
+    .pass-eye:hover { background: #f3f4fb; color: var(--blue); }
+    .pass-eye svg { width: 20px; height: 20px; }
+    .code-input { text-align: center; font-size: 24px; font-weight: 800; letter-spacing: .5em; text-indent: .5em; font-family: "Courier New", monospace; }
+    .access-panel .btn:disabled { opacity: .6; cursor: default; }
     .hidden { display: none !important; }
     .toast {
       position: fixed;
@@ -1385,6 +1387,7 @@
     .badge.st-on { color: #057a4f; background: #def8ee; }
     .badge.st-off { color: #a20d16; background: #ffe2e4; }
     .badge.st-review { color: #8a5b00; background: #fff3d8; }
+    .badge.st-nopass { color: #4a5278; background: #eceef8; }
     .user-flags { display: flex; flex-wrap: wrap; gap: 6px; }
     .user-you { margin-left: 6px; padding: 2px 8px; border-radius: 999px; background: #eef0ff; color: var(--blue); font-size: 10px; font-weight: 900; letter-spacing: .06em; text-transform: uppercase; vertical-align: middle; }
     tr.user-off td { opacity: .62; }
@@ -1420,7 +1423,7 @@
     <video class="login-video" id="loginVideo" autoplay muted loop playsinline webkit-playsinline preload="metadata">
       <source src="portada-video.mp4?v=20260819-2" data-src="portada-video.mp4?v=20260819-2" type="video/mp4" />
     </video>
-    <form class="login-card" id="loginForm">
+    <form class="login-card" id="loginForm" novalidate>
       <div class="splash-logo" aria-hidden="true">
         <img
           src="logo-blanco-engranaje.png?v=20260819-2"
@@ -1432,22 +1435,57 @@
       <h1 class="splash-title">MOLUB</h1>
       <p class="splash-sub">Selección técnica MOLUB</p>
       <div class="access-panel">
-        <label>Correo
-          <input id="loginEmail" type="email" autocomplete="email" required placeholder="correo@molub.com.mx" />
-        </label>
-        <label id="codeBox" class="hidden">C&oacute;digo de acceso
-          <input id="loginCode" type="password" autocomplete="current-password" />
-        </label>
-        <button class="btn" id="loginSubmit" disabled>Cargando datos...</button>
-        <div id="registerBox" class="register-box hidden">
-          <p class="sub" style="margin:0;color:#555e80;">No encontramos ese correo. Si eres externo y necesitas una recomendación, regístrate aquí:</p>
+        <div class="auth-step" id="stepEmail">
+          <label>Correo
+            <input id="loginEmail" type="email" autocomplete="username" inputmode="email" autocapitalize="off" placeholder="correo@molub.com.mx" />
+          </label>
+          <button class="btn" id="loginSubmit" type="submit" disabled>Cargando datos...</button>
+        </div>
+
+        <div class="auth-step hidden" id="stepPassword">
+          <div class="auth-who"><span id="authWho"></span><button class="link-btn" type="button" data-auth-back>Cambiar</button></div>
+          <label>Contraseña
+            <span class="pass-wrap">
+              <input id="loginPassword" type="password" autocomplete="current-password" placeholder="Tu contraseña" />
+              <button class="pass-eye" type="button" data-eye="loginPassword" aria-label="Mostrar contraseña"></button>
+            </span>
+          </label>
+          <button class="btn" id="passwordSubmit" type="submit">Entrar</button>
+          <button class="link-btn" id="forgotBtn" type="button">¿Olvidaste tu contraseña?</button>
+        </div>
+
+        <div class="auth-step hidden" id="stepRegister">
+          <div class="auth-who"><span id="registerWho"></span><button class="link-btn" type="button" data-auth-back>Cambiar</button></div>
+          <p class="auth-note">Este correo aún no está registrado. Si eres externo y necesitas una recomendación, crea tu cuenta: te enviaremos un código para verificar tu correo.</p>
           <label>Nombre completo
-            <input id="registerName" placeholder="Tu nombre" />
+            <input id="registerName" autocomplete="name" placeholder="Tu nombre" />
           </label>
           <label>Empresa <span class="sub">(opcional)</span>
-            <input id="registerCompany" placeholder="Empresa" />
+            <input id="registerCompany" autocomplete="organization" placeholder="Empresa" />
           </label>
-          <button class="btn secondary" id="registerSubmit" type="button">Registrarme y continuar</button>
+          <button class="btn" id="registerSubmit" type="submit">Enviar código de verificación</button>
+        </div>
+
+        <div class="auth-step hidden" id="stepSetup">
+          <div class="auth-who"><span id="setupWho"></span><button class="link-btn" type="button" data-auth-back>Cambiar</button></div>
+          <p class="auth-note" id="setupNote"></p>
+          <label>Código de 6 dígitos
+            <input id="setupCode" class="code-input" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="······" />
+          </label>
+          <label>Nueva contraseña
+            <span class="pass-wrap">
+              <input id="setupPassword" type="password" autocomplete="new-password" placeholder="Mínimo 8 caracteres, letras y números" />
+              <button class="pass-eye" type="button" data-eye="setupPassword" aria-label="Mostrar contraseña"></button>
+            </span>
+          </label>
+          <label>Repite la contraseña
+            <span class="pass-wrap">
+              <input id="setupPassword2" type="password" autocomplete="new-password" placeholder="Escríbela otra vez" />
+              <button class="pass-eye" type="button" data-eye="setupPassword2" aria-label="Mostrar contraseña"></button>
+            </span>
+          </label>
+          <button class="btn" id="setupSubmit" type="submit">Guardar contraseña y entrar</button>
+          <button class="link-btn" id="resendBtn" type="button">Reenviar código</button>
         </div>
       </div>
     </form>
@@ -2210,6 +2248,7 @@
       usuarios: [],
       solicitudes: [],
       user: JSON.parse(localStorage.getItem("molubUser") || "null"),
+      token: localStorage.getItem("molubToken") || "",
       requestStep: 1,
       requestSubmitting: false,
       responseSubmitting: false,
@@ -2394,6 +2433,18 @@
     }
 
     async function demoPost(payload) {
+      if (payload.action === "authStart") {
+        return { ok: true, status: state.usuarios.some(u => norm(u.correo) === norm(payload.correo)) ? "password" : "register" };
+      }
+      if (payload.action === "authSendCode") return { ok: true, status: "setup" };
+      if (payload.action === "authLogin" || payload.action === "authSetPassword") {
+        let user = state.usuarios.find(u => norm(u.correo) === norm(payload.correo));
+        if (!user) {
+          user = { nombre: String(payload.nombre || payload.correo), correo: payload.correo, rol: "COMISIONISTA", tipo: "EXTERNO" };
+          state.usuarios.push(user);
+        }
+        return { ok: true, token: "demo-token", user };
+      }
       if (payload.action === "login") {
         const user = state.usuarios.find(u => norm(u.correo) === norm(payload.correo));
         if (!user) return { ok: false, message: "Correo no autorizado en USUARIOS.csv." };
@@ -2558,19 +2609,59 @@
       return { ok: false, message: "Acción demo no reconocida." };
     }
 
+    // Con sesión iniciada TODO viaja por POST: el token nunca queda en la URL.
+    // El servidor toma el correo de la sesión, no de lo que envía el navegador.
     function apiGet(params) {
       if (DEMO_MODE) return demoGet(params);
+      if (state.token) return apiPost(params);
       const url = API_URL + "?" + new URLSearchParams(params).toString();
       return fetch(url).then(r => r.json());
     }
 
     function apiPost(payload) {
       if (DEMO_MODE) return demoPost(payload);
+      const body = state.token && !payload.token ? { ...payload, token: state.token } : payload;
       return fetch(API_URL, {
         method: "POST",
-        body: JSON.stringify(payload),
+        body: JSON.stringify(body),
         headers: { "Content-Type": "text/plain;charset=utf-8" }
-      }).then(r => r.json());
+      }).then(r => r.json()).then(res => {
+        if (res && res.authError) onSessionExpired(res.message);
+        return res;
+      });
+    }
+
+    function clearSession() {
+      state.token = "";
+      state.user = null;
+      try {
+        localStorage.removeItem("molubToken");
+        localStorage.removeItem("molubUser");
+      } catch (err) {}
+    }
+
+    // La sesión venció (30 días), cambió la contraseña o dieron de baja al
+    // usuario: se limpia y se regresa a la pantalla de acceso.
+    let sessionExpiring = false;
+    function onSessionExpired(message) {
+      if (sessionExpiring) return;
+      const inApp = !$("app").classList.contains("hidden");
+      clearSession();
+      if (!inApp) return;
+      sessionExpiring = true;
+      try { sessionStorage.setItem("molubNotice", message || "Tu sesión expiró. Vuelve a iniciar sesión."); } catch (err) {}
+      location.reload();
+    }
+
+    function applyInit(init) {
+      state.equivalencias = init.equivalencias || [];
+      state.comparativas = init.comparativas || [];
+      state.usuarios = init.usuarios || [];
+      $("eqCount").textContent = state.equivalencias.length;
+      if (init.user) {
+        state.user = { ...(state.user || {}), nombre: init.user.nombre, correo: init.user.correo, rol: init.user.rol, tipo: init.user.tipo };
+        localStorage.setItem("molubUser", JSON.stringify(state.user));
+      }
     }
 
     async function boot() {
@@ -2578,28 +2669,29 @@
         $("syncText").textContent = "Modo prueba local - no guarda en Sheet";
       }
       startLoginVideo();
-      const init = await apiGet({ action: "init" });
+      if (!DEMO_MODE && !state.token) state.user = null;
+      let init = await apiGet({ action: "init" });
+      let notice = "";
+      if (init && init.authError) {
+        notice = init.message || "Tu sesión expiró. Vuelve a iniciar sesión.";
+        clearSession();
+        init = await apiGet({ action: "init" });
+      }
       if (!init.ok) throw new Error(init.message || "No se pudo iniciar");
-      state.equivalencias = init.equivalencias || [];
-      state.comparativas = init.comparativas || [];
-      state.usuarios = init.usuarios || [];
       state.initReady = true;
-      $("eqCount").textContent = state.equivalencias.length;
-      $("codeBox").classList.toggle("hidden", !init.requiresCode);
       $("loginSubmit").disabled = false;
       $("loginSubmit").textContent = "Continuar";
-      if (state.user && state.usuarios.length) {
-        const fresh = state.usuarios.find(u => norm(u.correo) === norm(state.user.correo));
-        if (!fresh) {
-          localStorage.removeItem("molubUser");
-          state.user = null;
-          toast("Tu acceso está desactivado. Pide a un administrador que lo reactive.");
-        } else {
-          state.user = { ...state.user, nombre: fresh.nombre || state.user.nombre, rol: fresh.rol || state.user.rol, tipo: fresh.tipo || state.user.tipo };
-          localStorage.setItem("molubUser", JSON.stringify(state.user));
-        }
+      try {
+        notice = notice || sessionStorage.getItem("molubNotice") || "";
+        sessionStorage.removeItem("molubNotice");
+      } catch (err) {}
+      if (notice) toast(notice);
+      if (DEMO_MODE ? state.user : (state.token && init.user)) {
+        applyInit(init);
+        showApp();
+      } else if (DEMO_MODE) {
+        applyInit(init);
       }
-      if (state.user) showApp();
     }
 
     function startLoginVideo() {
@@ -2695,68 +2787,218 @@
       }
     }
 
-    $("loginForm").addEventListener("submit", async (ev) => {
-      ev.preventDefault();
+    // ---------- Acceso: correo -> contraseña (o código por correo la primera vez) ----------
+    const EYE_ON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>';
+    const EYE_OFF = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><path d="M1 1l22 22"/></svg>';
+    document.querySelectorAll("[data-eye]").forEach(btn => {
+      btn.innerHTML = EYE_ON;
+      btn.addEventListener("click", () => {
+        const input = $(btn.dataset.eye);
+        const show = input.type === "password";
+        input.type = show ? "text" : "password";
+        btn.innerHTML = show ? EYE_OFF : EYE_ON;
+        btn.setAttribute("aria-label", show ? "Ocultar contraseña" : "Mostrar contraseña");
+        input.focus();
+      });
+    });
+
+    const auth = { step: "email", correo: "", busy: false, resendTimer: null };
+    const AUTH_STEPS = { email: "stepEmail", password: "stepPassword", register: "stepRegister", setup: "stepSetup" };
+    const PASS_MIN_LENGTH = 8;
+
+    function passwordProblem(p) {
+      if (p.length < PASS_MIN_LENGTH) return `La contraseña debe tener al menos ${PASS_MIN_LENGTH} caracteres.`;
+      if (p.length > 72) return "La contraseña es demasiado larga (máximo 72 caracteres).";
+      if (!/[A-Za-z]/.test(p) || !/[0-9]/.test(p)) return "La contraseña debe combinar letras y números.";
+      return "";
+    }
+
+    function setAuthStep(step) {
+      auth.step = step;
+      Object.entries(AUTH_STEPS).forEach(([key, id]) => $(id).classList.toggle("hidden", key !== step));
+      const focusId = { email: "loginEmail", password: "loginPassword", register: "registerName", setup: "setupCode" }[step];
+      setTimeout(() => $(focusId).focus(), 60);
+    }
+
+    // Bloquea el botón mientras se espera al servidor para evitar dobles envíos.
+    async function authRun(btnId, busyText, task) {
+      if (auth.busy) return;
+      const btn = $(btnId);
+      const idle = btn.textContent;
+      auth.busy = true;
+      btn.disabled = true;
+      btn.textContent = busyText;
+      try {
+        await task();
+      } catch (err) {
+        toast("No se pudo conectar. Revisa tu conexión e intenta de nuevo.");
+      } finally {
+        auth.busy = false;
+        btn.disabled = false;
+        btn.textContent = idle;
+      }
+    }
+
+    function startResendCountdown() {
+      clearInterval(auth.resendTimer);
+      const btn = $("resendBtn");
+      let left = 45;
+      btn.disabled = true;
+      const tick = () => {
+        if (left <= 0) {
+          clearInterval(auth.resendTimer);
+          btn.disabled = false;
+          btn.textContent = "Reenviar código";
+          return;
+        }
+        btn.textContent = `Reenviar código (${left}s)`;
+        left--;
+      };
+      tick();
+      auth.resendTimer = setInterval(tick, 1000);
+    }
+
+    // Pide el código por correo y pasa a la pantalla de crear contraseña.
+    async function sendAuthCode() {
+      const res = await apiPost({
+        action: "authSendCode",
+        correo: auth.correo,
+        nombre: $("registerName").value.trim(),
+        empresa: $("registerCompany").value.trim()
+      });
+      // Si acaba de pedir uno, el código anterior sigue vigente: lo dejamos usarlo.
+      if (res && res.wait && auth.step !== "setup") {
+        $("setupNote").textContent = "Ya te enviamos un código hace un momento. Revisa tu correo (también en spam) y escríbelo aquí junto con tu nueva contraseña.";
+        ["setupCode", "setupPassword", "setupPassword2"].forEach(id => { $(id).value = ""; });
+        setAuthStep("setup");
+        startResendCountdown();
+        return true;
+      }
+      if (!res || !res.ok) {
+        toast((res && res.message) || "No se pudo enviar el código. Intenta de nuevo.");
+        return false;
+      }
+      $("setupNote").textContent = {
+        setup: "Es tu primera vez aquí. Para proteger tu cuenta, crea una contraseña. Te enviamos un código de 6 dígitos a tu correo.",
+        reset: "Te enviamos un código de 6 dígitos a tu correo. Úsalo para crear tu nueva contraseña.",
+        register: "Te enviamos un código de 6 dígitos para verificar tu correo. Después crea tu contraseña."
+      }[res.status] || "Te enviamos un código de 6 dígitos a tu correo.";
+      ["setupCode", "setupPassword", "setupPassword2"].forEach(id => { $(id).value = ""; });
+      setAuthStep("setup");
+      startResendCountdown();
+      return true;
+    }
+
+    async function authStartFlow() {
       if (!state.initReady) {
         toast("Cargando datos, espera un momento...");
         if (bootPromise) await bootPromise;
         if (!state.initReady) return toast("No se pudieron cargar los datos. Actualiza la página.");
       }
       const correo = norm($("loginEmail").value);
-      const localUser = state.usuarios.find(u => norm(u.correo || u.CORREO) === correo);
-      if (!localUser) {
-        $("registerBox").classList.remove("hidden");
-        toast("No encontramos ese correo. Puedes registrarte abajo.");
-        $("registerBox").scrollIntoView({ behavior: "smooth", block: "nearest" });
-        return;
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(correo)) return toast("Escribe un correo válido.");
+      await authRun("loginSubmit", "Verificando...", async () => {
+        const res = await apiPost({ action: "authStart", correo });
+        if (!res || !res.ok) return toast((res && res.message) || "No se pudo verificar el correo.");
+        auth.correo = correo;
+        ["authWho", "registerWho", "setupWho"].forEach(id => { $(id).textContent = correo; });
+        if (res.status === "password") {
+          $("loginPassword").value = "";
+          setAuthStep("password");
+        } else if (res.status === "register") {
+          setAuthStep("register");
+        } else {
+          await sendAuthCode();
+        }
+      });
+    }
+
+    async function authLoginFlow() {
+      const password = $("loginPassword").value;
+      if (!password) return toast("Escribe tu contraseña.");
+      await authRun("passwordSubmit", "Entrando...", async () => {
+        const res = await apiPost({ action: "authLogin", correo: auth.correo, password });
+        if (!res || !res.ok) {
+          $("loginPassword").select();
+          return toast((res && res.message) || "Correo o contraseña incorrectos.");
+        }
+        await finishLogin(res, "Bienvenido");
+      });
+    }
+
+    async function authRegisterFlow() {
+      if ($("registerName").value.trim().length < 2) return toast("Escribe tu nombre completo para registrarte.");
+      await authRun("registerSubmit", "Enviando código...", sendAuthCode);
+    }
+
+    async function authSetupFlow() {
+      const code = $("setupCode").value.replace(/\D/g, "");
+      const p1 = $("setupPassword").value;
+      const p2 = $("setupPassword2").value;
+      if (code.length !== 6) return toast("Escribe el código de 6 dígitos que llegó a tu correo.");
+      const problem = passwordProblem(p1);
+      if (problem) return toast(problem);
+      if (p1 !== p2) return toast("Las contraseñas no coinciden.");
+      await authRun("setupSubmit", "Guardando...", async () => {
+        const res = await apiPost({ action: "authSetPassword", correo: auth.correo, codigo: code, password: p1 });
+        if (!res || !res.ok) return toast((res && res.message) || "No se pudo guardar la contraseña.");
+        await finishLogin(res, "Contraseña creada");
+      });
+    }
+
+    // Guarda la sesión, descarga los datos que le corresponden y entra.
+    async function finishLogin(res, title) {
+      state.token = res.token;
+      state.user = res.user;
+      localStorage.setItem("molubToken", res.token);
+      localStorage.setItem("molubUser", JSON.stringify(res.user));
+      const init = await apiGet({ action: "init" });
+      if (!init || !init.ok) {
+        clearSession();
+        return toast((init && init.message) || "No se pudieron cargar los datos. Intenta de nuevo.");
       }
-      $("registerBox").classList.add("hidden");
-      state.user = {
-        nombre: localUser.nombre || localUser.NOMBRE,
-        correo: localUser.correo || localUser.CORREO,
-        rol: localUser.rol || localUser.ROL,
-        tipo: localUser.tipo || localUser.TIPO
-      };
-      localStorage.setItem("molubUser", JSON.stringify(state.user));
+      applyInit(init);
+      clearInterval(auth.resendTimer);
+      ["loginPassword", "setupCode", "setupPassword", "setupPassword2"].forEach(id => { $(id).value = ""; });
       showApp();
+      showSuccess(title, state.user.nombre || state.user.correo);
+    }
+
+    $("loginForm").addEventListener("submit", (ev) => {
+      ev.preventDefault();
+      ({ email: authStartFlow, password: authLoginFlow, register: authRegisterFlow, setup: authSetupFlow })[auth.step]();
     });
 
-    // Alguien externo, no dado de alta por un admin, puede registrarse solo
-    // con su correo y nombre para tener su propio panel de "Mis solicitudes".
-    $("registerSubmit").addEventListener("click", async () => {
-      const correo = norm($("loginEmail").value);
-      const nombre = $("registerName").value.trim();
-      if (!correo) return toast("Escribe tu correo arriba antes de registrarte.");
-      if (!nombre) return toast("Escribe tu nombre para registrarte.");
-      $("registerSubmit").disabled = true;
-      $("registerSubmit").textContent = "Registrando...";
+    $("forgotBtn").addEventListener("click", () => authRun("forgotBtn", "Enviando código...", sendAuthCode));
+
+    $("resendBtn").addEventListener("click", async () => {
+      if (auth.busy) return;
+      auth.busy = true;
+      const btn = $("resendBtn");
+      btn.disabled = true;
+      btn.textContent = "Enviando...";
+      let sent = false;
       try {
-        const res = await apiPost({
-          action: "selfRegister",
-          correo,
-          nombre,
-          empresa: $("registerCompany").value.trim()
-        });
-        if (!res.ok) {
-          toast(res.message || "No se pudo registrar. Intenta de nuevo.");
-          return;
-        }
-        state.usuarios.push(res.user);
-        state.user = res.user;
-        localStorage.setItem("molubUser", JSON.stringify(state.user));
-        $("registerBox").classList.add("hidden");
-        showApp();
-        showSuccess("Registro exitoso", "Bienvenido, " + (res.user.nombre || nombre));
-      } catch (error) {
-        toast("No se pudo registrar. Intenta de nuevo.");
+        sent = await sendAuthCode();
+        if (sent) toast("Te enviamos un código nuevo.");
+      } catch (err) {
+        toast("No se pudo conectar. Revisa tu conexión e intenta de nuevo.");
       } finally {
-        $("registerSubmit").disabled = false;
-        $("registerSubmit").textContent = "Registrarme y continuar";
+        auth.busy = false;
+        if (!sent) {
+          btn.disabled = false;
+          btn.textContent = "Reenviar código";
+        }
       }
     });
+
+    document.querySelectorAll("[data-auth-back]").forEach(btn => btn.addEventListener("click", () => {
+      clearInterval(auth.resendTimer);
+      setAuthStep("email");
+    }));
 
     $("logoutBtn").addEventListener("click", () => {
-      localStorage.removeItem("molubUser");
+      clearSession();
       location.reload();
     });
 
@@ -3497,10 +3739,11 @@
           <td data-label="Rol"><span class="badge role-${esc(u.rol)}">${esc(ROLE_LABELS[u.rol] || u.rol || "Sin rol")}</span></td>
           <td data-label="Tipo">${esc(TYPE_LABELS[u.tipo] || u.tipo || "—")}</td>
           <td data-label="Folios"><b>${u.folios}</b></td>
-          <td data-label="Estado"><div class="user-flags"><span class="badge ${u.activo ? "st-on" : "st-off"}">${u.activo ? "Activo" : "Inactivo"}</span>${review && u.activo ? `<span class="badge st-review">Por revisar</span>` : ""}</div></td>
+          <td data-label="Estado"><div class="user-flags"><span class="badge ${u.activo ? "st-on" : "st-off"}">${u.activo ? "Activo" : "Inactivo"}</span>${review && u.activo ? `<span class="badge st-review">Por revisar</span>` : ""}${u.activo && !u.tienePassword ? `<span class="badge st-nopass">Sin contraseña</span>` : ""}</div></td>
           <td data-label="Acción"><div class="row-actions">
             ${review && u.activo ? `<button class="btn ghost row-btn" type="button" onclick="approveUser('${esc(u.correo)}')">Aprobar</button>` : ""}
             <button class="btn ghost row-btn" type="button" onclick="openUserModal('${esc(u.correo)}')">Editar</button>
+            ${u.tienePassword && !isMe ? `<button class="btn ghost row-btn" type="button" onclick="resetUserPassword('${esc(u.correo)}')">Restablecer clave</button>` : ""}
             ${isMe ? "" : `<button class="btn ${u.activo ? "danger-ghost" : "ghost"} row-btn" type="button" onclick="toggleUserActive('${esc(u.correo)}')">${u.activo ? "Dar de baja" : "Reactivar"}</button>`}
           </div></td>
         </tr>`;
@@ -3553,6 +3796,23 @@
         : `¿Dar de baja a ${u.nombre || u.correo}?\n\nYa no podrá entrar a la plataforma. Sus folios se conservan y puedes reactivarlo cuando quieras.`;
       if (!window.confirm(question)) return;
       if (await sendUserChange({ ...u, activo: next }, false)) showSuccess(next ? "Usuario reactivado" : "Usuario dado de baja", u.nombre || u.correo);
+    };
+
+    window.resetUserPassword = async function(correo) {
+      const u = state.adminUsers.find(x => norm(x.correo) === norm(correo));
+      if (!u) return;
+      if (!window.confirm(`¿Restablecer la contraseña de ${u.nombre || u.correo}?\n\nSe cerrará su sesión y tendrá que crear una nueva con un código que le llegará a su correo.`)) return;
+      toast("Restableciendo contraseña...");
+      try {
+        const res = await apiPost({ action: "adminResetPassword", correo: state.user.correo, objetivo: u.correo });
+        if (!res || !res.ok) return toast((res && res.message) || "No se pudo restablecer la contraseña.");
+        u.tienePassword = false;
+        renderUsersView();
+        loadAdminUsers(true);
+        showSuccess("Contraseña restablecida", u.nombre || u.correo);
+      } catch (err) {
+        toast("No se pudo restablecer la contraseña. Intenta de nuevo.");
+      }
     };
 
     window.approveUser = async function(correo) {
