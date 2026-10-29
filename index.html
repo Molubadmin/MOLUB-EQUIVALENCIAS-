@@ -859,6 +859,30 @@
     .pass-eye svg { width: 20px; height: 20px; }
     .code-input { text-align: center; font-size: 24px; font-weight: 800; letter-spacing: .5em; text-indent: .5em; font-family: "Courier New", monospace; }
     .access-panel .btn:disabled { opacity: .6; cursor: default; }
+    .login-legal { margin: 0; display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 4px 10px; color: rgba(255,255,255,.78); font-size: 12.5px; font-weight: 700; }
+    .login-legal .link-btn { color: #fff; font-size: 12.5px; padding: 4px 2px; text-decoration: underline; text-underline-offset: 3px; }
+    .legal-check { display: flex; align-items: flex-start; gap: 10px; text-align: left; font-size: 13px; line-height: 1.45; font-weight: 600; color: #555e80; cursor: pointer; }
+    .legal-check input { width: 20px; height: 20px; min-height: 0; flex: 0 0 20px; margin: 1px 0 0; accent-color: var(--blue); padding: 0; }
+    .legal-check .link-btn { font-size: inherit; padding: 0; text-decoration: underline; }
+    .legal-card { width: min(780px, 100%); }
+    .legal-tabs { display: flex; gap: 8px; padding: 12px 28px 0; background: #f5f6fb; }
+    .legal-tabs button { border: 1px solid var(--line); background: white; color: #555e80; border-radius: 999px; padding: 8px 16px; font-weight: 800; font-size: 13px; cursor: pointer; }
+    .legal-tabs button.active { background: var(--blue); border-color: var(--blue); color: #fff; }
+    .legal-body { display: block; font-size: 14px; line-height: 1.6; color: #333a59; }
+    .legal-body h3 { margin: 22px 0 6px; font-size: 15px; color: var(--ink); }
+    .legal-body h3:first-child { margin-top: 0; }
+    .legal-body p { margin: 0 0 10px; }
+    .legal-body ul { margin: 0 0 10px; padding-left: 20px; display: grid; gap: 5px; }
+    .gate-card { width: min(460px, 100%); border-radius: 22px; margin: auto; animation: modalIn .24s ease-out; }
+    .gate-body { display: grid; gap: 14px; padding: 30px 26px 24px; text-align: center; justify-items: center; }
+    .gate-body h2 { margin: 0; font-size: 21px; }
+    .gate-body p { margin: 0; color: #555e80; font-size: 14px; line-height: 1.5; }
+    .gate-body .btn { width: 100%; }
+    .gate-ico { width: 56px; height: 56px; border-radius: 50%; display: grid; place-items: center; background: #eef0ff; color: var(--blue); }
+    .gate-ico svg { width: 28px; height: 28px; }
+    .modal-overlay.active.gate { align-items: center; }
+    .app-foot { margin-top: 14px; display: grid; gap: 2px; justify-items: center; color: #8d93b3; font-size: 11.5px; font-weight: 700; text-align: center; }
+    .app-foot .link-btn { color: #aab0d6; font-size: 11.5px; padding: 3px 2px; }
     .hidden { display: none !important; }
     .toast {
       position: fixed;
@@ -1484,10 +1508,21 @@
               <button class="pass-eye" type="button" data-eye="setupPassword2" aria-label="Mostrar contraseña"></button>
             </span>
           </label>
+          <label class="legal-check">
+            <input type="checkbox" id="setupAccept" />
+            <span>He leído y acepto el <button class="link-btn" type="button" data-legal="privacidad">Aviso de privacidad</button> y los <button class="link-btn" type="button" data-legal="terminos">Términos de uso</button>.</span>
+          </label>
           <button class="btn" id="setupSubmit" type="submit">Guardar contraseña y entrar</button>
           <button class="link-btn" id="resendBtn" type="button">Reenviar código</button>
         </div>
       </div>
+      <p class="login-legal">
+        <span data-app-version></span>
+        <span aria-hidden="true">·</span>
+        <button class="link-btn" type="button" data-legal="privacidad">Aviso de privacidad</button>
+        <span aria-hidden="true">·</span>
+        <button class="link-btn" type="button" data-legal="terminos">Términos de uso</button>
+      </p>
     </form>
   </div>
 
@@ -1513,6 +1548,10 @@
         <b id="sessionName"></b><br />
         <span id="sessionRole"></span><br /><br />
         <button class="btn secondary" id="logoutBtn" type="button" style="width:100%;">Cerrar sesi&oacute;n</button>
+        <div class="app-foot">
+          <span data-app-version></span>
+          <span><button class="link-btn" type="button" data-legal="privacidad">Aviso de privacidad</button> · <button class="link-btn" type="button" data-legal="terminos">Términos</button></span>
+        </div>
       </div>
     </aside>
 
@@ -1966,6 +2005,39 @@
         </div>
       </section>
     </main>
+  </div>
+
+  <div class="modal-overlay" id="legalModal" style="z-index:60;">
+    <div class="modal-card pro legal-card">
+      <div class="modal-head">
+        <div>
+          <h2 id="legalTitle">Aviso de privacidad</h2>
+          <p id="legalMeta"></p>
+        </div>
+        <button class="modal-close" type="button" data-close-modal="legalModal" aria-label="Cerrar">&times;</button>
+      </div>
+      <div class="legal-tabs">
+        <button type="button" data-legal-tab="privacidad">Aviso de privacidad</button>
+        <button type="button" data-legal-tab="terminos">Términos de uso</button>
+      </div>
+      <div class="modal-body legal-body" id="legalBody"></div>
+    </div>
+  </div>
+
+  <div class="modal-overlay gate" id="termsGate" role="dialog" aria-modal="true" aria-labelledby="gateTitle">
+    <div class="modal-card gate-card">
+      <div class="gate-body">
+        <div class="gate-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 3v6c0 5-3.4 8.2-8 9-4.6-.8-8-4-8-9V6l8-3z"/><path d="M9 12l2 2 4-4"/></svg></div>
+        <h2 id="gateTitle">Antes de continuar</h2>
+        <p>Para seguir usando Selección técnica MOLUB necesitamos que leas y aceptes el Aviso de privacidad y los Términos de uso.</p>
+        <label class="legal-check">
+          <input type="checkbox" id="gateAccept" />
+          <span>He leído y acepto el <button class="link-btn" type="button" data-legal="privacidad">Aviso de privacidad</button> y los <button class="link-btn" type="button" data-legal="terminos">Términos de uso</button>.</span>
+        </label>
+        <button class="btn" id="gateBtn" type="button" disabled>Acepto y continuar</button>
+        <button class="link-btn" id="gateLogout" type="button">Cerrar sesión</button>
+      </div>
+    </div>
   </div>
 
   <div class="modal-overlay" id="commissionerDetailModal">
@@ -2433,6 +2505,7 @@
     }
 
     async function demoPost(payload) {
+      if (payload.action === "acceptTerms") return { ok: true };
       if (payload.action === "authStart") {
         return { ok: true, status: state.usuarios.some(u => norm(u.correo) === norm(payload.correo)) ? "password" : "register" };
       }
@@ -2659,7 +2732,7 @@
       state.usuarios = init.usuarios || [];
       $("eqCount").textContent = state.equivalencias.length;
       if (init.user) {
-        state.user = { ...(state.user || {}), nombre: init.user.nombre, correo: init.user.correo, rol: init.user.rol, tipo: init.user.tipo };
+        state.user = { ...(state.user || {}), nombre: init.user.nombre, correo: init.user.correo, rol: init.user.rol, tipo: init.user.tipo, aceptoVersion: init.user.aceptoVersion };
         localStorage.setItem("molubUser", JSON.stringify(state.user));
       }
     }
@@ -2773,6 +2846,7 @@
       $("myNav").classList.toggle("hidden", isSupport(state.user.rol));
       applyStatLabels(isSupport(state.user.rol));
       applyEquivalenceSearchMode();
+      checkLegalGate();
       const folio = new URLSearchParams(location.search).get("folio");
       if (isSupport(state.user.rol)) {
         setView("soporte", true);
@@ -2939,8 +3013,9 @@
       const problem = passwordProblem(p1);
       if (problem) return toast(problem);
       if (p1 !== p2) return toast("Las contraseñas no coinciden.");
+      if (!$("setupAccept").checked) return toast("Para continuar, acepta el Aviso de privacidad y los Términos de uso.");
       await authRun("setupSubmit", "Guardando...", async () => {
-        const res = await apiPost({ action: "authSetPassword", correo: auth.correo, codigo: code, password: p1 });
+        const res = await apiPost({ action: "authSetPassword", correo: auth.correo, codigo: code, password: p1, acepta: LEGAL_VERSION });
         if (!res || !res.ok) return toast((res && res.message) || "No se pudo guardar la contraseña.");
         await finishLogin(res, "Contraseña creada");
       });
@@ -2960,9 +3035,160 @@
       applyInit(init);
       clearInterval(auth.resendTimer);
       ["loginPassword", "setupCode", "setupPassword", "setupPassword2"].forEach(id => { $(id).value = ""; });
+      $("setupAccept").checked = false;
       showApp();
       showSuccess(title, state.user.nombre || state.user.correo);
     }
+
+    // ===== Versión y textos legales =====
+    // Si cambias el texto de los documentos, sube LEGAL_VERSION: a todas las
+    // personas con cuenta se les pedirá aceptar de nuevo al entrar.
+    const APP_VERSION = "2.0";
+    const APP_VERSION_DATE = "Octubre 2026";
+    const LEGAL_VERSION = "2026-10";
+    const LEGAL_EMAIL = "ventas@molub.com.mx";
+    const LEGAL_DOCS = {
+      privacidad: {
+        title: "Aviso de privacidad",
+        html: `
+          <p>En cumplimiento de la Ley Federal de Protección de Datos Personales en Posesión de los Particulares, <b>MOLUB LUBRICANTES ESPECIALIZADOS, S.A. de C.V.</b> (en adelante “MOLUB”) pone a tu disposición este aviso de privacidad.</p>
+
+          <h3>1. Responsable de tus datos</h3>
+          <p>MOLUB LUBRICANTES ESPECIALIZADOS, S.A. de C.V., RFC MLE230208B16, con domicilio en Calle Alexander Fleming No. 136, Col. Granjas San Cristóbal, C.P. 55726, Coacalco de Berriozábal, Estado de México.</p>
+
+          <h3>2. Datos personales que recabamos</h3>
+          <ul>
+            <li>Datos de identificación y contacto: nombre completo, correo electrónico y, si lo indicas, empresa.</li>
+            <li>Datos de acceso: tu contraseña (se guarda cifrada y no podemos verla), fechas de registro y de aceptación de este aviso.</li>
+            <li>Datos de uso de la plataforma: las solicitudes que envías (productos, equipos, aplicaciones, comentarios, fotografías o documentos que adjuntes), sus respuestas y su seguimiento.</li>
+          </ul>
+          <p>No recabamos datos personales sensibles, financieros ni patrimoniales.</p>
+
+          <h3>3. Para qué usamos tus datos</h3>
+          <p><b>Finalidades necesarias:</b></p>
+          <ul>
+            <li>Crear y administrar tu cuenta y verificar tu identidad (por ejemplo, con el código que enviamos a tu correo).</li>
+            <li>Atender tus solicitudes de selección técnica y equivalencia, darles seguimiento y avisarte por correo de su avance.</li>
+            <li>Mantener la seguridad de la plataforma y prevenir accesos no autorizados.</li>
+            <li>Elaborar reportes internos de operación.</li>
+          </ul>
+          <p><b>Finalidades adicionales:</b> generar estadísticas internas y mejorar la plataforma. Si no quieres que usemos tus datos para estas finalidades, escríbenos al correo indicado en el punto 6; esto no afectará tu acceso.</p>
+          <p>No usamos tus datos para publicidad de terceros ni los vendemos.</p>
+
+          <h3>4. Con quién compartimos tus datos</h3>
+          <ul>
+            <li>Con el personal de MOLUB que atiende tu solicitud (soporte técnico, ventas y gerencia).</li>
+            <li>Con proveedores de servicios tecnológicos que alojan o procesan la información por cuenta de MOLUB (servicios de Google para correo, hojas de cálculo y almacenamiento, y GitHub para alojar el sitio). Estos proveedores pueden almacenar información fuera de México.</li>
+            <li>Con autoridades, cuando una ley o resolución lo exija.</li>
+          </ul>
+
+          <h3>5. Almacenamiento en tu navegador</h3>
+          <p>Para mantener tu sesión abierta guardamos en tu navegador un identificador de sesión (hasta 30 días). No usamos cookies de publicidad ni de rastreo de terceros. Al cerrar sesión se elimina.</p>
+
+          <h3>6. Derechos ARCO y revocación del consentimiento</h3>
+          <p>Tienes derecho a Acceder a tus datos, Rectificarlos, Cancelarlos y Oponerte a su tratamiento, así como a revocar tu consentimiento. Para ejercerlos, envía tu solicitud a <b>${LEGAL_EMAIL}</b> con tu nombre, el correo con el que usas la plataforma, la descripción clara de lo que solicitas y una copia de una identificación oficial. Te responderemos dentro de los plazos que marca la ley.</p>
+          <p>Si consideras que tu derecho a la protección de datos fue vulnerado, puedes acudir ante la autoridad de protección de datos personales competente.</p>
+
+          <h3>7. Cambios a este aviso</h3>
+          <p>Si cambiamos este aviso, publicaremos la nueva versión en esta plataforma y te pediremos aceptarla al entrar. Última actualización: ${APP_VERSION_DATE}.</p>
+        `
+      },
+      terminos: {
+        title: "Términos de uso",
+        html: `
+          <p>Estos términos regulan el uso de <b>Selección técnica MOLUB</b> (la “plataforma”), operada por MOLUB LUBRICANTES ESPECIALIZADOS, S.A. de C.V. (“MOLUB”). Al crear tu cuenta o entrar a la plataforma aceptas estas condiciones.</p>
+
+          <h3>1. Quién puede usar la plataforma</h3>
+          <p>La plataforma es para el personal de MOLUB y para comisionistas y clientes autorizados por MOLUB. Tu acceso es personal e intransferible. MOLUB puede aprobar, limitar, suspender o dar de baja cualquier cuenta cuando lo considere necesario.</p>
+
+          <h3>2. Tu cuenta y tu contraseña</h3>
+          <ul>
+            <li>Eres responsable de mantener tu contraseña en secreto y de la actividad que ocurra con tu cuenta.</li>
+            <li>No compartas tu contraseña ni los códigos de verificación que recibes por correo. MOLUB nunca te los pedirá.</li>
+            <li>Avísanos de inmediato si sospechas que alguien usó tu cuenta.</li>
+          </ul>
+
+          <h3>3. Las recomendaciones son una referencia técnica</h3>
+          <p>Las equivalencias, comparativas y recomendaciones de producto se basan en la información técnica disponible a la fecha (por ejemplo, fichas técnicas) y son <b>referenciales</b>. No constituyen una garantía de desempeño. Antes de aplicar un producto debes validar con el área de soporte técnico de MOLUB y verificar las condiciones reales de operación del equipo (temperatura, carga, velocidad, recomendaciones del fabricante, etc.). En la medida que permita la ley, MOLUB no es responsable por daños derivados de aplicar un producto sin esa validación.</p>
+
+          <h3>4. Información confidencial</h3>
+          <p>El catálogo de equivalencias, las comparativas, los reportes y el estatus de solicitudes son información comercial y técnica de MOLUB. Solo puedes usarla para los fines de tu relación con MOLUB y no puedes copiarla, difundirla ni entregarla a terceros sin autorización.</p>
+
+          <h3>5. Uso adecuado</h3>
+          <ul>
+            <li>Proporciona información veraz y completa en tus solicitudes.</li>
+            <li>No intentes acceder a datos de otras personas, vulnerar la seguridad de la plataforma, ni cargar archivos ilícitos o con código malicioso.</li>
+            <li>No uses la plataforma para fines distintos a los de selección técnica de productos MOLUB.</li>
+          </ul>
+
+          <h3>6. Contenido que envías</h3>
+          <p>Al adjuntar fotografías o documentos declaras que tienes derecho a compartirlos. MOLUB los usará únicamente para atender tu solicitud, conforme al Aviso de privacidad.</p>
+
+          <h3>7. Propiedad intelectual y marcas de terceros</h3>
+          <p>La plataforma, su diseño y las marcas de MOLUB son propiedad de MOLUB. Los nombres y marcas de terceros que aparecen en las equivalencias pertenecen a sus titulares y se mencionan solo como referencia comparativa; no implican relación alguna con ellos.</p>
+
+          <h3>8. Disponibilidad</h3>
+          <p>Procuramos que la plataforma esté disponible, pero se ofrece tal como está y puede interrumpirse por mantenimiento, fallas de terceros o causas fuera de nuestro control.</p>
+
+          <h3>9. Cambios a estos términos</h3>
+          <p>Podemos actualizar estos términos. Cuando haya cambios, te pediremos aceptarlos de nuevo al entrar. Última actualización: ${APP_VERSION_DATE}.</p>
+
+          <h3>10. Ley aplicable y contacto</h3>
+          <p>Estos términos se rigen por las leyes de los Estados Unidos Mexicanos; para cualquier controversia, las partes se someten a los tribunales competentes del Estado de México. Para dudas sobre estos términos o sobre tus datos escribe a <b>${LEGAL_EMAIL}</b>.</p>
+        `
+      }
+    };
+
+    function openLegal(which) {
+      const key = LEGAL_DOCS[which] ? which : "privacidad";
+      const doc = LEGAL_DOCS[key];
+      $("legalTitle").textContent = doc.title;
+      $("legalMeta").textContent = `Versión ${APP_VERSION} · ${APP_VERSION_DATE}`;
+      $("legalBody").innerHTML = doc.html;
+      document.querySelectorAll("[data-legal-tab]").forEach(b => b.classList.toggle("active", b.dataset.legalTab === key));
+      $("legalModal").querySelector(".modal-card").scrollTop = 0;
+      openModal("legalModal");
+    }
+
+    document.addEventListener("click", (ev) => {
+      const link = ev.target.closest("[data-legal]");
+      if (link) {
+        ev.preventDefault();
+        openLegal(link.dataset.legal);
+        return;
+      }
+      const tab = ev.target.closest("[data-legal-tab]");
+      if (tab) openLegal(tab.dataset.legalTab);
+    });
+
+    document.querySelectorAll("[data-app-version]").forEach(el => {
+      el.textContent = `Versión ${APP_VERSION} · ${APP_VERSION_DATE}`;
+    });
+
+    // Personas que ya tenían cuenta (o que aceptaron una versión anterior)
+    // deben aceptar la versión vigente. Si el servidor aún no guarda este dato
+    // (aceptoVersion indefinido), no se bloquea a nadie.
+    function checkLegalGate() {
+      const u = state.user;
+      if (DEMO_MODE || !u || typeof u.aceptoVersion !== "string" || u.aceptoVersion === LEGAL_VERSION) return;
+      $("gateAccept").checked = false;
+      $("gateBtn").disabled = true;
+      openModal("termsGate");
+    }
+
+    $("gateAccept").addEventListener("change", () => { $("gateBtn").disabled = !$("gateAccept").checked; });
+    $("gateLogout").addEventListener("click", () => $("logoutBtn").click());
+    $("gateBtn").addEventListener("click", async () => {
+      if (!$("gateAccept").checked || auth.busy) return;
+      await authRun("gateBtn", "Guardando...", async () => {
+        const res = await apiPost({ action: "acceptTerms", version: LEGAL_VERSION });
+        if (!res || !res.ok) return toast((res && res.message) || "No se pudo guardar tu aceptación. Intenta de nuevo.");
+        state.user.aceptoVersion = LEGAL_VERSION;
+        try { localStorage.setItem("molubUser", JSON.stringify(state.user)); } catch (err) {}
+        closeModal("termsGate");
+        showSuccess("Gracias", "Aceptación registrada");
+      });
+    });
 
     $("loginForm").addEventListener("submit", (ev) => {
       ev.preventDefault();
@@ -3017,12 +3243,18 @@
     });
     document.querySelectorAll(".modal-overlay").forEach(overlay => {
       overlay.addEventListener("click", (ev) => {
-        if (ev.target === overlay) closeModal(overlay.id);
+        if (ev.target === overlay && !overlay.classList.contains("gate")) closeModal(overlay.id);
       });
     });
     document.addEventListener("keydown", (ev) => {
       if (ev.key !== "Escape") return;
-      document.querySelectorAll(".modal-overlay.active").forEach(overlay => closeModal(overlay.id));
+      const legalOpen = $("legalModal").classList.contains("active");
+      document.querySelectorAll(".modal-overlay.active").forEach(overlay => {
+        if (overlay.classList.contains("gate") && !legalOpen) return;
+        if (overlay.classList.contains("gate")) return;
+        if (legalOpen && overlay.id !== "legalModal") return;
+        closeModal(overlay.id);
+      });
     });
 
     function setView(name, skipRefresh = false) {
