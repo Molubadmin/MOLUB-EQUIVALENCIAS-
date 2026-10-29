@@ -1367,6 +1367,23 @@
     .pro-lock .lock-ico svg { width: 20px; height: 20px; }
     .pro-lock b { display: block; font-size: 14px; color: #5e4310; }
     .pro-lock span:not(.lock-ico) { display: block; margin-top: 2px; color: #7a5a12; font-size: 12.5px; line-height: 1.45; }
+
+    /* Panel de usuarios */
+    .kpi-grid.four { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    .kpi.warn { border-color: #f1d9a6; background: linear-gradient(180deg, #fff 0%, #fffaf0 100%); }
+    .kpi.warn .ico { background: #fff3d8; color: #8a5b00; }
+    .kpi.warn .v { color: #8a5b00; }
+    .badge.role-ADMIN { color: #7c3ff2; background: #f0e6ff; }
+    .badge.role-SOPORTE { color: #1d4fd8; background: #e2e9ff; }
+    .badge.role-COMISIONISTA { color: #555e80; background: #eef0f7; }
+    .badge.st-on { color: #057a4f; background: #def8ee; }
+    .badge.st-off { color: #a20d16; background: #ffe2e4; }
+    .badge.st-review { color: #8a5b00; background: #fff3d8; }
+    .user-flags { display: flex; flex-wrap: wrap; gap: 6px; }
+    .user-you { margin-left: 6px; padding: 2px 8px; border-radius: 999px; background: #eef0ff; color: var(--blue); font-size: 10px; font-weight: 900; letter-spacing: .06em; text-transform: uppercase; vertical-align: middle; }
+    tr.user-off td { opacity: .62; }
+    @media (max-width: 1180px) { .kpi-grid.four { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+    @media (max-width: 640px) { .kpi-grid.four { grid-template-columns: 1fr; } }
   </style>
 </head>
 <body>
@@ -1422,6 +1439,7 @@
           <button data-view="soporte" id="supportNav" class="hidden">Solicitudes</button>
           <button data-view="reportes" id="reportsNav" class="hidden">Reportes</button>
           <button data-view="equivalentes" id="eqNav" class="hidden">Equivalentes</button>
+          <button data-view="usuarios" id="usersNav" class="hidden">Usuarios</button>
         </div>
       </div>
       <div class="session">
@@ -1820,6 +1838,30 @@
           </section>
         </div>
 
+        <div id="view-usuarios" class="view">
+          <section class="panel">
+            <div class="panel-head">
+              <div><h2>Usuarios</h2><p class="sub">Alta, roles y accesos del equipo MOLUB y de los comisionistas.</p></div>
+              <div class="row-actions">
+                <button class="btn secondary" id="refreshUsers" type="button">Actualizar</button>
+                <button class="btn" id="addUserBtn" type="button"><svg class="bi" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>Agregar usuario</button>
+              </div>
+            </div>
+            <div class="kpi-grid four" id="usersKpis"></div>
+            <div class="filter-bar" id="usersFilterBar">
+              <button class="filter-chip active" type="button" data-filter="todos">Todos</button>
+              <button class="filter-chip" type="button" data-filter="comisionistas">Comisionistas</button>
+              <button class="filter-chip" type="button" data-filter="equipo">Soporte y administración</button>
+              <button class="filter-chip" type="button" data-filter="externos">Externos</button>
+              <button class="filter-chip" type="button" data-filter="revisar">Por revisar</button>
+              <button class="filter-chip" type="button" data-filter="inactivos">Inactivos</button>
+              <input class="filter-search" id="usersSearch" placeholder="Buscar por nombre o correo" />
+            </div>
+            <div class="table-meta"><span id="usersTableMeta"></span></div>
+            <div class="table-wrap"><table id="usersTable"></table></div>
+          </section>
+        </div>
+
         <div id="view-equivalentes" class="view">
           <section class="panel">
             <div class="sticky-subhead">
@@ -2051,6 +2093,58 @@
         <button class="modal-close" type="button" data-close-modal="comparisonModal" aria-label="Cerrar">&times;</button>
       </div>
       <div class="modal-body" id="comparisonEditorBody"></div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="userModal">
+    <div class="modal-card pro" style="width:min(640px,100%);">
+      <div class="modal-head">
+        <div>
+          <div class="pro-eyebrow">Usuarios</div>
+          <h2 class="pro-folio" id="userModalTitle" style="font-family:'DM Sans',sans-serif;font-size:20px;">Agregar usuario</h2>
+        </div>
+        <button class="modal-close" type="button" data-close-modal="userModal" aria-label="Cerrar">&times;</button>
+      </div>
+      <div class="modal-body">
+        <section class="pro-card">
+          <form id="userForm" class="wizard rform" novalidate>
+            <label>Nombre completo *
+              <input name="nombre" placeholder="Ej. Ana Pérez López" />
+            </label>
+            <label>Correo *
+              <input name="correo" type="email" placeholder="correo@empresa.com" />
+            </label>
+            <div class="field-row">
+              <label>Rol
+                <select name="rol">
+                  <option value="COMISIONISTA">Comisionista</option>
+                  <option value="SOPORTE">Soporte</option>
+                  <option value="ADMIN">Administrador</option>
+                </select>
+              </label>
+              <label>Tipo
+                <select name="tipo">
+                  <option value="COMISIONISTA">Comisionista</option>
+                  <option value="DISTRIBUIDOR">Distribuidor</option>
+                  <option value="MOLUB">MOLUB (equipo interno)</option>
+                  <option value="EXTERNO">Externo</option>
+                </select>
+              </label>
+            </div>
+            <label>Estado
+              <select name="activo">
+                <option value="SI">Activo: puede entrar a la plataforma</option>
+                <option value="NO">Inactivo: ya no puede entrar</option>
+              </select>
+            </label>
+            <p class="ed-hint" style="margin:0;">Comisionista crea solicitudes y registra el avance de sus ventas. Soporte y Administrador responden solicitudes y ven reportes. Quién administra catálogo, comparativas y usuarios se define por correo autorizado.</p>
+            <div class="pro-actions">
+              <span class="pro-note" id="userModalNote">Nunca se borran usuarios: al darlos de baja solo se desactivan.</span>
+              <button class="btn" id="saveUserBtn" type="submit">Guardar usuario</button>
+            </div>
+          </form>
+        </section>
+      </div>
     </div>
   </div>
 
@@ -2457,6 +2551,17 @@
       $("codeBox").classList.toggle("hidden", !init.requiresCode);
       $("loginSubmit").disabled = false;
       $("loginSubmit").textContent = "Continuar";
+      if (state.user && state.usuarios.length) {
+        const fresh = state.usuarios.find(u => norm(u.correo) === norm(state.user.correo));
+        if (!fresh) {
+          localStorage.removeItem("molubUser");
+          state.user = null;
+          toast("Tu acceso está desactivado. Pide a un administrador que lo reactive.");
+        } else {
+          state.user = { ...state.user, nombre: fresh.nombre || state.user.nombre, rol: fresh.rol || state.user.rol, tipo: fresh.tipo || state.user.tipo };
+          localStorage.setItem("molubUser", JSON.stringify(state.user));
+        }
+      }
       if (state.user) showApp();
     }
 
@@ -2533,6 +2638,7 @@
       $("sessionRole").textContent = state.user.rol;
       $("supportNav").classList.toggle("hidden", !isSupport(state.user.rol));
       $("eqNav").classList.toggle("hidden", !isSupport(state.user.rol));
+      $("usersNav").classList.toggle("hidden", !canAdminUsers(state.user.correo));
       $("commissionersNav").classList.toggle("hidden", !isSupport(state.user.rol));
       $("reportsNav").classList.toggle("hidden", !isSupport(state.user.rol));
       $("myNav").classList.toggle("hidden", isSupport(state.user.rol));
@@ -2640,6 +2746,7 @@
     });
 
     function setView(name, skipRefresh = false) {
+      if (name === "usuarios" && !canAdminUsers(state.user && state.user.correo)) return;
       document.querySelectorAll(".nav button").forEach(b => b.classList.toggle("active", b.dataset.view === name));
       document.querySelectorAll(".view").forEach(v => v.classList.toggle("active", v.id === "view-" + name));
       const titles = {
@@ -2650,12 +2757,14 @@
         soporte: ["Solicitudes", "Folios pendientes, vencidos y enviados"],
         comisionistas: ["Comisionistas", "Directorio y avance comercial de cada comisionista"],
         reportes: ["Reportes", "Estadísticas por comisionista en el rango de fechas que elijas"],
-        equivalentes: ["Equivalentes", "Catálogo SYNLOX y productos de competencia"]
+        equivalentes: ["Equivalentes", "Catálogo SYNLOX y productos de competencia"],
+        usuarios: ["Usuarios", "Alta, roles y accesos de todo el equipo"]
       };
       $("pageTitle").textContent = titles[name][0];
       $("pageSub").textContent = titles[name][1];
       if (name !== "buscar" && !skipRefresh) refreshRequests();
       if (name === "equivalentes") renderEquivalences();
+      if (name === "usuarios") loadAdminUsers();
       if (name === "comisionistas") renderCommissionersTable();
       if (name === "reportes") {
         if (!$("reportFrom").value || !$("reportTo").value) {
@@ -3260,6 +3369,181 @@
       else if (act === "save") saveComparison();
       else if (act === "remove") removeComparison();
     });
+
+    // ---------- Panel de usuarios (solo correos autorizados) ----------
+    const USER_ADMIN_EMAILS = new Set([
+      "gerenciaventas@molub.com.mx",
+      "ventas@molub.com.mx",
+      "soporte@molub.com.mx",
+      "facturacion@molub.com.mx",
+      "aux.ventas@molub.com.mx"
+    ]);
+    const canAdminUsers = (correo) => USER_ADMIN_EMAILS.has(String(correo || "").trim().toLowerCase());
+    const ROLE_LABELS = { COMISIONISTA: "Comisionista", SOPORTE: "Soporte", ADMIN: "Administrador" };
+    const TYPE_LABELS = { MOLUB: "MOLUB", COMISIONISTA: "Comisionista", DISTRIBUIDOR: "Distribuidor", EXTERNO: "Externo" };
+    state.adminUsers = [];
+    state.userFilter = "todos";
+    state.userSearch = "";
+    let userEditing = null;
+
+    const userNeedsReview = (u) => u.tipo === "EXTERNO" && !u.revisado;
+    function userMatchesFilter(u, key) {
+      if (key === "comisionistas") return u.rol === "COMISIONISTA" && u.activo;
+      if (key === "equipo") return u.rol === "SOPORTE" || u.rol === "ADMIN";
+      if (key === "externos") return u.tipo === "EXTERNO";
+      if (key === "revisar") return userNeedsReview(u) && u.activo;
+      if (key === "inactivos") return !u.activo;
+      return true;
+    }
+
+    async function loadAdminUsers() {
+      $("usersTable").innerHTML = `<tbody><tr><td><div class="empty-state"><b>Cargando usuarios...</b></div></td></tr></tbody>`;
+      try {
+        const res = await apiPost({ action: "adminListUsers", correo: state.user.correo });
+        if (!res || !res.ok) {
+          toast((res && res.message) || "No se pudieron cargar los usuarios.");
+          $("usersTable").innerHTML = `<tbody><tr><td><div class="empty-state"><b>No se pudieron cargar los usuarios</b><span>Revisa tu conexión y pulsa Actualizar. Si acabas de actualizar el sistema, publica la nueva versión de Apps Script.</span></div></td></tr></tbody>`;
+          return;
+        }
+        state.adminUsers = res.users || [];
+        renderUsersView();
+      } catch (err) {
+        toast("No se pudieron cargar los usuarios. Intenta de nuevo.");
+      }
+    }
+
+    // Mantiene sincronizada la lista que usan los demás paneles (comisionistas, reportes).
+    async function syncUsersFromServer() {
+      try {
+        const init = await apiGet({ action: "init" });
+        if (init && init.ok) state.usuarios = init.usuarios || [];
+      } catch (err) {}
+    }
+
+    function renderUsersView() {
+      const all = state.adminUsers;
+      const active = all.filter(u => u.activo);
+      const tiles = [
+        { cls: "", k: "Usuarios activos", v: active.length, s: `${all.length - active.length} inactivos`, ico: '<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>' },
+        { cls: "", k: "Equipo MOLUB", v: active.filter(u => u.rol === "SOPORTE" || u.rol === "ADMIN").length, s: "Soporte y administración", ico: '<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>' },
+        { cls: "", k: "Comisionistas", v: active.filter(u => u.rol === "COMISIONISTA").length, s: "Con acceso activo", ico: '<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>' },
+        { cls: active.some(userNeedsReview) ? "warn" : "", k: "Por revisar", v: active.filter(userNeedsReview).length, s: "Externos que se registraron solos", ico: '<circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/>' }
+      ];
+      $("usersKpis").innerHTML = tiles.map(t => `
+        <div class="kpi ${t.cls}"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${t.ico}</svg></span><div class="k">${esc(t.k)}</div><div class="v">${t.v}</div><div class="s">${esc(t.s)}</div></div>`).join("");
+
+      document.querySelectorAll("#usersFilterBar .filter-chip").forEach(chip => {
+        let n = chip.querySelector(".n");
+        if (!n) { n = document.createElement("span"); n.className = "n"; chip.appendChild(n); }
+        n.textContent = all.filter(u => userMatchesFilter(u, chip.dataset.filter)).length;
+      });
+      renderUsersTable();
+    }
+
+    function renderUsersTable() {
+      const table = $("usersTable");
+      const me = norm(state.user.correo);
+      const rows = state.adminUsers
+        .filter(u => userMatchesFilter(u, state.userFilter) && (!norm(state.userSearch) || looseIncludes(`${u.nombre} ${u.correo}`, state.userSearch)))
+        .sort((a, b) => Number(b.activo) - Number(a.activo) || String(a.nombre).localeCompare(String(b.nombre)));
+      table.innerHTML = `<thead><tr><th>Usuario</th><th>Rol</th><th>Tipo</th><th>Folios</th><th>Estado</th><th></th></tr></thead><tbody></tbody>`;
+      table.querySelector("tbody").innerHTML = rows.map(u => {
+        const isMe = norm(u.correo) === me;
+        const review = userNeedsReview(u);
+        return `
+        <tr class="${u.activo ? "" : "user-off"}">
+          <td data-label="Usuario"><div class="person"><span class="avatar">${esc(initials(u.nombre || u.correo))}</span><div><div class="cell-main">${esc(u.nombre || "Sin nombre")}${isMe ? `<span class="user-you">Tú</span>` : ""}</div><div class="cell-sub">${esc(u.correo)}</div></div></div></td>
+          <td data-label="Rol"><span class="badge role-${esc(u.rol)}">${esc(ROLE_LABELS[u.rol] || u.rol || "Sin rol")}</span></td>
+          <td data-label="Tipo">${esc(TYPE_LABELS[u.tipo] || u.tipo || "—")}</td>
+          <td data-label="Folios"><b>${u.folios}</b></td>
+          <td data-label="Estado"><div class="user-flags"><span class="badge ${u.activo ? "st-on" : "st-off"}">${u.activo ? "Activo" : "Inactivo"}</span>${review && u.activo ? `<span class="badge st-review">Por revisar</span>` : ""}</div></td>
+          <td data-label="Acción"><div class="row-actions">
+            ${review && u.activo ? `<button class="btn ghost row-btn" type="button" onclick="approveUser('${esc(u.correo)}')">Aprobar</button>` : ""}
+            <button class="btn ghost row-btn" type="button" onclick="openUserModal('${esc(u.correo)}')">Editar</button>
+            ${isMe ? "" : `<button class="btn ${u.activo ? "danger-ghost" : "ghost"} row-btn" type="button" onclick="toggleUserActive('${esc(u.correo)}')">${u.activo ? "Dar de baja" : "Reactivar"}</button>`}
+          </div></td>
+        </tr>`;
+      }).join("") || `<tr><td colspan="6"><div class="empty-state"><b>No hay usuarios para mostrar</b><span>Prueba con otro filtro o con otra búsqueda.</span></div></td></tr>`;
+      $("usersTableMeta").textContent = rows.length === state.adminUsers.length
+        ? `${rows.length} ${rows.length === 1 ? "usuario" : "usuarios"}`
+        : `Mostrando ${rows.length} de ${state.adminUsers.length} usuarios`;
+    }
+
+    window.openUserModal = function(correo) {
+      const user = correo ? state.adminUsers.find(u => norm(u.correo) === norm(correo)) : null;
+      userEditing = user || null;
+      const form = $("userForm");
+      form.reset();
+      form.nombre.value = user ? user.nombre : "";
+      form.correo.value = user ? user.correo : "";
+      form.correo.readOnly = Boolean(user);
+      form.rol.value = user ? user.rol : "COMISIONISTA";
+      form.tipo.value = user ? user.tipo : "COMISIONISTA";
+      form.activo.value = user && !user.activo ? "NO" : "SI";
+      form.activo.disabled = Boolean(user && norm(user.correo) === norm(state.user.correo));
+      $("userModalTitle").textContent = user ? "Editar usuario" : "Agregar usuario";
+      openModal("userModal");
+    };
+
+    async function sendUserChange(user, isNew) {
+      const res = await apiPost({ action: "adminSaveUser", correo: state.user.correo, isNew: Boolean(isNew), user });
+      if (!res || !res.ok) {
+        toast((res && res.message) || "No se pudo guardar el usuario. Intenta de nuevo.");
+        return false;
+      }
+      await loadAdminUsers();
+      syncUsersFromServer();
+      return true;
+    }
+
+    window.toggleUserActive = async function(correo) {
+      const u = state.adminUsers.find(x => norm(x.correo) === norm(correo));
+      if (!u) return;
+      const next = !u.activo;
+      const question = next
+        ? `¿Reactivar el acceso de ${u.nombre || u.correo}?`
+        : `¿Dar de baja a ${u.nombre || u.correo}?\n\nYa no podrá entrar a la plataforma. Sus folios se conservan y puedes reactivarlo cuando quieras.`;
+      if (!window.confirm(question)) return;
+      if (await sendUserChange({ ...u, activo: next }, false)) toast(next ? "Usuario reactivado" : "Usuario dado de baja");
+    };
+
+    window.approveUser = async function(correo) {
+      const u = state.adminUsers.find(x => norm(x.correo) === norm(correo));
+      if (u && await sendUserChange({ ...u, revisado: true }, false)) toast("Usuario aprobado");
+    };
+
+    $("userForm").addEventListener("submit", async (ev) => {
+      ev.preventDefault();
+      const form = ev.currentTarget;
+      const nombre = form.nombre.value.trim();
+      const correo = form.correo.value.trim().toLowerCase();
+      if (!nombre) return toast("Escribe el nombre del usuario.");
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(correo)) return toast("Escribe un correo válido.");
+      const btn = $("saveUserBtn");
+      btn.disabled = true;
+      btn.textContent = "Guardando...";
+      try {
+        const ok = await sendUserChange({
+          nombre, correo,
+          rol: form.rol.value, tipo: form.tipo.value,
+          activo: form.activo.value !== "NO",
+          revisado: userEditing ? (userEditing.revisado || userEditing.tipo !== "EXTERNO") : true
+        }, !userEditing);
+        if (ok) {
+          closeModal("userModal");
+          toast(userEditing ? "Usuario actualizado" : "Usuario agregado");
+        }
+      } catch (err) {
+        toast("No se pudo guardar el usuario. Revisa tu conexión e intenta de nuevo.");
+      } finally {
+        btn.disabled = false;
+        btn.textContent = "Guardar usuario";
+      }
+    });
+
+    $("addUserBtn").addEventListener("click", () => openUserModal(null));
+    $("refreshUsers").addEventListener("click", loadAdminUsers);
+    wireFilterBar("usersFilterBar", "usersSearch", "userFilter", "userSearch", renderUsersTable);
 
     function technicalSheetUrl(row) {
       return readField(row || {}, ["FICHA_TECNICA_URL", "FICHA_TÉCNICA_URL", "FICHA", "URL_FICHA_TECNICA"]);
